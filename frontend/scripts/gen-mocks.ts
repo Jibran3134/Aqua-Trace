@@ -20,6 +20,7 @@ const post = <T>(path: string, body: unknown) => b.handle("POST", path, body).bo
 
 write("health", get("/health"));
 write("network", get("/network"));
+write("eval", get("/eval"));
 
 // Main story: a seed where the agent investigates rather than abstains.
 let story: { leak: ScenarioResponse; detect: DetectResponse; step: AgentStepResponse } | null = null;

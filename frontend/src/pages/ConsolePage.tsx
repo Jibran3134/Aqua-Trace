@@ -56,7 +56,7 @@ export function ConsolePage() {
         )}
       </AnimatePresence>
 
-      <main className="relative z-10 grid min-h-0 flex-1 grid-cols-[65fr_35fr] gap-3 p-3">
+      <main className="relative z-10 grid min-h-0 flex-1 grid-cols-[minmax(0,65fr)_minmax(0,35fr)] gap-3 p-3">
         <section className="relative min-h-0">
           {network ? (
             <ErrorBoundary area="map">

@@ -93,6 +93,11 @@ const STYLE: cytoscape.StylesheetJson = [
   },
   { selector: "edge[kind = 'pump']", style: { "line-style": "dashed", "line-color": C.pump, width: 2.5 } },
   { selector: "edge.adjacent", style: { "line-color": "data(color)", width: 4 } },
+  { selector: "node.cleared", style: { "background-color": "#2b3b39", "border-width": 2, "border-color": C.silt, "border-style": "dashed", width: 11, height: 11, "z-index": 6 } },
+  {
+    selector: "edge.route",
+    style: { "line-color": "#6fe0c7", width: 4.5, "line-style": "dashed", "line-dash-pattern": [9, 6], "line-cap": "round", "z-index": 15 },
+  },
   { selector: "edge.truthpath", style: { "line-color": C.tracer, width: 3.5, "line-style": "dashed", "line-dash-pattern": [6, 5], "z-index": 9 } },
 ];
 
@@ -103,6 +108,7 @@ export function NetworkCanvas() {
   const reveal = useStore((s) => s.reveal);
   const graph = useStore((s) => s.graph);
   const flyTarget = useStore((s) => s.flyTarget);
+  const agent = useStore((s) => s.agent);
   const setHover = useStore((s) => s.setHover);
   const setFocus = useStore((s) => s.setFocus);
 
@@ -164,7 +170,7 @@ export function NetworkCanvas() {
     const cy = cyRef.current;
     if (!cy || !network) return;
     cy.batch(() => {
-      cy.elements().removeClass("sensor offline candidate top truth suggested adjacent truthpath");
+      cy.elements().removeClass("sensor offline candidate top truth suggested adjacent truthpath route cleared");
       const sensors = scenario?.sensors ?? network.default_sensors;
       for (const id of sensors) {
         const n = cy.getElementById(id);
@@ -189,6 +195,11 @@ export function NetworkCanvas() {
         });
         if (detection.recommended_sensor) cy.getElementById(detection.recommended_sensor).addClass("suggested");
       }
+      for (const id of agent.cleared) cy.getElementById(id).addClass("cleared");
+      if (agent.state === "abstained" && agent.recommended) cy.getElementById(agent.recommended).addClass("suggested");
+      if (agent.state === "investigating" && graph && agent.route.length) {
+        graph.routePipes(agent.route).forEach((p) => cy.getElementById(`p:${p}`).addClass("route"));
+      }
       if (reveal) {
         cy.getElementById(reveal.true_leak_node).addClass("truth");
         const top1 = detection?.candidates[0]?.node;
@@ -198,7 +209,23 @@ export function NetworkCanvas() {
         }
       }
     });
-  }, [network, scenario, detection, reveal, graph]);
+  }, [network, scenario, detection, reveal, graph, agent]);
+
+  // Marching dashes on the crew route: reads as "a crew is moving" from the back of the room.
+  const hasRoute = agent.state === "investigating" && agent.route.length > 0;
+  useEffect(() => {
+    const cy = cyRef.current;
+    if (!cy || !hasRoute) return;
+    let raf = 0;
+    let offset = 0;
+    const step = () => {
+      offset = (offset - 0.6) % 1500;
+      cy.edges(".route").style("line-dash-offset", offset);
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [hasRoute]);
 
   // Fly to a node when asked (candidate list clicks, reveal).
   useEffect(() => {
@@ -287,7 +314,7 @@ export function NetworkCanvas() {
                 className="absolute"
                 style={{ left: p.x, top: p.y }}
               >
-                {i === 0 && !reveal && (
+                {i === 0 && !reveal && agent.state === "idle" && (
                   <>
                     <span className="absolute -left-6 -top-6 size-12 animate-ripple rounded-full" style={{ boxShadow: `0 0 0 2px ${color}` }} />
                     <span className="absolute -left-6 -top-6 size-12 animate-ripple rounded-full [animation-delay:1.2s]" style={{ boxShadow: `0 0 0 2px ${color}` }} />
@@ -329,9 +356,45 @@ export function NetworkCanvas() {
                 </motion.div>
               );
             })()}
-          {detection?.recommended_sensor &&
+          {agent.state === "investigating" &&
+            agent.recommended &&
             (() => {
-              const p = project(detection.recommended_sensor);
+              const p = project(agent.recommended);
+              if (!p) return null;
+              return (
+                <motion.div
+                  key={`inspect-${agent.recommended}`}
+                  className="absolute"
+                  style={{ left: p.x, top: p.y }}
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 220, damping: 16 }}
+                >
+                  <span className="absolute -left-7 -top-7 size-14 animate-ripple rounded-full border-2 border-verdigris-bright" />
+                  <span className="absolute -left-5 -top-5 size-10 rounded-full border-2 border-verdigris-bright shadow-glow-verdigris" />
+                  <span className="absolute -left-10 top-6 whitespace-nowrap rounded-md bg-verdigris-bright px-2 py-0.5 font-mono text-[0.7rem] font-bold text-ink-950">
+                    CREW → {agent.recommended}
+                  </span>
+                </motion.div>
+              );
+            })()}
+          {agent.foundAt &&
+            (() => {
+              const p = project(agent.foundAt);
+              if (!p) return null;
+              return (
+                <motion.div key={`found-${agent.foundAt}`} className="absolute" style={{ left: p.x, top: p.y }} initial={{ opacity: 0, scale: 1.8 }} animate={{ opacity: 1, scale: 1 }}>
+                  <span className="absolute -left-6 -top-6 size-12 rounded-full border-[3px] border-vermilion shadow-glow-vermilion" />
+                  <span className="absolute -left-12 -top-12 whitespace-nowrap rounded-md bg-vermilion px-2 py-0.5 font-mono text-[0.7rem] font-bold text-ink-950">
+                    CREW: LEAK FOUND
+                  </span>
+                </motion.div>
+              );
+            })()}
+          {(detection?.recommended_sensor || (agent.state === "abstained" && agent.recommended)) &&
+            (() => {
+              const p = project(detection?.recommended_sensor ?? agent.recommended!);
               if (!p) return null;
               return (
                 <motion.div key="suggest" className="absolute" style={{ left: p.x, top: p.y }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

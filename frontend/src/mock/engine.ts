@@ -15,6 +15,7 @@ import type {
 } from "../contracts/types";
 import { currentRanking, recordFieldResult, scriptedStep } from "./agent";
 import { detect, fitAll, round } from "./detector";
+import { evaluationReport } from "./evaluate";
 import { defaultSensors, loadNet, observe, simulate, type Net } from "./physics";
 import type { ScenarioState } from "./state";
 
@@ -76,6 +77,7 @@ export class MockBackend {
     if (method === "POST" && path === "/detect") return this.detect(body);
     if (method === "POST" && path === "/agent/step") return this.agentStep(body);
     if (method === "POST" && path === "/field/result") return this.fieldResult(body);
+    if (method === "GET" && path === "/eval") return evaluationReport(this.net);
     const reveal = path.match(/^\/scenario\/([^/]+)\/reveal$/);
     if (method === "GET" && reveal) return this.reveal(decodeURIComponent(reveal[1]));
     throw new HttpError(404, "internal_error", `No mock for ${method} ${path}.`, "This endpoint lands in a later module; check contracts/api.md.");

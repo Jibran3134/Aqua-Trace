@@ -2,7 +2,11 @@ import { toast } from "sonner";
 import { create } from "zustand";
 import { ApiError, api } from "../api/client";
 import type {
+  AgentEvent,
+  AgentSource,
   DetectResponse,
+  EvalResponse,
+  InvestigationState,
   HealthResponse,
   LeakSize,
   NetworkResponse,
@@ -12,7 +16,33 @@ import type {
 } from "../contracts/types";
 import { Graph } from "../lib/graph";
 
-export type Busy = null | "network" | "simulate" | "detect" | "reveal";
+export type Busy = null | "network" | "simulate" | "detect" | "reveal" | "agent" | "field";
+export type TabId = "candidates" | "agent" | "evaluation" | "sensors" | "repairs";
+
+export interface AgentRun {
+  events: AgentEvent[];
+  source: AgentSource | null;
+  state: InvestigationState | "idle";
+  recommended: string | null;
+  route: string[];
+  routeLength: number | null;
+  /** Nodes the crew checked and found nothing, in visit order. */
+  cleared: string[];
+  foundAt: string | null;
+  error: ApiError | null;
+}
+
+const EMPTY_AGENT: AgentRun = {
+  events: [],
+  source: null,
+  state: "idle",
+  recommended: null,
+  route: [],
+  routeLength: null,
+  cleared: [],
+  foundAt: null,
+  error: null,
+};
 
 export interface Controls {
   seed: string; // blank = random
@@ -37,12 +67,21 @@ interface State {
   reveal: RevealResponse | null;
   expired: boolean;
 
+  agent: AgentRun;
+  tab: TabId;
+  evaluation: EvalResponse | null;
+  evaluationError: ApiError | null;
+
   focusNode: string | null;
   hoverNode: string | null;
   /** Camera request for the map: one id centers on it, several ids frame them. Nonce allows repeats. */
   flyTarget: { ids: string[]; nonce: number } | null;
 
   setControls: (c: Partial<Controls>) => void;
+  setTab: (t: TabId) => void;
+  investigate: () => Promise<void>;
+  reportField: (found: boolean) => Promise<void>;
+  loadEvaluation: () => Promise<void>;
   setFocus: (id: string | null) => void;
   setHover: (id: string | null) => void;
   flyTo: (id: string) => void;
@@ -76,11 +115,17 @@ export const useStore = create<State>((set, get) => ({
   reveal: null,
   expired: false,
 
+  agent: EMPTY_AGENT,
+  tab: "candidates",
+  evaluation: null,
+  evaluationError: null,
+
   focusNode: null,
   hoverNode: null,
   flyTarget: null,
 
   setControls: (c) => set((s) => ({ controls: { ...s.controls, ...c } })),
+  setTab: (tab) => set({ tab }),
   setFocus: (focusNode) => set({ focusNode }),
   setHover: (hoverNode) => set({ hoverNode }),
   flyTo: (id) => set((s) => ({ focusNode: id, flyTarget: { ids: [id], nonce: (s.flyTarget?.nonce ?? 0) + 1 } })),
@@ -114,7 +159,7 @@ export const useStore = create<State>((set, get) => ({
     const { controls, busy } = get();
     if (busy) return;
     const epoch = get().epoch + 1;
-    set({ busy: "simulate", epoch, scenario: null, detection: null, reveal: null, expired: false, focusNode: null });
+    set({ busy: "simulate", epoch, scenario: null, detection: null, reveal: null, expired: false, focusNode: null, agent: EMPTY_AGENT });
     const seed = over?.seed ?? (controls.seed.trim() === "" ? undefined : Number(controls.seed));
     if (seed !== undefined && (!Number.isInteger(seed) || seed < 0)) {
       set({ busy: null });
@@ -180,6 +225,79 @@ export const useStore = create<State>((set, get) => ({
       else report(e, "Reveal");
     } finally {
       if (get().epoch === epoch) set({ busy: null });
+    }
+  },
+
+  investigate: async () => {
+    const { scenario, busy, epoch } = get();
+    if (!scenario || busy) return;
+    set((s) => ({ busy: "agent", tab: "agent", agent: { ...s.agent, error: null } }));
+    try {
+      const res = await api.agentStep({ scenario_id: scenario.scenario_id, mode: "auto" });
+      if (get().epoch !== epoch) return;
+      // Steps restart at 1 each turn; offset them so the timeline keeps one running count.
+      const prev = get().agent.events;
+      const offset = prev.length ? prev[prev.length - 1].step : 0;
+      const events = res.events.map((e) => ({ ...e, step: e.step + offset }));
+      set((s) => ({
+        agent: {
+          ...s.agent,
+          events: [...prev, ...events],
+          source: res.source,
+          state: res.state,
+          recommended: res.recommended_node ?? null,
+          route: res.route ?? [],
+          routeLength: res.route_length_m ?? null,
+        },
+      }));
+      if (res.state === "investigating" && res.route?.length) get().frame(res.route);
+      else if (res.recommended_node) get().flyTo(res.recommended_node);
+    } catch (e) {
+      if (get().epoch !== epoch) return;
+      if (e instanceof ApiError && e.code === "scenario_not_found") set({ expired: true });
+      else set((s) => ({ agent: { ...s.agent, error: e instanceof ApiError ? e : new ApiError(0, "internal_error", String(e), "Retry.") } }));
+    } finally {
+      if (get().epoch === epoch) set({ busy: null });
+    }
+  },
+
+  reportField: async (found) => {
+    const { scenario, busy, epoch, agent } = get();
+    const node = agent.recommended;
+    if (!scenario || busy || !node || agent.state !== "investigating") return;
+    set({ busy: "field" });
+    try {
+      await api.fieldResult({ scenario_id: scenario.scenario_id, node, found });
+      if (get().epoch !== epoch) return;
+      set((s) => ({
+        agent: {
+          ...s.agent,
+          cleared: found ? s.agent.cleared : [...s.agent.cleared, node],
+          foundAt: found ? node : null,
+          recommended: null,
+          route: [],
+        },
+      }));
+      // The ranking moved: refresh candidates (posterior-aware) so map and list agree.
+      const detection = await api.detect(scenario.scenario_id);
+      if (get().epoch !== epoch) return;
+      set({ detection, busy: null });
+      await get().investigate();
+    } catch (e) {
+      if (get().epoch !== epoch) return;
+      if (e instanceof ApiError && e.code === "scenario_not_found") set({ expired: true });
+      else report(e, "Field report");
+      set({ busy: null });
+    }
+  },
+
+  loadEvaluation: async () => {
+    if (get().evaluation) return;
+    set({ evaluationError: null });
+    try {
+      set({ evaluation: await api.eval() });
+    } catch (e) {
+      set({ evaluationError: e instanceof ApiError ? e : new ApiError(0, "internal_error", String(e), "Retry.") });
     }
   },
 }));

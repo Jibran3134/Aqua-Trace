@@ -1,4 +1,4 @@
-import { AlertTriangle, ArrowRight, Clock3, Plus, RotateCcw, Waves } from "lucide-react";
+import { AlertTriangle, ArrowRight, Bot, Clock3, Plus, RotateCcw, Waves } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useStore } from "../../state/store";
 import { Badge, Button, Eyebrow, Prov } from "../../ui/primitives";
@@ -39,6 +39,7 @@ export function CandidatesTab() {
       <div className="space-y-4">
         {reveal && <RevealCard />}
         {detection.status === "insufficient_evidence" ? <Insufficient /> : <CandidateList />}
+        {detection.status === "ok" && <InvestigateCta />}
         <EvidenceMeter evidence={detection.evidence} status={detection.status} />
         <details className="group rounded-xl ring-1 ring-ink-700">
           <summary className="cursor-pointer list-none px-3 py-2 text-[0.82rem] text-silt hover:text-limestone">
@@ -139,6 +140,25 @@ function AwaitingDetect() {
         Detect leak candidates
       </Button>
     </div>
+  );
+}
+
+function InvestigateCta() {
+  const investigate = useStore((s) => s.investigate);
+  const setTab = useStore((s) => s.setTab);
+  const busy = useStore((s) => s.busy);
+  const started = useStore((s) => s.agent.events.length > 0);
+  return (
+    <Button
+      tone="primary"
+      size="lg"
+      className="w-full"
+      disabled={busy !== null}
+      icon={<Bot className="size-5" />}
+      onClick={() => (started ? setTab("agent") : investigate())}
+    >
+      {started ? "Back to the investigation" : "Investigate with the agent"}
+    </Button>
   );
 }
 
