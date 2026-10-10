@@ -2,6 +2,7 @@ import { CloudOff, Hourglass, RotateCcw } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect } from "react";
 import { TopBar } from "../features/controls/TopBar";
+import { DeckMap } from "../features/map/DeckMap";
 import { NetworkCanvas } from "../features/network/NetworkCanvas";
 import { HelpSheet, NextStepChip, usePresenterKeys } from "../features/presenter/Presenter";
 import { InvestigationReport } from "../features/report/InvestigationReport";
@@ -9,6 +10,17 @@ import { SidePanel } from "../features/panel/SidePanel";
 import { useStore } from "../state/store";
 import { ErrorBoundary } from "../ui/ErrorBoundary";
 import { Button, Panel, Spinner } from "../ui/primitives";
+
+/** deck.gl by default; Cytoscape when asked (VITE_MAP_ENGINE=cytoscape) or when WebGL is missing. */
+const USE_DECK = (() => {
+  if (import.meta.env.VITE_MAP_ENGINE === "cytoscape") return false;
+  try {
+    const c = document.createElement("canvas");
+    return !!(c.getContext("webgl2") || c.getContext("webgl"));
+  } catch {
+    return false;
+  }
+})();
 
 export function ConsolePage() {
   const network = useStore((s) => s.network);
@@ -69,7 +81,7 @@ export function ConsolePage() {
         <section className="relative min-h-0">
           {network ? (
             <ErrorBoundary area="map">
-              <NetworkCanvas />
+              {USE_DECK ? <DeckMap /> : <NetworkCanvas />}
               <NextStepChip />
             </ErrorBoundary>
           ) : networkError ? (
