@@ -26,7 +26,19 @@ export type ErrorCode =
   | "validation_error"
   | "signatures_not_ready"
   | "internal_error"
-  | "network_error"; // client-side only: fetch failed / backend unreachable
+  | "network_error" // client-side only: fetch failed / backend unreachable
+  | "not_implemented" // client-side only: route not mounted on the backend yet
+  // emitted by backend/app: see DomainError call sites
+  | "not_ready"
+  | "rate_limit_exceeded"
+  | "rate_limit_unavailable"
+  | "database_unavailable"
+  | "scenario_conflict"
+  | "insufficient_evidence"
+  | "http_error"
+  // `invalid_node`, `invalid_seed`, `invalid_sensors`, ... are all 422s; accept any
+  // new backend code without a type error rather than silently mislabelling it.
+  | (string & {});
 
 export interface ErrorBody {
   error: { code: ErrorCode; message: string; hint: string };
@@ -34,9 +46,13 @@ export interface ErrorBody {
 
 // ---------- GET /health ----------
 export interface HealthResponse {
-  status: "ok";
+  /** The backend reports "degraded" when PostgreSQL or Redis is unreachable. */
+  status: "ok" | "degraded";
   signatures_ready: boolean;
+  /** Normalized from the backend's `signatures_progress`. */
   progress?: number;
+  database?: "ok" | "unavailable";
+  redis?: "ok" | "unavailable";
 }
 
 // ---------- GET /network ----------

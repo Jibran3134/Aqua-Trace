@@ -7,24 +7,38 @@ import type {
   EvalResponse,
   FieldResultRequest,
   FieldResultResponse,
-  HealthResponse,
   InspectRequest,
   InspectResponse,
-  NetworkResponse,
   RepairRequest,
-  RepairResponse,
-  RevealResponse,
   ScenarioRequest,
-  ScenarioResponse,
   SensorPlaceRequest,
-  SensorPlaceResponse,
 } from "../contracts/types";
 import type { MockBackend } from "../mock/engine";
+import {
+  adaptHealth,
+  adaptNetwork,
+  adaptPlacement,
+  adaptRepair,
+  adaptReveal,
+  adaptScenario,
+  placementRequest,
+  repairRequest,
+} from "./adapt";
 
 export const USE_MOCKS = import.meta.env.VITE_USE_MOCKS !== "false";
 export const API_URL = (import.meta.env.VITE_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
 const MOCK_LATENCY_MS = Number(import.meta.env.VITE_MOCK_LATENCY_MS ?? 450);
 const TIMEOUT_MS = 20_000;
+/** The backend throttles expensive routes (10 burst, 0.1/s refill), so a demo
+ *  click-through can hit 429. Retry quietly instead of showing an error. */
+const RETRY_LIMIT = 3;
+/** A 404 carrying one of these codes means the route is not mounted yet. */
+const UNMOUNTED_CODES = new Set(["http_error", "not_found"]);
+
+function retryAfterMs(header: string | null): number {
+  const seconds = Number(header);
+  return Number.isFinite(seconds) && seconds > 0 ? Math.min(seconds, 10) * 1000 : 1500;
+}
 
 /** Every failure the UI sees is an ApiError carrying a readable message and a next action. */
 export class ApiError extends Error {
@@ -76,21 +90,27 @@ async function request<T>(method: "GET" | "POST", path: string, body?: unknown, 
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   signal?.addEventListener("abort", () => ctrl.abort());
   try {
-    const res = await fetch(`${API_URL}${path}`, {
-      method,
-      headers: body === undefined ? undefined : { "Content-Type": "application/json" },
-      body: body === undefined ? undefined : JSON.stringify(body),
-      signal: ctrl.signal,
-    });
-    const text = await res.text();
-    let payload: unknown = null;
-    try {
-      payload = text ? JSON.parse(text) : null;
-    } catch {
-      payload = null;
+    for (let attempt = 0; ; attempt++) {
+      const res = await fetch(`${API_URL}${path}`, {
+        method,
+        headers: body === undefined ? undefined : { "Content-Type": "application/json" },
+        body: body === undefined ? undefined : JSON.stringify(body),
+        signal: ctrl.signal,
+      });
+      const text = await res.text();
+      let payload: unknown = null;
+      try {
+        payload = text ? JSON.parse(text) : null;
+      } catch {
+        payload = null;
+      }
+      if (res.status === 429 && attempt < RETRY_LIMIT) {
+        await sleep(retryAfterMs(res.headers.get("Retry-After")), signal);
+        continue;
+      }
+      if (!res.ok) throw toApiError(res.status, payload);
+      return payload as T;
     }
-    if (!res.ok) throw toApiError(res.status, payload);
-    return payload as T;
   } catch (e) {
     if (e instanceof ApiError) throw e;
     if (signal?.aborted) throw e;
@@ -99,7 +119,7 @@ async function request<T>(method: "GET" | "POST", path: string, body?: unknown, 
       0,
       "network_error",
       timedOut ? `The backend did not answer within ${TIMEOUT_MS / 1000} s.` : `Cannot reach the backend at ${API_URL}.`,
-      "Start the backend (uvicorn backend.main:app --port 8000) or set VITE_USE_MOCKS=true.",
+      "Start it with: cd backend; docker compose up -d — or set VITE_USE_MOCKS=true in frontend/.env.local.",
     );
   } finally {
     clearTimeout(timer);
@@ -107,7 +127,15 @@ async function request<T>(method: "GET" | "POST", path: string, body?: unknown, 
 }
 
 function toApiError(status: number, payload: unknown): ApiError {
-  if (isErrorBody(payload)) return new ApiError(status, payload.error.code, payload.error.message, payload.error.hint);
+  if (isErrorBody(payload)) {
+    const { code, message, hint } = payload.error;
+    // The backend maps every unrouted path to a generic 404. Calling that
+    // "scenario expired" would be misleading while routes are still landing.
+    if (status === 404 && UNMOUNTED_CODES.has(code)) {
+      return new ApiError(404, "not_implemented", "This feature is not wired up on the backend yet.", "Ask the backend owner to mount this route, or switch to mock mode.");
+    }
+    return new ApiError(status, code, message, hint);
+  }
   // FastAPI's default 422 shape ({detail:[...]}) or anything else unexpected.
   const detail = (payload as { detail?: unknown } | null)?.detail;
   return new ApiError(
@@ -118,16 +146,20 @@ function toApiError(status: number, payload: unknown): ApiError {
   );
 }
 
+// Responses pass through ./adapt so the backend's field names never reach the UI.
 export const api = {
-  health: (s?: AbortSignal) => request<HealthResponse>("GET", "/health", undefined, s),
-  network: (s?: AbortSignal) => request<NetworkResponse>("GET", "/network", undefined, s),
-  leak: (b: ScenarioRequest, s?: AbortSignal) => request<ScenarioResponse>("POST", "/scenario/leak", b, s),
+  health: async (s?: AbortSignal) => adaptHealth(await request<unknown>("GET", "/health", undefined, s)),
+  network: async (s?: AbortSignal) => adaptNetwork(await request<unknown>("GET", "/network", undefined, s)),
+  leak: async (b: ScenarioRequest, s?: AbortSignal) => adaptScenario(await request<unknown>("POST", "/scenario/leak", b, s), b),
   detect: (scenario_id: string, s?: AbortSignal) => request<DetectResponse>("POST", "/detect", { scenario_id }, s),
   agentStep: (b: AgentStepRequest, s?: AbortSignal) => request<AgentStepResponse>("POST", "/agent/step", b, s),
   fieldResult: (b: FieldResultRequest, s?: AbortSignal) => request<FieldResultResponse>("POST", "/field/result", b, s),
   inspect: (b: InspectRequest, s?: AbortSignal) => request<InspectResponse>("POST", "/field/inspect", b, s),
-  reveal: (id: string, s?: AbortSignal) => request<RevealResponse>("GET", `/scenario/${encodeURIComponent(id)}/reveal`, undefined, s),
+  reveal: async (id: string, s?: AbortSignal) =>
+    adaptReveal(await request<unknown>("GET", `/scenario/${encodeURIComponent(id)}/reveal`, undefined, s)),
   eval: (s?: AbortSignal) => request<EvalResponse>("GET", "/eval", undefined, s),
-  placeSensors: (b: SensorPlaceRequest, s?: AbortSignal) => request<SensorPlaceResponse>("POST", "/sensors/place", b, s),
-  optimizeRepair: (b: RepairRequest, s?: AbortSignal) => request<RepairResponse>("POST", "/repair/optimize", b, s),
+  placeSensors: async (b: SensorPlaceRequest, s?: AbortSignal) =>
+    adaptPlacement(await request<unknown>("POST", "/sensors/place", placementRequest(b), s)),
+  optimizeRepair: async (b: RepairRequest, s?: AbortSignal) =>
+    adaptRepair(await request<unknown>("POST", "/repair/optimize", repairRequest(b), s), b),
 };
