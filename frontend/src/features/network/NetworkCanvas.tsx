@@ -5,22 +5,27 @@ import type { NetworkResponse } from "../../contracts/types";
 import { normalizeToTop, rampColor } from "../../lib/score";
 import { useStore } from "../../state/store";
 import { Legend } from "./Legend";
+import { palette } from "../../ui/tokens";
 import { NodeTooltip } from "./NodeTooltip";
 import { MapButton, MapOverlays } from "./MapOverlays";
 
 const VIEW_W = 1000;
 const FRAME_MAX_ZOOM = 2.2;
-const C = {
-  pipe: "#2c4b48",
-  pump: "#8fa6a0",
-  junction: "#4f7b74",
-  limestone: "#e8e2d0",
-  ink: "#071316",
-  phosphor: "#d4f26a",
-  tracer: "#b48cff",
-  verdigris: "#3fbfa6",
-  silt: "#62807a",
-};
+/** Fallback-map colours from the active theme (the console remounts this map on theme change). */
+function themeColors() {
+  const p = palette();
+  return {
+    pipe: p.pipeGlow,
+    pump: p.muted,
+    junction: p.junction,
+    limestone: p.text,
+    ink: p.bg,
+    phosphor: p.sensor,
+    tracer: p.truth,
+    verdigris: p.pipe,
+    silt: p.muted,
+  };
+}
 
 /** Maps raw .inp coordinates into a fixed view box once (y flipped: EPANET y grows upward). */
 function layout(net: NetworkResponse): Record<string, { x: number; y: number }> {
@@ -31,7 +36,9 @@ function layout(net: NetworkResponse): Record<string, { x: number; y: number }> 
   return Object.fromEntries(net.nodes.map((n) => [n.id, { x: (n.x - minX) * scale, y: (maxY - n.y) * scale }]));
 }
 
-const STYLE: cytoscape.StylesheetJson = [
+function makeStyle(): cytoscape.StylesheetJson {
+  const C = themeColors();
+  return [
   {
     selector: "node",
     style: {
@@ -103,7 +110,8 @@ const STYLE: cytoscape.StylesheetJson = [
     style: { "line-color": "#6fe0c7", width: 4.5, "line-style": "dashed", "line-dash-pattern": [9, 6], "line-cap": "round", "z-index": 15 },
   },
   { selector: "edge.truthpath", style: { "line-color": C.tracer, width: 3.5, "line-style": "dashed", "line-dash-pattern": [6, 5], "z-index": 9 } },
-];
+  ];
+}
 
 export function NetworkCanvas() {
   const network = useStore((s) => s.network);
@@ -140,7 +148,7 @@ export function NetworkCanvas() {
     const cy = cytoscape({
       container: host.current,
       elements,
-      style: STYLE,
+      style: makeStyle(),
       layout: { name: "preset", fit: true, padding: 48 },
       minZoom: 0.3,
       maxZoom: 5,

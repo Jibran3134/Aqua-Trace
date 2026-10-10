@@ -13,7 +13,6 @@
     "calibrate": "tsx scripts/calibrate.ts"
   },
   "dependencies": {
-    "@deck.gl/aggregation-layers": "^9.4.0",
     "@deck.gl/core": "^9.4.0",
     "@deck.gl/layers": "^9.4.0",
     "@deck.gl/react": "^9.4.0",

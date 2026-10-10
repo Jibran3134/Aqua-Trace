@@ -43,6 +43,7 @@ export function usePresenterKeys(toggleHelp: () => void) {
       if (/^[1-5]$/.test(key)) return s.setTab(TABS[Number(key) - 1]);
       if (key === "p" && s.initialDetection) return s.setReport(!s.reportOpen);
       if (key === "t") return s.toggleTheme();
+      if (key === "m") return s.toggleSound();
       if (key === "f") return s.setPresent(!s.present);
       if (s.busy) return;
       if (key === "s") void s.simulate();
@@ -94,6 +95,7 @@ const SHORTCUTS: [string, string][] = [
   ["V", "Reveal truth"],
   ["F", "Present mode"],
   ["T", "Projector / dark theme"],
+  ["M", "Sound cues on / off"],
   ["P", "Investigation report"],
   ["R", "Reset map view"],
   ["1–5", "Switch tabs"],

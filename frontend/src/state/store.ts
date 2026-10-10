@@ -136,6 +136,8 @@ interface State {
   toggleTheme: () => void;
   present: boolean;
   setPresent: (on: boolean) => void;
+  sound: boolean;
+  toggleSound: () => void;
   /** Search-area summary published by the map (km of pipe, or pinpointed node). */
   search: { meters: number; pinpointed: string | null } | null;
   setSearch: (v: { meters: number; pinpointed: string | null } | null) => void;
@@ -216,6 +218,12 @@ export const useStore = create<State>((set, get) => ({
   setHelp: (helpOpen) => set({ helpOpen }),
   present: false,
   setPresent: (present) => set({ present }),
+  sound: false,
+  toggleSound: () => {
+    const sound = !get().sound;
+    set({ sound });
+    toast(sound ? "Sound cues on" : "Sound cues off", { description: "Press M to toggle." });
+  },
   search: null,
   setSearch: (search) => set({ search }),
   detectedAt: null,

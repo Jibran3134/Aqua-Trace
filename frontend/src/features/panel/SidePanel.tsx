@@ -1,5 +1,6 @@
 import { BarChart3, Bot, Lock, MapPin, Radio, Wrench } from "lucide-react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { dur, ease } from "../../ui/motion";
 import type { ReactNode } from "react";
 import { useStore, type TabId } from "../../state/store";
 import { cn } from "../../ui/primitives";
@@ -54,12 +55,23 @@ export function SidePanel() {
         ))}
       </nav>
       <div className="min-h-0 flex-1 overflow-y-auto p-4">
-        {tab === "candidates" && <CandidatesTab />}
-        {tab === "agent" && <AgentTab />}
-        {tab === "evaluation" && <EvaluationTab />}
-        {tab === "sensors" && <SensorsTab />}
-        {tab === "repairs" && <RepairsTab />}
-        {!active.ready && <ComingSoon label={active.label} stage={active.stage!} />}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={tab}
+            className="min-h-full"
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -6 }}
+            transition={{ duration: dur.ui, ease: ease.out }}
+          >
+            {tab === "candidates" && <CandidatesTab />}
+            {tab === "agent" && <AgentTab />}
+            {tab === "evaluation" && <EvaluationTab />}
+            {tab === "sensors" && <SensorsTab />}
+            {tab === "repairs" && <RepairsTab />}
+            {!active.ready && <ComingSoon label={active.label} stage={active.stage!} />}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </aside>
   );

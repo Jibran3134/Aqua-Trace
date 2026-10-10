@@ -6,6 +6,7 @@ import { DeckMap } from "../features/map/DeckMap";
 import { NetworkCanvas } from "../features/network/NetworkCanvas";
 import { HelpSheet, NextStepChip, usePresenterKeys } from "../features/presenter/Presenter";
 import { PresentMode } from "../features/present/PresentMode";
+import { useSoundCues } from "../features/presenter/useSoundCues";
 import { InvestigationReport } from "../features/report/InvestigationReport";
 import { SidePanel } from "../features/panel/SidePanel";
 import { useStore } from "../state/store";
@@ -36,6 +37,7 @@ export function ConsolePage() {
   const toggleHelp = useCallback(() => setHelp(!useStore.getState().helpOpen), [setHelp]);
   const closeHelp = useCallback(() => setHelp(false), [setHelp]);
   usePresenterKeys(toggleHelp);
+  useSoundCues();
 
   useEffect(() => {
     void loadNetwork();

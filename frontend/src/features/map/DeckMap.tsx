@@ -1,4 +1,3 @@
-import { HeatmapLayer } from "@deck.gl/aggregation-layers";
 import { Deck, LinearInterpolator, OrthographicView, type PickingInfo } from "@deck.gl/core";
 import { BitmapLayer, IconLayer, PathLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { Maximize2, Minus, Plus } from "lucide-react";
@@ -16,6 +15,25 @@ import { MapLegend } from "./MapLegend";
 import { SearchChip } from "./SearchChip";
 
 type RGBA = [number, number, number, number];
+
+/**
+ * Soft radial sprite for the search cloud: white with a smooth alpha falloff, tinted per node.
+ * Overlapping sprites blend into one continuous glow; animating them is a cheap attribute update
+ * (a GPU heatmap re-aggregation costs ~300 ms per frame on integrated graphics).
+ */
+const GLOW_SPRITE = (() => {
+  const c = document.createElement("canvas");
+  c.width = c.height = 128;
+  const g = c.getContext("2d")!;
+  const grad = g.createRadialGradient(64, 64, 0, 64, 64, 64);
+  grad.addColorStop(0, "rgba(255,255,255,1)");
+  grad.addColorStop(0.35, "rgba(255,255,255,0.55)");
+  grad.addColorStop(0.7, "rgba(255,255,255,0.14)");
+  grad.addColorStop(1, "rgba(255,255,255,0)");
+  g.fillStyle = grad;
+  g.fillRect(0, 0, 128, 128);
+  return c;
+})();
 
 /** deck.gl 9 creates its GPU device asynchronously; viewports exist only after that. */
 function viewportOf(deck: Deck<OrthographicView> | null) {
@@ -121,6 +139,9 @@ export function DeckMap() {
     const fieldCache: { key: string; field: CloudField | null } = { key: "", field: null };
     const shown = new Map<string, number>();
     let lastNow = performance.now();
+    // Re-aggregate the heatmap only when the displayed cloud actually changed this frame.
+    let heatVersion = 0;
+    let heat: { p: [number, number]; w: number }[] = [];
 
     const tick = () => {
       if (!deck.isInitialized) {
@@ -151,13 +172,22 @@ export function DeckMap() {
       lastNow = now;
       const ease = prefersReducedMotion() ? 1 : 1 - Math.exp(-dt / 0.32);
       const damp = det && det.status !== "ok" ? 0.4 : 1;
-      const heat: { p: [number, number]; w: number }[] = [];
+      let moved = false;
       for (const id of junctions) {
         const target = field ? (field.value.get(id) ?? 0) * damp : 0;
         const cur = shown.get(id) ?? 0;
-        const next = cur + (target - cur) * ease;
+        // Snap when close so the cloud settles and stops costing GPU time.
+        const next = Math.abs(target - cur) < 0.0015 ? target : cur + (target - cur) * ease;
+        if (next !== cur) moved = true;
         shown.set(id, next);
-        if (next > 0.002) heat.push({ p: world.pos.get(id)!, w: next });
+      }
+      if (moved) {
+        heatVersion++;
+        heat = [];
+        for (const id of junctions) {
+          const w = shown.get(id) ?? 0;
+          if (w > 0.002) heat.push({ p: world.pos.get(id)!, w });
+        }
       }
 
       // Crew route polyline, expanded along real pipes.
@@ -251,19 +281,22 @@ export function DeckMap() {
               updateTriggers: { getPosition: t },
             }),
           heat.length > 0 &&
-            new HeatmapLayer({
+            new IconLayer({
               id: "cloud",
               data: heat,
+              iconAtlas: GLOW_SPRITE as unknown as string,
+              iconMapping: { glow: { x: 0, y: 0, width: 128, height: 128, mask: true } },
+              getIcon: () => "glow",
               getPosition: (d: { p: [number, number] }) => d.p,
-              getWeight: (d: { w: number }) => d.w,
-              radiusPixels: 64,
-              intensity: 1.6,
-              threshold: 0.1,
-              colorDomain: [0, 0.32],
-              // Faint end fades to fully transparent: no grey halo around weak candidates.
-              colorRange: [0.08, 0.3, 0.5, 0.7, 0.85, 1].map((v, i) => [...rampRgb(v), [0, 60, 125, 175, 210, 235][i]] as RGBA),
-              aggregation: "SUM",
-              updateTriggers: { getWeight: t, getPosition: heat.length },
+              // Field strength drives both footprint and heat colour; capped so one node can't flood the map.
+              getSize: (d: { w: number }) => 70 + 170 * Math.min(1, d.w / 0.32),
+              sizeUnits: "pixels",
+              getColor: (d: { w: number }) => {
+                const v = Math.min(1, d.w / 0.32);
+                return [...rampRgb(0.25 + 0.75 * v), Math.round(255 * Math.min(1, 0.25 + v))] as RGBA;
+              },
+              alphaCutoff: 0,
+              updateTriggers: { getSize: heatVersion, getColor: heatVersion, getPosition: heatVersion },
             }),
           routeCache.path.length > 1 &&
             new PathLayer({
