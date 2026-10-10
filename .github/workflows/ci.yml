@@ -1,0 +1,67 @@
+# Informational CI: shows a red/green check on every push. No branch protection, nothing blocks merging.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+
+  backend:
+    runs-on: ubuntu-latest
+    # Steps below are no-ops until the backend exists, so this job is green from day one.
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Detect backend
+        id: have
+        run: |
+          if [ -f backend/main.py ] && [ -f requirements.txt ]; then echo "backend=true" >> "$GITHUB_OUTPUT"; fi
+
+      - uses: actions/setup-python@v5
+        if: steps.have.outputs.backend == 'true'
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: Install
+        if: steps.have.outputs.backend == 'true'
+        run: pip install -r requirements.txt pytest httpx
+
+      # Signature library takes minutes to build; reuse it while the backend sources are unchanged.
+      - uses: actions/cache@v4
+        if: steps.have.outputs.backend == 'true'
+        with:
+          path: backend/cache
+          key: signatures-${{ hashFiles('backend/data/Net3.inp', 'backend/config.py', 'backend/sim.py', 'backend/signatures.py') }}
+
+      - name: Backend unit tests
+        if: steps.have.outputs.backend == 'true' && hashFiles('backend/tests/**/*.py') != ''
+        run: pytest backend/tests -q
+
+      - name: Contract + truth-leak checks
+        if: steps.have.outputs.backend == 'true'
+        env:
+          SIG_WAIT_S: "900"
+        run: pytest tests/integration -q
