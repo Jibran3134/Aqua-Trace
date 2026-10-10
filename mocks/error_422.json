@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "validation_error",
+    "message": "noise must be one of low, mid, high.",
+    "hint": "Pick low, mid or high."
+  }
+}

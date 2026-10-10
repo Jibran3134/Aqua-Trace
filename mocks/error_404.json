@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "scenario_not_found",
+    "message": "Scenario expired123 does not exist.",
+    "hint": "Scenario expired after a server restart; simulate again."
+  }
+}

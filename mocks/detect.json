@@ -1,0 +1,118 @@
+{
+  "status": "ok",
+  "candidates": [
+    {
+      "node": "207",
+      "score": 0.1608,
+      "adjacent_pipes": [
+        "237",
+        "238",
+        "239"
+      ],
+      "est_leak_lps": 27.18,
+      "tie_group": null
+    },
+    {
+      "node": "275",
+      "score": 0.1358,
+      "adjacent_pipes": [
+        "239",
+        "317",
+        "323"
+      ],
+      "est_leak_lps": 26.66,
+      "tie_group": null
+    },
+    {
+      "node": "206",
+      "score": 0.1273,
+      "adjacent_pipes": [
+        "238",
+        "240"
+      ],
+      "est_leak_lps": 28.14,
+      "tie_group": null
+    },
+    {
+      "node": "205",
+      "score": 0.1126,
+      "adjacent_pipes": [
+        "204",
+        "237",
+        "319"
+      ],
+      "est_leak_lps": 24.83,
+      "tie_group": null
+    },
+    {
+      "node": "201",
+      "score": 0.1072,
+      "adjacent_pipes": [
+        "231",
+        "233",
+        "323"
+      ],
+      "est_leak_lps": 26.83,
+      "tie_group": 1
+    },
+    {
+      "node": "203",
+      "score": 0.1072,
+      "adjacent_pipes": [
+        "233"
+      ],
+      "est_leak_lps": 26.94,
+      "tie_group": 1
+    },
+    {
+      "node": "273",
+      "score": 0.1063,
+      "adjacent_pipes": [
+        "235",
+        "317",
+        "319"
+      ],
+      "est_leak_lps": 26.51,
+      "tie_group": 1
+    },
+    {
+      "node": "208",
+      "score": 0.0738,
+      "adjacent_pipes": [
+        "240",
+        "241"
+      ],
+      "est_leak_lps": 27.51,
+      "tie_group": null
+    },
+    {
+      "node": "199",
+      "score": 0.0542,
+      "adjacent_pipes": [
+        "229",
+        "231",
+        "235"
+      ],
+      "est_leak_lps": 25.86,
+      "tie_group": null
+    },
+    {
+      "node": "209",
+      "score": 0.0133,
+      "adjacent_pipes": [
+        "241",
+        "243"
+      ],
+      "est_leak_lps": 29.04,
+      "tie_group": null
+    }
+  ],
+  "evidence": {
+    "residual_norm": 6.144,
+    "noise_floor": 1.026,
+    "margin_top1_vs_top2": 1.184,
+    "live_sensors": 6
+  },
+  "note": null,
+  "recommended_sensor": null
+}

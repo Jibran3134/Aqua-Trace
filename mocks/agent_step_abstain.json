@@ -1,0 +1,98 @@
+{
+  "events": [
+    {
+      "step": 1,
+      "type": "thought",
+      "text": "Ranking candidates from sensor residuals."
+    },
+    {
+      "step": 1,
+      "type": "tool_call",
+      "name": "rank_candidates",
+      "args": {
+        "top_k": 3
+      }
+    },
+    {
+      "step": 1,
+      "type": "tool_result",
+      "name": "rank_candidates",
+      "result": {
+        "status": "insufficient_evidence",
+        "candidates": [
+          {
+            "node": "15",
+            "score": 0.0109,
+            "est_leak_lps": 0.28,
+            "adjacent_pipes": [
+              "151"
+            ],
+            "inspected": false
+          },
+          {
+            "node": "143",
+            "score": 0.0109,
+            "est_leak_lps": 0.34,
+            "adjacent_pipes": [
+              "149",
+              "151"
+            ],
+            "inspected": false
+          },
+          {
+            "node": "141",
+            "score": 0.0109,
+            "est_leak_lps": 0.35,
+            "adjacent_pipes": [
+              "147",
+              "149",
+              "153"
+            ],
+            "inspected": false
+          }
+        ],
+        "evidence": {
+          "residual_norm": 0.817,
+          "noise_floor": 1.516,
+          "margin_top1_vs_top2": 1,
+          "live_sensors": 6
+        },
+        "note": "Residual is below the noise floor: no leak signal stands out from demand drift and sensor noise."
+      }
+    },
+    {
+      "step": 2,
+      "type": "thought",
+      "text": "Evidence is insufficient. Asking where one more sensor would help most."
+    },
+    {
+      "step": 2,
+      "type": "tool_call",
+      "name": "recommend_sensor_addition",
+      "args": {}
+    },
+    {
+      "step": 2,
+      "type": "tool_result",
+      "name": "recommend_sensor_addition",
+      "result": {
+        "recommended": "143",
+        "separates": [
+          "15",
+          "143"
+        ],
+        "reason": "Residual is below the noise floor: no leak signal stands out from demand drift and sensor noise."
+      }
+    },
+    {
+      "step": 3,
+      "type": "abstain",
+      "text": "More evidence needed. Add a pressure sensor at node 143 to separate 15 from 143."
+    }
+  ],
+  "source": "scripted",
+  "recommended_node": "143",
+  "route": [],
+  "inspections_used": 0,
+  "state": "abstained"
+}

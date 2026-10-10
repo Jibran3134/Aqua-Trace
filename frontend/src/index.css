@@ -1,0 +1,149 @@
+@import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/instrument-sans";
+@import "@fontsource-variable/jetbrains-mono";
+@import "tailwindcss";
+
+/*
+  AquaTrace palette: "Verdigris & Saffron"
+  - ink:        aquifer-dark water column (backgrounds, surfaces)
+  - limestone:  warm bone text, like the limescale on old mains
+  - verdigris:  oxidized copper pipe; the network itself and primary actions
+  - saffron -> vermilion: leak heat; relative score ramp
+  - tracer:     UV fluorescent tracer dye used by real leak crews; reserved for the revealed truth
+  - phosphor:   pressure-logger LED; sensors only
+*/
+@theme {
+  --color-ink-950: #071316;
+  --color-ink-900: #0c1f23;
+  --color-ink-850: #10262b;
+  --color-ink-800: #13292e;
+  --color-ink-700: #1b3639;
+  --color-ink-600: #24433f;
+  --color-ink-500: #355955;
+
+  --color-limestone: #e8e2d0;
+  --color-limestone-dim: #bdb6a3;
+  --color-silt: #8fa6a0;
+  --color-silt-dim: #62807a;
+
+  --color-verdigris: #3fbfa6;
+  --color-verdigris-bright: #6fe0c7;
+  --color-verdigris-deep: #1f7f70;
+  --color-saffron: #f2b33d;
+  --color-vermilion: #ff5a36;
+  --color-tracer: #b48cff;
+  --color-phosphor: #d4f26a;
+
+  --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, monospace;
+
+  --shadow-lift: 0 1px 0 0 rgb(232 226 208 / 0.06) inset, 0 18px 40px -18px rgb(0 0 0 / 0.7);
+  --shadow-glow-verdigris: 0 0 0 1px rgb(63 191 166 / 0.45), 0 0 24px -4px rgb(63 191 166 / 0.55);
+  --shadow-glow-vermilion: 0 0 0 1px rgb(255 90 54 / 0.5), 0 0 28px -4px rgb(255 90 54 / 0.6);
+  --shadow-glow-tracer: 0 0 0 1px rgb(180 140 255 / 0.55), 0 0 30px -4px rgb(180 140 255 / 0.65);
+
+  --animate-ripple: ripple 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  --animate-drift: drift 22s ease-in-out infinite alternate;
+  --animate-shimmer: shimmer 2.2s linear infinite;
+
+  @keyframes ripple {
+    0% { transform: scale(0.6); opacity: 0.85; }
+    100% { transform: scale(2.6); opacity: 0; }
+  }
+  @keyframes drift {
+    0% { transform: translate3d(-2%, -1%, 0) scale(1); }
+    100% { transform: translate3d(2%, 1.5%, 0) scale(1.06); }
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+}
+
+:root {
+  color-scheme: dark;
+  /* Projector-first: generous base size (judges may view at 1280x720). */
+  font-size: 17px;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-ink-950);
+  color: var(--color-limestone);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Numbers always tabular so score columns don't jitter while animating. */
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Aquifer backdrop: slow caustic light + fine grain. Pure CSS/SVG, works offline. */
+.aquifer-bg {
+  position: fixed;
+  inset: -10%;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(42% 38% at 18% 12%, rgb(63 191 166 / 0.13), transparent 70%),
+    radial-gradient(36% 32% at 86% 78%, rgb(180 140 255 / 0.07), transparent 70%),
+    radial-gradient(30% 30% at 70% 8%, rgb(242 179 61 / 0.05), transparent 70%);
+  animation: var(--animate-drift);
+}
+.aquifer-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Score ramp shared by CSS (bars, legend) and Cytoscape (node fill). */
+.score-ramp {
+  background: linear-gradient(90deg, #3b5b57 0%, #9a9a4a 35%, var(--color-saffron) 60%, var(--color-vermilion) 100%);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgb(255 255 255 / 0.03) 25%, rgb(255 255 255 / 0.08) 50%, rgb(255 255 255 / 0.03) 75%);
+  background-size: 200% 100%;
+  animation: var(--animate-shimmer);
+}
+
+::selection {
+  background: rgb(63 191 166 / 0.35);
+}
+
+/* Thin, on-palette scrollbars for the side panel. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-ink-600) transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-verdigris-bright);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

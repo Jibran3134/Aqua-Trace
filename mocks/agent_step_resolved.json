@@ -1,0 +1,59 @@
+{
+  "events": [
+    {
+      "step": 1,
+      "type": "thought",
+      "text": "The crew reported the leak. Summarizing the investigation from recorded results."
+    },
+    {
+      "step": 1,
+      "type": "tool_call",
+      "name": "plan_inspection",
+      "args": {
+        "nodes": [
+          "275",
+          "205"
+        ]
+      }
+    },
+    {
+      "step": 1,
+      "type": "tool_result",
+      "name": "plan_inspection",
+      "result": {
+        "depot": "60",
+        "order": [
+          "275",
+          "205"
+        ],
+        "total_length_m": 20349,
+        "legs": [
+          {
+            "from": "60",
+            "to": "275",
+            "length_m": 19648
+          },
+          {
+            "from": "275",
+            "to": "205",
+            "length_m": 701
+          }
+        ]
+      }
+    },
+    {
+      "step": 2,
+      "type": "final",
+      "text": "Leak confirmed at node 205 after 2 inspections. Crew route covered 20349 m from depot 60."
+    }
+  ],
+  "source": "scripted",
+  "recommended_node": "205",
+  "route": [
+    "275",
+    "205"
+  ],
+  "route_length_m": 20349,
+  "inspections_used": 2,
+  "state": "resolved"
+}
