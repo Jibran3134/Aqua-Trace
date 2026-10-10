@@ -82,6 +82,19 @@ def test_truth_is_absent_until_reveal(client, seed):
         a2 = client.post("/agent/step", json={"scenario_id": sid, "mode": "scripted"})
         responses.append(("/agent/step#2", a2.json()))
 
+    # v1.1 /field/inspect reads the hidden truth to decide `found`, so it is the
+    # likeliest place for truth to escape. A crew learns leak/no-leak AT THAT NODE
+    # and nothing more.
+    insp = client.post("/field/inspect", json={"scenario_id": sid, "node": leak["sensors"][0]})
+    if insp.status_code == 200:
+        body = insp.json()
+        responses.append(("/field/inspect", body))
+        allowed = {"node", "found", "state", "ranking", "note"}
+        if set(body) - allowed:
+            problems.append(f"/field/inspect has unexpected keys {sorted(set(body) - allowed)}")
+        if body.get("node") != leak["sensors"][0]:
+            problems.append("/field/inspect echoed a different node than the one inspected")
+
     for label, body in responses:
         problems += leaked_keys(label, body)
 

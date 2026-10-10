@@ -20,6 +20,7 @@ OPTIONAL = {
     "progress", "kind", "seed", "noise_level", "tie_group", "live_sensors",
     "note", "recommended_sensor", "recommended_node", "route", "route_length_m",
     "inspections_used", "baseline_top3", "generated_at", "gate",
+    "inspected",  # tool results carry it; not part of any response contract
 }
 OPAQUE = {"result", "args"}
 MAPS = {"readings"}

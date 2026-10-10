@@ -137,6 +137,43 @@ def test_field_result_shape_and_idempotent(client):
         assert ranking[top] > 0, "a 'not found' report must not zero the node"
 
 
+def test_field_inspect_shape_and_determinism(client, network):
+    """v1.1 simulated crew: same scenario + node must always report the same outcome."""
+    sid = new_scenario(client, 1020)["scenario_id"]
+    node = client.post("/detect", json={"scenario_id": sid}).json()["candidates"][0]["node"]
+
+    r1 = client.post("/field/inspect", json={"scenario_id": sid, "node": node})
+    if r1.status_code == 404:
+        pytest.skip("POST /field/inspect not implemented yet (contract v1.1)")
+    assert r1.status_code == 200, r1.text
+    body = r1.json()
+
+    # InspectResponse extends FieldResultResponse with {node, found}.
+    expected = {**mock("field_result"), "node": node, "found": False}
+    assert_shape(body, expected, "/field/inspect")
+    assert body["node"] == node, "response must echo the inspected node"
+    assert isinstance(body["found"], bool)
+    assert body["state"] in ("investigating", "resolved")
+
+    r2 = client.post("/field/inspect", json={"scenario_id": sid, "node": node})
+    assert r2.json()["found"] == body["found"], "inspect outcome must be deterministic"
+    assert r2.json()["ranking"] == body["ranking"], "repeating an inspection must change nothing"
+
+    # found=true means the crew closed it out.
+    if body["found"]:
+        assert body["state"] == "resolved"
+
+
+def test_field_inspect_rejects_unknown_node(client):
+    sid = new_scenario(client, 1021)["scenario_id"]
+    r = client.post("/field/inspect", json={"scenario_id": sid, "node": "not-a-node"})
+    # An unregistered route answers 404 with FastAPI's {"detail": ...}; a real
+    # implementation always uses the {error:{...}} envelope. Only the former is a skip.
+    if r.status_code == 404 and "error" not in (r.json() or {}):
+        pytest.skip("POST /field/inspect not implemented yet (contract v1.1)")
+    assert_error_format(r, 422, "validation_error")
+
+
 def test_reveal_shape(client, network):
     sid = new_scenario(client, 1019)["scenario_id"]
     r = client.get(f"/scenario/{sid}/reveal")

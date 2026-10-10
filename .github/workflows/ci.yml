@@ -54,7 +54,8 @@ jobs:
         if: steps.have.outputs.backend == 'true'
         with:
           path: backend/cache
-          key: signatures-${{ hashFiles('backend/data/Net3.inp', 'backend/config.py', 'backend/sim.py', 'backend/signatures.py') }}
+          # Net3.inp lives in frontend/scripts/data since the MVP-0 reshuffle.
+          key: signatures-${{ hashFiles('**/Net3.inp', 'backend/config.py', 'backend/sim.py', 'backend/signatures.py') }}
 
       - name: Backend unit tests
         if: steps.have.outputs.backend == 'true' && hashFiles('backend/tests/**/*.py') != ''
