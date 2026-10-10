@@ -155,6 +155,22 @@ def network(client):
 
 
 @pytest.fixture(scope="session")
+def candidate_node(client, scenario):
+    """A node the backend accepts in a field report.
+
+    /field/result checks `node in signatures.candidate_order` *before* it looks up
+    the scenario, so a test aiming at the not-found path has to send an otherwise
+    valid body or it gets 422 invalid_candidate instead. Not every junction is a
+    candidate, so the node is taken from a real ranking rather than hardcoded.
+    """
+    r = client.post("/detect", json={"scenario_id": scenario["scenario_id"]})
+    assert r.status_code == 200, r.text
+    candidates = r.json().get("candidates") or []
+    assert candidates, "/detect returned no candidates, so no valid field-report node exists"
+    return candidates[0]["node"]
+
+
+@pytest.fixture(scope="session")
 def scenario(client):
     """One scenario shared by read-only shape tests.
 

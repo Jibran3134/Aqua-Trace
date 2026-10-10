@@ -202,13 +202,21 @@ def test_reveal_shape(client, network, scenario):
 
 # ---------- errors: the UI relies on {error:{code,message,hint}} ----------
 
+#: Swapped at run time for a node the backend accepts (see the candidate_node fixture).
+VALID_NODE = "<a-real-candidate>"
+
+
 @pytest.mark.parametrize("method,path,body", [
     ("POST", "/detect", {"scenario_id": ABSENT_ID}),
     ("POST", "/agent/step", {"scenario_id": ABSENT_ID}),
-    ("POST", "/field/result", {"scenario_id": ABSENT_ID, "node": "10", "found": False}),
+    ("POST", "/field/result", {"scenario_id": ABSENT_ID, "node": VALID_NODE, "found": False}),
     ("GET", f"/scenario/{ABSENT_ID}/reveal", None),
 ])
-def test_unknown_scenario_is_404_in_error_format(client, method, path, body):
+def test_unknown_scenario_is_404_in_error_format(client, candidate_node, method, path, body):
+    # Everything except scenario_id has to be valid, or input validation answers
+    # first and we never reach the lookup this test is about.
+    if body and body.get("node") == VALID_NODE:
+        body = {**body, "node": candidate_node}
     r = client.request(method, path, json=body) if body is not None else client.request(method, path)
     # An unmounted route also answers 404, but with the generic code.
     if error_code(r) in NOT_IMPLEMENTED_CODES:
