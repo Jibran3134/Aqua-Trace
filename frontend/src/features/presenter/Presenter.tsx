@@ -11,7 +11,7 @@ interface Action {
 }
 
 /** The single most sensible next move for the presenter, derived from app state. */
-function useNextAction(): Action | null {
+export function useNextAction(): Action | null {
   const s = useStore();
   if (s.busy || s.narrating || !s.network) return null;
   if (!s.scenario) return { label: "Simulate a hidden leak", key: "S", run: () => s.simulate() };
@@ -23,6 +23,8 @@ function useNextAction(): Action | null {
   if (s.detection.status === "ok" && s.agent.state === "idle") return { label: "Investigate with the agent", key: "I", run: s.investigate };
   if (s.agent.state === "investigating" && s.agent.recommended) return { label: `Send crew to node ${s.agent.recommended}`, key: "C", run: () => s.reportField("crew") };
   if (!s.reveal) return { label: "Reveal the truth", key: "V", run: s.revealTruth };
+  // In Present mode the panel is hidden, so the finale exits onto the evaluation instead.
+  if (s.present) return { label: "Finish: show the evaluation", key: "3", run: () => (s.setPresent(false), s.setTab("evaluation")) };
   if (s.tab !== "evaluation") return { label: "Show the evaluation", key: "3", run: () => s.setTab("evaluation") };
   return { label: "Plan sensors", key: "4", run: () => s.setTab("sensors") };
 }

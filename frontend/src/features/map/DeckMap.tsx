@@ -51,7 +51,7 @@ export function DeckMap() {
     live.current = state;
   });
   const [screen, setScreen] = useState<Map<string, { x: number; y: number }>>(() => new Map());
-  const [search, setSearch] = useState<{ meters: number; pinpointed: string | null } | null>(null);
+
 
   const world = useMemo(() => (network ? layoutWorld(network) : null), [network]);
   const terrain = useMemo(() => (world ? buildTerrain(world, pal) : null), [world, pal]);
@@ -402,11 +402,10 @@ export function DeckMap() {
           setScreen(next);
         }
       }
-      setSearch((prev) => {
-        if (!field) return prev === null ? prev : null;
-        const meters = Math.round(field.searchLengthM);
-        return prev && prev.meters === meters && prev.pinpointed === field.pinpointed ? prev : { meters, pinpointed: field.pinpointed };
-      });
+      // Publish the search summary (store) only when it changes; captions and the chip read it.
+      const prev = s.search;
+      const next = field ? { meters: Math.round(field.searchLengthM), pinpointed: field.pinpointed } : null;
+      if ((prev?.meters ?? null) !== (next?.meters ?? null) || (prev?.pinpointed ?? null) !== (next?.pinpointed ?? null)) s.setSearch(next);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -447,13 +446,13 @@ export function DeckMap() {
   const project = (id: string) => screen.get(id) ?? null;
 
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-2xl border border-ink-600/70 bg-ink-950">
+    <div className={`relative h-full w-full overflow-hidden bg-ink-950 ${state.present ? "" : "rounded-2xl border border-ink-600/70"}`}>
       <div ref={host} className="absolute inset-0" aria-label="Water network map" role="img" />
       <MapLabels project={project} />
       <MapOverlays project={project} />
       <NodeTooltip project={project} />
-      <SearchChip search={search} />
-      <div className="absolute right-3 top-3 flex flex-col gap-1.5">
+      {!state.present && <SearchChip search={state.search} />}
+      <div className={`absolute right-3 top-3 flex flex-col gap-1.5 ${state.present ? "hidden" : ""}`}>
         <MapButton label="Zoom in" onClick={() => zoomBy(0.4)}>
           <Plus className="size-4" />
         </MapButton>

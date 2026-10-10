@@ -16,7 +16,9 @@ const KIND: Record<AgentEvent["type"], { icon: React.ReactNode; dot: string; lab
 };
 
 /** Reveals new events one by one so a live audience can follow the agent's reasoning. */
-export function Timeline({ events, onSettled }: { events: AgentEvent[]; onSettled?: (settled: boolean) => void }) {
+export function Timeline({ events: all, onSettled, compact = false }: { events: AgentEvent[]; onSettled?: (settled: boolean) => void; compact?: boolean }) {
+  // Summary view keeps the agent's reasoning and outcomes; tool calls stay one click away.
+  const events = compact ? all.filter((e) => e.type !== "tool_call" && e.type !== "tool_result") : all;
   const [revealed, setRevealed] = useState(0);
   // Derived, not synced: if the event list shrinks (new scenario) we simply show fewer.
   const shown = Math.min(revealed, events.length);

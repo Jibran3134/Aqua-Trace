@@ -136,6 +136,12 @@ interface State {
   toggleTheme: () => void;
   present: boolean;
   setPresent: (on: boolean) => void;
+  /** Search-area summary published by the map (km of pipe, or pinpointed node). */
+  search: { meters: number; pinpointed: string | null } | null;
+  setSearch: (v: { meters: number; pinpointed: string | null } | null) => void;
+  /** Wall-clock marks for the impact ticker. */
+  detectedAt: number | null;
+  resolvedAt: number | null;
   /** True while the agent timeline is still revealing events (presenter cues wait for it). */
   narrating: boolean;
   setNarrating: (v: boolean) => void;
@@ -210,6 +216,10 @@ export const useStore = create<State>((set, get) => ({
   setHelp: (helpOpen) => set({ helpOpen }),
   present: false,
   setPresent: (present) => set({ present }),
+  search: null,
+  setSearch: (search) => set({ search }),
+  detectedAt: null,
+  resolvedAt: null,
   theme: initialTheme(),
   toggleTheme: () => {
     const theme = get().theme === "dark" ? "projector" : "dark";
@@ -268,7 +278,7 @@ export const useStore = create<State>((set, get) => ({
     if (busy) return;
     const epoch = get().epoch + 1;
     // Results of the top-bar flow always show on Candidates, whatever tab was open.
-    set({ busy: "simulate", epoch, scenario: null, detection: null, initialDetection: null, reveal: null, expired: false, focusNode: null, agent: EMPTY_AGENT, tab: "candidates", reportOpen: false });
+    set({ busy: "simulate", epoch, scenario: null, detection: null, initialDetection: null, reveal: null, expired: false, focusNode: null, agent: EMPTY_AGENT, tab: "candidates", reportOpen: false, detectedAt: null, resolvedAt: null, search: null });
     const seed = over?.seed ?? (controls.preset === "random" || controls.seed.trim() === "" ? undefined : Number(controls.seed));
     const sensors = over?.sensors ?? get().customSensors ?? undefined;
     if (seed !== undefined && (!Number.isInteger(seed) || seed < 0)) {
@@ -304,7 +314,7 @@ export const useStore = create<State>((set, get) => ({
     try {
       const detection = await api.detect(scenario.scenario_id);
       if (get().epoch !== epoch) return;
-      set((s) => ({ detection, initialDetection: s.initialDetection ?? detection, focusNode: detection.candidates[0]?.node ?? null }));
+      set((s) => ({ detection, initialDetection: s.initialDetection ?? detection, detectedAt: s.detectedAt ?? Date.now(), focusNode: detection.candidates[0]?.node ?? null }));
       // Frame the leading cluster so the audience sees where to look, not the whole city.
       const lead = detection.status === "ok" ? detection.candidates.slice(0, 3).map((c) => c.node) : [];
       if (lead.length) get().frame(lead);
@@ -400,6 +410,7 @@ export const useStore = create<State>((set, get) => ({
           recommended: null,
           route: [],
         },
+        resolvedAt: found ? Date.now() : s.resolvedAt,
       }));
       // The ranking moved: refresh candidates (posterior-aware) so map and list agree.
       const detection = await api.detect(scenario.scenario_id);

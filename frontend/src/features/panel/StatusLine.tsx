@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useStore } from "../../state/store";
 import { dur, ease } from "../../ui/motion";
+import { LossTicker } from "../impact/LossTicker";
 
 /** One plain sentence that says where the investigation stands (plan W5). Data-only, no guesses. */
 export function useStatusSentence(): { tone: "idle" | "work" | "good" | "warn" | "truth"; text: string } {
@@ -37,11 +38,12 @@ export function StatusLine() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: dur.ui, ease: ease.out }}
-          className="font-display text-[1.12rem] font-semibold leading-tight tracking-tight"
+          className="min-w-0 flex-1 font-display text-[1.12rem] font-semibold leading-tight tracking-tight"
         >
           {text}
         </motion.span>
       </AnimatePresence>
+      <LossTicker />
     </div>
   );
 }

@@ -5,6 +5,8 @@ export function MapLegend() {
   const detection = useStore((s) => s.detection);
   const reveal = useStore((s) => s.reveal);
   const route = useStore((s) => s.agent.route.length > 0 && s.agent.state === "investigating");
+  const present = useStore((s) => s.present);
+  if (present) return null;
   return (
     <div className="pointer-events-none absolute bottom-3 left-3 max-w-[60%] rounded-xl bg-ink-900/85 px-3.5 py-2.5 ring-1 ring-ink-600 backdrop-blur">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[0.8rem] text-limestone-dim">

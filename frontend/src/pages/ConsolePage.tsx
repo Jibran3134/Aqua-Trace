@@ -5,6 +5,7 @@ import { TopBar } from "../features/controls/TopBar";
 import { DeckMap } from "../features/map/DeckMap";
 import { NetworkCanvas } from "../features/network/NetworkCanvas";
 import { HelpSheet, NextStepChip, usePresenterKeys } from "../features/presenter/Presenter";
+import { PresentMode } from "../features/present/PresentMode";
 import { InvestigationReport } from "../features/report/InvestigationReport";
 import { SidePanel } from "../features/panel/SidePanel";
 import { useStore } from "../state/store";
@@ -30,6 +31,7 @@ export function ConsolePage() {
   const pollHealth = useStore((s) => s.pollHealth);
   const helpOpen = useStore((s) => s.helpOpen);
   const theme = useStore((s) => s.theme);
+  const present = useStore((s) => s.present);
   const setHelp = useStore((s) => s.setHelp);
   const toggleHelp = useCallback(() => setHelp(!useStore.getState().helpOpen), [setHelp]);
   const closeHelp = useCallback(() => setHelp(false), [setHelp]);
@@ -52,7 +54,7 @@ export function ConsolePage() {
     <div className="relative flex h-full flex-col overflow-hidden">
       <div className="aquifer-bg" />
       <div className="aquifer-grain" />
-      <TopBar />
+      {!present && <TopBar />}
 
       <AnimatePresence>
         {building && (
@@ -77,12 +79,16 @@ export function ConsolePage() {
       </AnimatePresence>
 
       {/* Keyed by theme: canvas/SVG colors are computed in JS, so a theme switch remounts them. */}
-      <main key={theme} className="relative z-10 grid min-h-0 flex-1 grid-cols-[minmax(0,65fr)_minmax(0,35fr)] gap-3 p-3">
+      <main
+        key={theme}
+        className={`relative z-10 grid min-h-0 flex-1 gap-3 ${present ? "grid-cols-[minmax(0,1fr)] p-0" : "grid-cols-[minmax(0,65fr)_minmax(0,35fr)] p-3"}`}
+      >
         <section className="relative min-h-0">
           {network ? (
             <ErrorBoundary area="map">
               {USE_DECK ? <DeckMap /> : <NetworkCanvas />}
-              <NextStepChip />
+              {!present && <NextStepChip />}
+              <PresentMode />
             </ErrorBoundary>
           ) : networkError ? (
             <div className="grid h-full place-items-center">
@@ -104,7 +110,7 @@ export function ConsolePage() {
             </div>
           )}
         </section>
-        <section className="min-h-0">
+        <section className={present ? "hidden" : "min-h-0"}>
           <ErrorBoundary area="panel">
             <SidePanel />
           </ErrorBoundary>

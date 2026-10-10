@@ -1,8 +1,9 @@
 import { Bot, Eye, FileText, HardHat, PartyPopper, Play, RotateCcw, SearchX, Siren } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useStore } from "../../state/store";
 import { Badge, Button, Eyebrow, Prov } from "../../ui/primitives";
+import { Fingerprint } from "../evidence/Fingerprint";
 import { Timeline } from "./Timeline";
 
 export function AgentTab() {
@@ -13,6 +14,7 @@ export function AgentTab() {
   const settled = !useStore((s) => s.narrating);
   const setNarrating = useStore((s) => s.setNarrating);
   const onSettled = useCallback((v: boolean) => setNarrating(!v), [setNarrating]);
+  const [fullTrace, setFullTrace] = useState(false);
 
   if (!scenario) {
     return (
@@ -48,7 +50,16 @@ export function AgentTab() {
         </div>
       </div>
 
-      <Timeline events={agent.events} onSettled={onSettled} />
+      <Timeline events={agent.events} onSettled={onSettled} compact={!fullTrace} />
+      <button type="button" onClick={() => setFullTrace((v) => !v)} className="mt-1 self-start rounded-lg px-2 py-1 text-[0.8rem] text-silt hover:bg-ink-800 hover:text-limestone">
+        {fullTrace ? "Show summary" : "Show full tool trace"}
+      </button>
+      {/* Evidence sits right above the crew dock: the "why" next to the "go". */}
+      {settled && (
+        <div className="mt-3">
+          <Fingerprint />
+        </div>
+      )}
 
       {busy === "agent" && (
         <div className="mt-2 flex items-center gap-2 pl-10 text-[0.82rem] text-silt">
