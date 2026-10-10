@@ -47,13 +47,12 @@ jobs:
         options: >-
           --health-cmd "redis-cli ping" --health-interval 5s
           --health-timeout 5s --health-retries 10
-    env:
-      DATABASE_URL: postgresql+psycopg://aquatrace:ci-not-a-secret@localhost:5432/aquatrace
-      MIGRATION_DATABASE_URL: postgresql+psycopg://aquatrace:ci-not-a-secret@localhost:5432/aquatrace
-      REDIS_URL: redis://localhost:6379/0
-      # The suite sweeps many seeds; throttling would just make it slow and flaky.
-      RATE_LIMIT_ENABLED: "false"
-      ENVIRONMENT: test
+    # Deliberately NO job-level env. The backend's unit tests build
+    # Settings(_env_file=None), which still reads OS environment variables, so a
+    # job-wide override silently changes what they assert. RATE_LIMIT_ENABLED=false
+    # here made test_cache_outage_is_a_miss_but_quota_outage_fails_closed pass a
+    # disabled limiter, which returns early instead of raising. Each step below
+    # declares only the variables it needs.
     steps:
       - uses: actions/checkout@v4
 
@@ -66,8 +65,12 @@ jobs:
       - run: pip install -r requirements.txt -r requirements-dev.txt
         working-directory: backend
 
-      - run: alembic upgrade head
+      - name: Run migrations
         working-directory: backend
+        env:
+          DATABASE_URL: postgresql+psycopg://aquatrace:ci-not-a-secret@localhost:5432/aquatrace
+          MIGRATION_DATABASE_URL: postgresql+psycopg://aquatrace:ci-not-a-secret@localhost:5432/aquatrace
+        run: alembic upgrade head
 
       # Building the signature library runs hundreds of WNTR simulations.
       # Reuse it while the hydraulics inputs are unchanged.
@@ -76,12 +79,19 @@ jobs:
           path: backend/cache
           key: signatures-${{ hashFiles('backend/data/Net3.inp', 'backend/app/core/config.py', 'backend/app/hydraulics/**') }}
 
+      # No env overrides: these assert on the shipped defaults.
       - name: Backend unit tests
         working-directory: backend
         run: python scripts/test.py -q
 
       - name: Contract + truth-leak checks
         env:
+          DATABASE_URL: postgresql+psycopg://aquatrace:ci-not-a-secret@localhost:5432/aquatrace
+          REDIS_URL: redis://localhost:6379/0
+          ENVIRONMENT: test
+          # The sweep creates many scenarios and /scenario/leak is in the
+          # "expensive" quota (10 burst, then 0.1/s), so throttling would stall it.
+          RATE_LIMIT_ENABLED: "false"
           SIG_WAIT_S: "1500"
           LEAK_SEEDS: "20"
         run: pytest tests/integration -q
