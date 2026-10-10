@@ -1,8 +1,9 @@
 import { CloudOff, Hourglass, RotateCcw } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { TopBar } from "../features/controls/TopBar";
 import { NetworkCanvas } from "../features/network/NetworkCanvas";
+import { HelpSheet, NextStepChip, usePresenterKeys } from "../features/presenter/Presenter";
 import { SidePanel } from "../features/panel/SidePanel";
 import { useStore } from "../state/store";
 import { ErrorBoundary } from "../ui/ErrorBoundary";
@@ -14,6 +15,11 @@ export function ConsolePage() {
   const health = useStore((s) => s.health);
   const loadNetwork = useStore((s) => s.loadNetwork);
   const pollHealth = useStore((s) => s.pollHealth);
+  const helpOpen = useStore((s) => s.helpOpen);
+  const setHelp = useStore((s) => s.setHelp);
+  const toggleHelp = useCallback(() => setHelp(!useStore.getState().helpOpen), [setHelp]);
+  const closeHelp = useCallback(() => setHelp(false), [setHelp]);
+  usePresenterKeys(toggleHelp);
 
   useEffect(() => {
     void loadNetwork();
@@ -61,6 +67,7 @@ export function ConsolePage() {
           {network ? (
             <ErrorBoundary area="map">
               <NetworkCanvas />
+              <NextStepChip />
             </ErrorBoundary>
           ) : networkError ? (
             <div className="grid h-full place-items-center">
@@ -88,6 +95,7 @@ export function ConsolePage() {
           </ErrorBoundary>
         </section>
       </main>
+      <HelpSheet open={helpOpen} onClose={closeHelp} />
     </div>
   );
 }

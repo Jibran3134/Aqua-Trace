@@ -7,6 +7,8 @@ interface ImportMetaEnv {
   readonly VITE_MOCK_LATENCY_MS?: string;
   /** Simulates the backend's signature build on startup (ms) to exercise the progress banner. */
   readonly VITE_MOCK_SIGNATURES_MS?: string;
+  /** JSON array of demo presets [{id,label,story,seed,size,noise,k}] verified on the target backend. */
+  readonly VITE_DEMO_SEEDS?: string;
 }
 
 interface ImportMeta {

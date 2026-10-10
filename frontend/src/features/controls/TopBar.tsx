@@ -1,6 +1,8 @@
 import { Eye, Radar, Waves } from "lucide-react";
 import type { ReactNode } from "react";
 import { API_URL, USE_MOCKS } from "../../api/client";
+import { DEMO_PRESETS } from "../../lib/demo";
+import { HelpButton } from "../presenter/Presenter";
 import type { LeakSize, NoiseLevel } from "../../contracts/types";
 import { useStore } from "../../state/store";
 import { AquaTraceMark, Badge, Button, cn } from "../../ui/primitives";
@@ -21,8 +23,18 @@ export function TopBar() {
   const detect = useStore((s) => s.detect);
   const revealTruth = useStore((s) => s.revealTruth);
   const customSensors = useStore((s) => s.customSensors);
+  const setHelp = useStore((s) => s.setHelp);
 
   const notReady = !network || health?.signatures_ready === false;
+  const isDemo = DEMO_PRESETS.some((p) => p.id === controls.preset);
+
+  function pickPreset(id: string) {
+    const demo = DEMO_PRESETS.find((p) => p.id === id);
+    if (demo) setControls({ preset: id, seed: String(demo.seed), size: demo.size, noise: demo.noise, k: demo.k });
+    else setControls({ preset: id, seed: id === "random" ? "" : controls.seed });
+  }
+  // Editing a demo preset's knobs turns it into a custom scenario (same seed), so the label never lies.
+  const tweak = (c: Partial<typeof controls>) => setControls({ ...c, ...(isDemo ? { preset: "custom" } : {}) });
   const locked = busy !== null;
 
   return (
@@ -40,20 +52,41 @@ export function TopBar() {
       <div className="mx-1 h-8 w-px bg-ink-700" />
 
       <div className="flex items-end gap-2">
-        <Field label="Seed">
-          <input
-            className={cn(field, "num w-[5.5rem]")}
-            placeholder="random"
-            inputMode="numeric"
-            value={controls.seed}
-            disabled={locked}
-            onChange={(e) => setControls({ seed: e.target.value.replace(/[^\d]/g, "").slice(0, 7) })}
-            onKeyDown={(e) => e.key === "Enter" && simulate()}
-            aria-label="Scenario seed (blank for random)"
-          />
+        <Field label="Scenario">
+          <div className="flex gap-1">
+            <select
+              className={cn(field, "w-[6.9rem]", isDemo && "text-phosphor ring-phosphor/40")}
+              value={controls.preset}
+              disabled={locked}
+              title={DEMO_PRESETS.find((p) => p.id === controls.preset)?.story}
+              aria-label="Scenario preset"
+              onChange={(e) => pickPreset(e.target.value)}
+            >
+              <option value="random">Random</option>
+              {DEMO_PRESETS.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+              <option value="custom">Custom seed</option>
+            </select>
+            {controls.preset === "custom" && (
+              <input
+                className={cn(field, "num w-[4.6rem]")}
+                placeholder="seed"
+                inputMode="numeric"
+                value={controls.seed}
+                disabled={locked}
+                onChange={(e) => setControls({ seed: e.target.value.replace(/[^\d]/g, "").slice(0, 7) })}
+                onKeyDown={(e) => e.key === "Enter" && simulate()}
+                aria-label="Scenario seed"
+                autoFocus
+              />
+            )}
+          </div>
         </Field>
         <Field label="Leak size">
-          <select className={cn(field, "w-[6.6rem]")} value={controls.size} disabled={locked} onChange={(e) => setControls({ size: e.target.value as LeakSize | "random" })}>
+          <select className={cn(field, "w-[6.6rem]")} value={controls.size} disabled={locked} onChange={(e) => tweak({ size: e.target.value as LeakSize | "random" })}>
             <option value="random">random</option>
             <option value="small">small</option>
             <option value="medium">medium</option>
@@ -61,7 +94,7 @@ export function TopBar() {
           </select>
         </Field>
         <Field label="Noise">
-          <select className={cn(field, "w-[5.4rem]")} value={controls.noise} disabled={locked} onChange={(e) => setControls({ noise: e.target.value as NoiseLevel })}>
+          <select className={cn(field, "w-[5.4rem]")} value={controls.noise} disabled={locked} onChange={(e) => tweak({ noise: e.target.value as NoiseLevel })}>
             <option value="low">low</option>
             <option value="mid">mid</option>
             <option value="high">high</option>
@@ -73,7 +106,7 @@ export function TopBar() {
               opt·{customSensors.length}
             </div>
           ) : (
-            <select className={cn(field, "w-[4.6rem]")} value={controls.k} disabled={locked} onChange={(e) => setControls({ k: Number(e.target.value) })}>
+            <select className={cn(field, "w-[4.6rem]")} value={controls.k} disabled={locked} onChange={(e) => tweak({ k: Number(e.target.value) })}>
               {[3, 6, 10].map((k) => (
                 <option key={k} value={k}>
                   {k}
@@ -109,6 +142,7 @@ export function TopBar() {
       </div>
 
       <div className="ml-auto flex items-center gap-2">
+        <HelpButton onClick={() => setHelp(true)} />
         {USE_MOCKS ? (
           <Badge tone="saffron" dot className="whitespace-nowrap">
             MOCK ENGINE

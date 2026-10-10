@@ -82,6 +82,8 @@ const EMPTY_AGENT: AgentRun = {
 };
 
 export interface Controls {
+  /** "random", "custom", or a DemoPreset id. */
+  preset: string;
   seed: string; // blank = random
   noise: NoiseLevel;
   k: number;
@@ -106,6 +108,11 @@ interface State {
 
   agent: AgentRun;
   tab: TabId;
+  helpOpen: boolean;
+  setHelp: (open: boolean) => void;
+  /** True while the agent timeline is still revealing events (presenter cues wait for it). */
+  narrating: boolean;
+  setNarrating: (v: boolean) => void;
   evaluation: EvalResponse | null;
   evaluationError: ApiError | null;
   placement: SensorPlaceResponse | null;
@@ -157,7 +164,7 @@ export const useStore = create<State>((set, get) => ({
   networkError: null,
   health: null,
 
-  controls: { seed: "", noise: "mid", k: 6, size: "random" },
+  controls: { preset: "random", seed: "", noise: "mid", k: 6, size: "random" },
   busy: null,
   epoch: 0,
 
@@ -168,6 +175,10 @@ export const useStore = create<State>((set, get) => ({
 
   agent: EMPTY_AGENT,
   tab: "candidates",
+  helpOpen: false,
+  setHelp: (helpOpen) => set({ helpOpen }),
+  narrating: false,
+  setNarrating: (narrating) => set({ narrating }),
   evaluation: null,
   evaluationError: null,
   placement: null,
@@ -219,7 +230,7 @@ export const useStore = create<State>((set, get) => ({
     const epoch = get().epoch + 1;
     // Results of the top-bar flow always show on Candidates, whatever tab was open.
     set({ busy: "simulate", epoch, scenario: null, detection: null, reveal: null, expired: false, focusNode: null, agent: EMPTY_AGENT, tab: "candidates" });
-    const seed = over?.seed ?? (controls.seed.trim() === "" ? undefined : Number(controls.seed));
+    const seed = over?.seed ?? (controls.preset === "random" || controls.seed.trim() === "" ? undefined : Number(controls.seed));
     const sensors = over?.sensors ?? get().customSensors ?? undefined;
     if (seed !== undefined && (!Number.isInteger(seed) || seed < 0)) {
       set({ busy: null });

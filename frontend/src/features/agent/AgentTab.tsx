@@ -1,6 +1,6 @@
 import { Bot, Eye, HardHat, PartyPopper, Play, RotateCcw, SearchX, Siren } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { useStore } from "../../state/store";
 import { Badge, Button, Eyebrow, Prov } from "../../ui/primitives";
 import { Timeline } from "./Timeline";
@@ -10,8 +10,9 @@ export function AgentTab() {
   const agent = useStore((s) => s.agent);
   const busy = useStore((s) => s.busy);
   const investigate = useStore((s) => s.investigate);
-  const [settled, setSettled] = useState(true);
-  const onSettled = useCallback((v: boolean) => setSettled(v), []);
+  const settled = !useStore((s) => s.narrating);
+  const setNarrating = useStore((s) => s.setNarrating);
+  const onSettled = useCallback((v: boolean) => setNarrating(!v), [setNarrating]);
 
   if (!scenario) {
     return (

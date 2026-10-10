@@ -35,6 +35,9 @@ export function Timeline({ events, onSettled }: { events: AgentEvent[]; onSettle
     end.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [shown]);
 
+  // Leaving the tab mid-animation must not leave presenter cues waiting forever.
+  useEffect(() => () => onSettled?.(true), [onSettled]);
+
   return (
     <ol className="relative space-y-2 pl-1">
       <span className="absolute bottom-3 left-[13px] top-3 w-px bg-gradient-to-b from-ink-600 via-ink-600 to-transparent" />
