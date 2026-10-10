@@ -1,4 +1,4 @@
-# AquaTrace API Contract (v1.0)
+# AquaTrace API Contract (v1.1)
 
 > **Source of truth.** Nobody codes against an endpoint that isn't in this file.
 > Changes are announced in the group chat and recorded in the [Changelog](#changelog).
@@ -126,6 +126,19 @@ Body: `{ "scenario_id": "a1b2c3", "node": "211", "found": false }`
 ```
 Idempotent: repeating a report changes nothing. `found: false` down-weights (never zeroes) the node.
 
+### `POST /field/inspect` (v1.1: simulated crew)
+Body: `{ "scenario_id": "a1b2c3", "node": "211" }`
+
+The server plays the field crew: it checks the node against the hidden truth, applies
+`MISS_PROB` (a crew can miss a real leak), **records the outcome exactly like `/field/result`**,
+and returns what the crew reported. Lets a live demo run without the presenter knowing the truth.
+```json
+{ "node": "211", "found": false, "state": "investigating", "ranking": [ { "node": "213", "score": 0.47 } ], "note": null }
+```
+- Deterministic: same scenario + node gives the same outcome (seed it from scenario seed + node id).
+- Reveals nothing beyond what a real crew learns (leak / no leak **at that node**). Never returns the true node.
+- Same validation and idempotency as `/field/result`.
+
 ### `GET /scenario/{id}/reveal`
 ```json
 { "true_leak_node": "213", "true_size": "medium", "rank_of_truth": 2, "hop_error_top1": 1 }
@@ -193,4 +206,5 @@ Body:
 
 | Version | Change | Owner |
 |---|---|---|
+| 1.1 | **New endpoint** `POST /field/inspect` (simulated crew outcome, recorded like `/field/result`). Additive; nothing else changes. | P3 |
 | 1.0 | Initial contract from build prompts §3. Added (all **optional/additive**): `health.progress`, `pipe.kind`, `scenario.seed` + `meta.noise_level`, `candidate.tie_group`, `evidence.live_sensors`, `detect.recommended_sensor`, `agent.route_length_m` + `inspections_used`, `field.note`, concrete `/eval` and `/repair/optimize` shapes, `curve.baseline_top3`. | P3 |

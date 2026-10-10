@@ -1,4 +1,4 @@
-import { Bot, Eye, PartyPopper, Play, RotateCcw, SearchX, Siren } from "lucide-react";
+import { Bot, Eye, HardHat, PartyPopper, Play, RotateCcw, SearchX, Siren } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useState } from "react";
 import { useStore } from "../../state/store";
@@ -127,15 +127,29 @@ function Dock() {
             </span>
           )}
         </div>
-        <div className="mt-2.5 grid grid-cols-2 gap-2">
-          <Button tone="ghost" loading={busy === "field"} disabled={busy !== null} icon={<SearchX className="size-4" />} onClick={() => reportField(false)}>
+        <Button
+          tone="primary"
+          size="lg"
+          className="mt-2.5 w-full"
+          loading={busy === "field"}
+          disabled={busy !== null}
+          icon={<HardHat className="size-5" />}
+          onClick={() => reportField("crew")}
+        >
+          Send simulated crew
+        </Button>
+        <p className="mt-1.5 text-[0.72rem] text-silt">
+          The server checks this node against the hidden leak. Crews miss real leaks 5% of the time, so "nothing found" only down-weights a node.
+        </p>
+        <div className="mt-2.5 flex items-center gap-2 border-t border-ink-700 pt-2.5">
+          <span className="text-[0.7rem] uppercase tracking-wider text-silt-dim">Manual</span>
+          <Button tone="quiet" size="sm" disabled={busy !== null} icon={<SearchX className="size-3.5" />} onClick={() => reportField(false)}>
             Nothing found
           </Button>
-          <Button tone="danger" disabled={busy !== null} icon={<Siren className="size-4" />} onClick={() => reportField(true)}>
+          <Button tone="quiet" size="sm" disabled={busy !== null} icon={<Siren className="size-3.5" />} onClick={() => reportField(true)}>
             Leak found
           </Button>
         </div>
-        <p className="mt-2 text-[0.72rem] text-silt">"Nothing found" down-weights the node (crews can miss a leak) and re-ranks the rest.</p>
       </motion.div>
     );
   }

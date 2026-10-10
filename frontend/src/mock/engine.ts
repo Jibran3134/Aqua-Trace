@@ -6,6 +6,7 @@ import type {
   ErrorCode,
   FieldResultResponse,
   HealthResponse,
+  InspectResponse,
   LeakSize,
   NetworkResponse,
   NodeId,
@@ -16,7 +17,8 @@ import type {
 import { currentRanking, recordFieldResult, scriptedStep } from "./agent";
 import { detect, fitAll, round } from "./detector";
 import { evaluationReport } from "./evaluate";
-import { defaultSensors, loadNet, observe, simulate, type Net } from "./physics";
+import { defaultSensors, loadNet, MISS_PROB, observe, simulate, type Net } from "./physics";
+import { hashString, rng } from "../lib/rng";
 import type { ScenarioState } from "./state";
 
 export interface MockResult {
@@ -77,6 +79,7 @@ export class MockBackend {
     if (method === "POST" && path === "/detect") return this.detect(body);
     if (method === "POST" && path === "/agent/step") return this.agentStep(body);
     if (method === "POST" && path === "/field/result") return this.fieldResult(body);
+    if (method === "POST" && path === "/field/inspect") return this.inspect(body);
     if (method === "GET" && path === "/eval") return evaluationReport(this.net);
     const reveal = path.match(/^\/scenario\/([^/]+)\/reveal$/);
     if (method === "GET" && reveal) return this.reveal(decodeURIComponent(reveal[1]));
@@ -193,6 +196,16 @@ export class MockBackend {
         .map((r) => ({ node: r.node, score: round(r.score, 4) })),
       note: already ? `Node ${body.node} was already reported; no change.` : null,
     };
+  }
+
+  /** Simulated crew: found only at the true node, and even then missed with MISS_PROB. */
+  inspect(body: Record<string, unknown>): InspectResponse {
+    const st = this.scenario(body);
+    const node = body.node;
+    if (typeof node !== "string" || !this.net.signature.has(node)) throw invalid(`Unknown node ${String(node)}.`, "Inspect a candidate node from /detect.");
+    const roll = rng(st.sim.seed * 31 + hashString(node))();
+    const found = node === st.sim.trueLeakNode && roll >= MISS_PROB;
+    return { node, found, ...this.fieldResult({ scenario_id: st.id, node, found }) };
   }
 
   reveal(id: string): RevealResponse {

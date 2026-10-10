@@ -1,4 +1,4 @@
-// 1:1 mirror of contracts/api.md (v1.0). If you change one, change both and log it in the changelog.
+// 1:1 mirror of contracts/api.md (v1.1). If you change one, change both and log it in the changelog.
 
 export type NodeId = string;
 export type PipeId = string;
@@ -135,6 +135,16 @@ export interface FieldResultResponse {
   state: "investigating" | "resolved";
   ranking: { node: NodeId; score: number }[];
   note?: string | null;
+}
+
+// ---------- POST /field/inspect (v1.1: simulated crew) ----------
+export interface InspectRequest {
+  scenario_id: string;
+  node: NodeId;
+}
+export interface InspectResponse extends FieldResultResponse {
+  node: NodeId;
+  found: boolean;
 }
 
 // ---------- GET /scenario/{id}/reveal ----------

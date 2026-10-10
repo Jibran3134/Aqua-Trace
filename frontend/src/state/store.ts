@@ -80,7 +80,8 @@ interface State {
   setControls: (c: Partial<Controls>) => void;
   setTab: (t: TabId) => void;
   investigate: () => Promise<void>;
-  reportField: (found: boolean) => Promise<void>;
+  /** true/false = manual report; "crew" = let the server's simulated crew inspect the node. */
+  reportField: (outcome: boolean | "crew") => Promise<void>;
   loadEvaluation: () => Promise<void>;
   setFocus: (id: string | null) => void;
   setHover: (id: string | null) => void;
@@ -261,14 +262,22 @@ export const useStore = create<State>((set, get) => ({
     }
   },
 
-  reportField: async (found) => {
+  reportField: async (outcome) => {
     const { scenario, busy, epoch, agent } = get();
     const node = agent.recommended;
     if (!scenario || busy || !node || agent.state !== "investigating") return;
     set({ busy: "field" });
     try {
-      await api.fieldResult({ scenario_id: scenario.scenario_id, node, found });
+      const found =
+        outcome === "crew"
+          ? (await api.inspect({ scenario_id: scenario.scenario_id, node })).found
+          : (await api.fieldResult({ scenario_id: scenario.scenario_id, node, found: outcome }), outcome);
       if (get().epoch !== epoch) return;
+      if (outcome === "crew") {
+        toast(found ? `Crew at node ${node}: leak found` : `Crew at node ${node}: nothing found`, {
+          description: found ? "Closing the investigation." : "Down-weighting this node and re-ranking.",
+        });
+      }
       set((s) => ({
         agent: {
           ...s.agent,

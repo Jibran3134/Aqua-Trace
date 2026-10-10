@@ -103,6 +103,23 @@ describe("mock backend contract", () => {
     expect(detect.note).toBeTruthy();
   });
 
+  it("simulated crew finds the leak only at the true node, deterministically, without leaking truth", () => {
+    for (let seed = 1000; seed < 1010; seed++) {
+      const b = new MockBackend();
+      const { leak, detect } = leakAndDetect(b, seed);
+      const truth = call<RevealResponse>(b, "GET", `/scenario/${leak.scenario_id}/reveal`).body.true_leak_node;
+      for (const c of detect.candidates.slice(0, 3)) {
+        const r = call<{ found: boolean; node: string }>(b, "POST", "/field/inspect", { scenario_id: leak.scenario_id, node: c.node }).body;
+        expect(JSON.stringify(r)).not.toMatch(/true_leak/);
+        if (c.node !== truth) expect(r.found).toBe(false);
+        const again = new MockBackend();
+        const l2 = call<ScenarioResponse>(again, "POST", "/scenario/leak", { seed }).body;
+        const r2 = call<{ found: boolean }>(again, "POST", "/field/inspect", { scenario_id: l2.scenario_id, node: c.node }).body;
+        expect(r2.found).toBe(r.found);
+      }
+    }
+  });
+
   it("uses the contract error format", () => {
     const b = new MockBackend();
     const nf = call<ErrorBody>(b, "POST", "/detect", { scenario_id: "nope" });
