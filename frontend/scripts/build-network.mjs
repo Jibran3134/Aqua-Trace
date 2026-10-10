@@ -6,7 +6,8 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const INP = resolve(here, "../../backend/data/Net3.inp");
+// Local copy of the WNTR example network, used only to build the mock map (backend keeps its own).
+const INP = resolve(here, "data/Net3.inp");
 const OUT = resolve(here, "../src/mock/data/net3.json");
 
 function sections(text) {
