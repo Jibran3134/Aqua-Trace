@@ -16,3 +16,8 @@ in `../docs/hydraulics.md` and retained rather than changing pump controls.
 `signature_validation.json` records measured final signature build/load timing.
 Reproduce calibration with `python -m app.hydraulics.calibrate` from backend.
 Upstream copyright and BSD terms are retained in `WNTR-LICENSE.md`.
+
+`detector_diagnostics.json` records every validation-only sensor/transform
+comparison, including the original failed development approach.
+`detection_validation.json` records aggregate frozen acceptance results without
+individual scenario truth. Reproduce with `python -m app.detection.validate`.

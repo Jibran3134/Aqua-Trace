@@ -112,5 +112,11 @@ posterior preservation and floor geometry/sigma identity. Reproduce with
 `python -m app.detection.validate`, which writes `data/detection_validation.json`.
 These development outcomes are synthetic benchmark results, not field accuracy.
 
+The final aggregate validation confirms **33/50** top-three hits, **7/10** for
+the fixed acceptance subset, and **29/30** heldout no-leak abstentions after the
+Gaussian guard. The latest aggregate run took **measured 14.786398 seconds**. Dedicated
+tests also verify that fingerprint/projection identity follows signature
+publication and that output/calibration setting changes invalidate identity.
+
 [SciPy chi-square inverse CDF](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.chi2.html)
 defines the analytical Gaussian norm quantile used by the floor guard.

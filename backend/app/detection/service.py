@@ -7,13 +7,12 @@ import json
 import math
 from collections import OrderedDict
 from dataclasses import dataclass
-from functools import cached_property
 from threading import RLock
 
 import numpy as np
 from scipy.stats import chi2
 
-from app.core.config import Settings
+from app.core.config import DEMAND_MULT_RANGE, Settings
 from app.core.errors import DomainError
 from app.detection.scenarios import ScenarioGenerator
 from app.domain.models import ScenarioObservation
@@ -56,22 +55,38 @@ class Detector:
         self._calibration_digest = hashlib.sha256(
             json.dumps(NOISE_CALIBRATION_SEEDS).encode()
         ).hexdigest()
-        self.fingerprint = hashlib.sha256(json.dumps({
-            "format": 2, "signatures": signatures.fingerprint,
-            "tau": settings.detector_tau, "center": settings.center_residuals,
-            "demand_projection": settings.demand_projection,
-            "demand_projection_anchors": [0.9, 1.1], "gaussian_noise_guard": True,
-            "noise_percentile": settings.noise_floor_percentile,
+        self._direction_identity: tuple | None = None
+        self._direction: np.ndarray | None = None
+
+    @property
+    def fingerprint(self) -> str:
+        """Follow the current signature identity even across background publication."""
+        return hashlib.sha256(json.dumps({
+            "format": 2, "signatures": self.signatures.fingerprint,
+            "tau": self.settings.detector_tau, "center": self.settings.center_residuals,
+            "demand_projection": self.settings.demand_projection,
+            "demand_projection_anchors": DEMAND_MULT_RANGE, "gaussian_noise_guard": True,
+            "detector_top_k": self.settings.detector_top_k,
+            "demand_multiplier_range": DEMAND_MULT_RANGE, "noise_calibration_policy": 2,
+            "noise_percentile": self.settings.noise_floor_percentile,
             "noise_calibration": self._calibration_digest,
         }, sort_keys=True).encode()).hexdigest()
 
-    @cached_property
+    @property
     def _demand_direction(self) -> np.ndarray:
         """Approximate unknown demand's spatial pattern using no-leak physics only."""
         self.signatures.ensure_ready()
-        low = self.hydraulics.run(demand_mult=0.9).pressures
-        high = self.hydraulics.run(demand_mult=1.1).pressures
-        return np.array([high[node] - low[node] for node in self.signatures.node_order])
+        identity = (self.signatures.fingerprint, tuple(self.signatures.node_order), DEMAND_MULT_RANGE)
+        with self._floor_lock:
+            if identity != self._direction_identity:
+                low = self.hydraulics.run(demand_mult=DEMAND_MULT_RANGE[0]).pressures
+                high = self.hydraulics.run(demand_mult=DEMAND_MULT_RANGE[1]).pressures
+                self._direction = np.array([
+                    high[node] - low[node] for node in self.signatures.node_order
+                ])
+                self._direction.setflags(write=False)
+                self._direction_identity = identity
+            return self._direction
 
     def _transform(self, residual: np.ndarray, indexes: list[int]) -> np.ndarray:
         if self.settings.demand_projection:

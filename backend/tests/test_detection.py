@@ -172,3 +172,33 @@ def test_noise_floor_cache_distinguishes_live_geometry_and_sigma(detection_conte
     detector.analyze(changed_sigma)
     assert len(cache.data) == 3
     assert all(set(value) == {"noise_floor"} for value in cache.data.values())
+
+
+def test_fingerprint_and_projection_follow_signature_publication(detection_context, monkeypatch):
+    settings, hydraulics, signatures, generator = detection_context
+    detector = Detector(settings, hydraulics, signatures, generator)
+    before = detector.fingerprint
+    observation, _ = generator.make(1)
+    live, residual, rows = detector.fit_inputs(observation)
+    result = detector.analyze(observation)
+    candidate = result.response.candidates[0].node
+    column = signatures.candidate_order.index(candidate)
+    assert len(live) == 6
+    assert float(((residual - result.alphas[candidate] * rows[:, column]) ** 2).sum()) \
+        == pytest.approx(result.errors[candidate], abs=1e-9)
+    monkeypatch.setattr(signatures, "fingerprint", signatures.fingerprint + "changed")
+    assert detector.fingerprint != before
+    detector.fit_inputs(observation)
+    assert detector._direction_identity[0] == signatures.fingerprint
+
+
+def test_fingerprint_changes_with_output_and_calibration_settings(detection_context, monkeypatch):
+    settings, hydraulics, signatures, generator = detection_context
+    detector = Detector(settings, hydraulics, signatures, generator)
+    for key, value in (("detector_top_k", 3), ("noise_floor_percentile", 99),
+                       ("demand_projection", False), ("detector_tau", .1)):
+        changed = Detector(settings.model_copy(update={key: value}), hydraulics, signatures, generator)
+        assert changed.fingerprint != detector.fingerprint
+    before = detector.fingerprint
+    monkeypatch.setattr("app.detection.service.DEMAND_MULT_RANGE", (.8, 1.2))
+    assert detector.fingerprint != before
