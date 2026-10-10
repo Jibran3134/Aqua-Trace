@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Literal
 from urllib.parse import urlsplit
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -68,7 +68,9 @@ class Settings(BaseSettings):
     llm_1_model: str = "gemini-3.8-flash"
     llm_2_base_url: str = "https://api.groq.com/openai/v1"
     llm_2_api_key: SecretStr = SecretStr("")
-    llm_2_model: str = "llama-3.3-70b-versatile"
+    llm_2_model: str = "openai/gpt-oss-120b"
+    grok_api_key: SecretStr | None = None
+    grok_model: str | None = None
     max_request_bytes: int = Field(default=65536, ge=1024, le=1048576)
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     miss_prob: float = Field(default=0.05, gt=0, lt=1)
@@ -100,3 +102,14 @@ class Settings(BaseSettings):
         if parsed.query or parsed.fragment:
             raise ValueError("Provider base URL cannot contain a query or fragment.")
         return value.rstrip("/")
+
+    @model_validator(mode="after")
+    def resolve_llm_aliases(self) -> "Settings":
+        if self.grok_api_key and not self.llm_1_api_key.get_secret_value():
+            self.llm_1_api_key = self.grok_api_key
+        if self.grok_model and "api.groq.com" not in self.llm_1_base_url:
+            self.llm_1_model = self.grok_model
+        # If pointing to Groq and model is grok-* or retired llama-3.3, map to Groq's active tool-calling model
+        if "api.groq.com" in self.llm_1_base_url and self.llm_1_model in {"grok-2-latest", "llama-3.3-70b-versatile"}:
+            self.llm_1_model = "openai/gpt-oss-120b"
+        return self
