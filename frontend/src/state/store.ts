@@ -103,7 +103,11 @@ interface State {
 
   scenario: ScenarioResponse | null;
   detection: DetectResponse | null;
+  /** Ranking as first detected, before any field feedback re-ranked it (for the report). */
+  initialDetection: DetectResponse | null;
   reveal: RevealResponse | null;
+  reportOpen: boolean;
+  setReport: (open: boolean) => void;
   expired: boolean;
 
   agent: AgentRun;
@@ -170,7 +174,10 @@ export const useStore = create<State>((set, get) => ({
 
   scenario: null,
   detection: null,
+  initialDetection: null,
   reveal: null,
+  reportOpen: false,
+  setReport: (reportOpen) => set({ reportOpen }),
   expired: false,
 
   agent: EMPTY_AGENT,
@@ -229,7 +236,7 @@ export const useStore = create<State>((set, get) => ({
     if (busy) return;
     const epoch = get().epoch + 1;
     // Results of the top-bar flow always show on Candidates, whatever tab was open.
-    set({ busy: "simulate", epoch, scenario: null, detection: null, reveal: null, expired: false, focusNode: null, agent: EMPTY_AGENT, tab: "candidates" });
+    set({ busy: "simulate", epoch, scenario: null, detection: null, initialDetection: null, reveal: null, expired: false, focusNode: null, agent: EMPTY_AGENT, tab: "candidates", reportOpen: false });
     const seed = over?.seed ?? (controls.preset === "random" || controls.seed.trim() === "" ? undefined : Number(controls.seed));
     const sensors = over?.sensors ?? get().customSensors ?? undefined;
     if (seed !== undefined && (!Number.isInteger(seed) || seed < 0)) {
@@ -265,7 +272,7 @@ export const useStore = create<State>((set, get) => ({
     try {
       const detection = await api.detect(scenario.scenario_id);
       if (get().epoch !== epoch) return;
-      set({ detection, focusNode: detection.candidates[0]?.node ?? null });
+      set((s) => ({ detection, initialDetection: s.initialDetection ?? detection, focusNode: detection.candidates[0]?.node ?? null }));
       // Frame the leading cluster so the audience sees where to look, not the whole city.
       const lead = detection.status === "ok" ? detection.candidates.slice(0, 3).map((c) => c.node) : [];
       if (lead.length) get().frame(lead);

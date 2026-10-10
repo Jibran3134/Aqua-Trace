@@ -1,4 +1,4 @@
-import { Bot, Eye, HardHat, PartyPopper, Play, RotateCcw, SearchX, Siren } from "lucide-react";
+import { Bot, Eye, FileText, HardHat, PartyPopper, Play, RotateCcw, SearchX, Siren } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback } from "react";
 import { useStore } from "../../state/store";
@@ -93,6 +93,12 @@ function Dock() {
   const investigate = useStore((s) => s.investigate);
   const revealTruth = useStore((s) => s.revealTruth);
   const flyTo = useStore((s) => s.flyTo);
+  const setReport = useStore((s) => s.setReport);
+  const reportBtn = (
+    <Button tone="ghost" size="sm" className="mt-2 w-full" icon={<FileText className="size-3.5" />} onClick={() => setReport(true)}>
+      Investigation report
+    </Button>
+  );
 
   const shell = "rounded-2xl p-3.5 shadow-lift backdrop-blur scroll-mb-4";
   const motionProps = {
@@ -170,6 +176,7 @@ function Dock() {
             Reveal truth
           </Button>
         )}
+        {reportBtn}
       </motion.div>
     );
   }
@@ -191,6 +198,7 @@ function Dock() {
             "The agent will not dispatch a crew on this evidence."
           )}
         </p>
+        {reportBtn}
       </motion.div>
     );
   }

@@ -4,6 +4,7 @@ import { useCallback, useEffect } from "react";
 import { TopBar } from "../features/controls/TopBar";
 import { NetworkCanvas } from "../features/network/NetworkCanvas";
 import { HelpSheet, NextStepChip, usePresenterKeys } from "../features/presenter/Presenter";
+import { InvestigationReport } from "../features/report/InvestigationReport";
 import { SidePanel } from "../features/panel/SidePanel";
 import { useStore } from "../state/store";
 import { ErrorBoundary } from "../ui/ErrorBoundary";
@@ -96,6 +97,7 @@ export function ConsolePage() {
         </section>
       </main>
       <HelpSheet open={helpOpen} onClose={closeHelp} />
+      <InvestigationReport />
     </div>
   );
 }

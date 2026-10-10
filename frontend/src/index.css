@@ -147,3 +147,27 @@ body {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* Printing the investigation report: only the paper sheet, on white, no app chrome. */
+@media print {
+  #root,
+  .report-actions,
+  [data-sonner-toaster] {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+  }
+  .report-portal {
+    position: static !important;
+    background: none !important;
+    padding: 0 !important;
+    backdrop-filter: none !important;
+  }
+  .report-sheet {
+    box-shadow: none !important;
+    background: #fff !important;
+    max-width: none !important;
+    transform: none !important;
+  }
+}

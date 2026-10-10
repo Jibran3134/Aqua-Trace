@@ -39,6 +39,7 @@ export function usePresenterKeys(toggleHelp: () => void) {
       const key = e.key.toLowerCase();
       if (key === "?" || (key === "/" && e.shiftKey)) return toggleHelp();
       if (/^[1-5]$/.test(key)) return s.setTab(TABS[Number(key) - 1]);
+      if (key === "p" && s.initialDetection) return s.setReport(!s.reportOpen);
       if (s.busy) return;
       if (key === "s") void s.simulate();
       else if (key === "d") void s.detect();
@@ -87,6 +88,7 @@ const SHORTCUTS: [string, string][] = [
   ["I", "Investigate with the agent"],
   ["C", "Send simulated crew"],
   ["V", "Reveal truth"],
+  ["P", "Investigation report"],
   ["R", "Reset map view"],
   ["1–5", "Switch tabs"],
   ["?", "Show / hide this sheet"],

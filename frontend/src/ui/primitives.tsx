@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import type { ButtonHTMLAttributes, HTMLAttributes, ReactNode } from "react";
+import { useId, type ButtonHTMLAttributes, type HTMLAttributes, type ReactNode } from "react";
 
 export const cn = clsx;
 
@@ -114,15 +114,17 @@ export function RippleDot({ color = "var(--color-vermilion)", className }: { col
 
 // ---------- Brand mark: a drop whose interior is a pipe graph with one hot node ----------
 export function AquaTraceMark({ className }: { className?: string }) {
+  // Unique per instance: a shared id would resolve to a copy hidden elsewhere (e.g. when printing).
+  const grad = `at-drop-${useId()}`;
   return (
     <svg viewBox="0 0 40 40" className={className} aria-hidden>
       <defs>
-        <linearGradient id="at-drop" x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={grad} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#6fe0c7" />
           <stop offset="1" stopColor="#1f7f70" />
         </linearGradient>
       </defs>
-      <path d="M20 3C20 3 7 17.5 7 25.5a13 13 0 0 0 26 0C33 17.5 20 3 20 3Z" fill="none" stroke="url(#at-drop)" strokeWidth="2.4" strokeLinejoin="round" />
+      <path d="M20 3C20 3 7 17.5 7 25.5a13 13 0 0 0 26 0C33 17.5 20 3 20 3Z" fill="none" stroke={`url(#${grad})`} strokeWidth="2.4" strokeLinejoin="round" />
       <g stroke="#3fbfa6" strokeWidth="1.6" strokeLinecap="round">
         <path d="M14 25h7l5-5M21 25l3 5M14 25l-1 4" />
       </g>
