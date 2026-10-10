@@ -6,13 +6,14 @@ import { cn } from "../../ui/primitives";
 import { AgentTab } from "../agent/AgentTab";
 import { CandidatesTab } from "../candidates/CandidatesTab";
 import { EvaluationTab } from "../evaluation/EvaluationTab";
+import { SensorsTab } from "../sensors/SensorsTab";
 
 
 const TABS: { id: TabId; label: string; icon: ReactNode; ready: boolean; stage?: string }[] = [
   { id: "candidates", label: "Candidates", icon: <MapPin className="size-4" />, ready: true },
   { id: "agent", label: "Agent", icon: <Bot className="size-4" />, ready: true },
   { id: "evaluation", label: "Evaluation", icon: <BarChart3 className="size-4" />, ready: true },
-  { id: "sensors", label: "Sensors", icon: <Radio className="size-4" />, ready: false, stage: "S1" },
+  { id: "sensors", label: "Sensors", icon: <Radio className="size-4" />, ready: true },
   { id: "repairs", label: "Repairs", icon: <Wrench className="size-4" />, ready: false, stage: "S2" },
 ];
 
@@ -51,6 +52,7 @@ export function SidePanel() {
         {tab === "candidates" && <CandidatesTab />}
         {tab === "agent" && <AgentTab />}
         {tab === "evaluation" && <EvaluationTab />}
+        {tab === "sensors" && <SensorsTab />}
         {!active.ready && <ComingSoon label={active.label} stage={active.stage!} />}
       </div>
     </aside>

@@ -17,6 +17,7 @@ import type {
 import { currentRanking, recordFieldResult, scriptedStep } from "./agent";
 import { detect, fitAll, round } from "./detector";
 import { evaluationReport } from "./evaluate";
+import { placeSensors } from "./placement";
 import { defaultSensors, loadNet, MISS_PROB, observe, simulate, type Net } from "./physics";
 import { hashString, rng } from "../lib/rng";
 import type { ScenarioState } from "./state";
@@ -81,6 +82,13 @@ export class MockBackend {
     if (method === "POST" && path === "/field/result") return this.fieldResult(body);
     if (method === "POST" && path === "/field/inspect") return this.inspect(body);
     if (method === "GET" && path === "/eval") return evaluationReport(this.net);
+    if (method === "POST" && path === "/sensors/place") {
+      const k = body.k;
+      const noise = (body.noise ?? "mid") as NoiseLevel;
+      if (!Number.isInteger(k) || (k as number) < 1) throw invalid("k must be a positive integer.", "Pick between 1 and 12 sensors.");
+      if (!NOISES.includes(noise)) throw invalid("noise must be low, mid or high.", "Use mid.");
+      return placeSensors(this.net, k as number, noise);
+    }
     const reveal = path.match(/^\/scenario\/([^/]+)\/reveal$/);
     if (method === "GET" && reveal) return this.reveal(decodeURIComponent(reveal[1]));
     throw new HttpError(404, "internal_error", `No mock for ${method} ${path}.`, "This endpoint lands in a later module; check contracts/api.md.");

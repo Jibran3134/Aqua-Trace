@@ -93,6 +93,10 @@ const STYLE: cytoscape.StylesheetJson = [
   },
   { selector: "edge[kind = 'pump']", style: { "line-style": "dashed", "line-color": C.pump, width: 2.5 } },
   { selector: "edge.adjacent", style: { "line-color": "data(color)", width: 4 } },
+  {
+    selector: "node.proposed",
+    style: { shape: "diamond", width: 20, height: 20, "background-opacity": 0.12, "background-color": C.phosphor, "border-width": 2.5, "border-color": C.phosphor, "border-style": "dashed", label: "data(id)", color: C.phosphor, "z-index": 22 },
+  },
   { selector: "node.cleared", style: { "background-color": "#2b3b39", "border-width": 2, "border-color": C.silt, "border-style": "dashed", width: 11, height: 11, "z-index": 6 } },
   {
     selector: "edge.route",
@@ -109,6 +113,9 @@ export function NetworkCanvas() {
   const graph = useStore((s) => s.graph);
   const flyTarget = useStore((s) => s.flyTarget);
   const agent = useStore((s) => s.agent);
+  const tab = useStore((s) => s.tab);
+  const placement = useStore((s) => s.placement);
+  const customSensors = useStore((s) => s.customSensors);
   const setHover = useStore((s) => s.setHover);
   const setFocus = useStore((s) => s.setFocus);
 
@@ -170,8 +177,11 @@ export function NetworkCanvas() {
     const cy = cyRef.current;
     if (!cy || !network) return;
     cy.batch(() => {
-      cy.elements().removeClass("sensor offline candidate top truth suggested adjacent truthpath route cleared");
-      const sensors = scenario?.sensors ?? network.default_sensors;
+      cy.elements().removeClass("sensor offline candidate top truth suggested adjacent truthpath route cleared proposed");
+      const sensors = scenario?.sensors ?? customSensors ?? network.default_sensors;
+      if (tab === "sensors" && placement) {
+        for (const id of placement.sensors) if (!sensors.includes(id)) cy.getElementById(id).addClass("proposed");
+      }
       for (const id of sensors) {
         const n = cy.getElementById(id);
         n.addClass("sensor");
@@ -209,7 +219,7 @@ export function NetworkCanvas() {
         }
       }
     });
-  }, [network, scenario, detection, reveal, graph, agent]);
+  }, [network, scenario, detection, reveal, graph, agent, tab, placement, customSensors]);
 
   // Marching dashes on the crew route: reads as "a crew is moving" from the back of the room.
   const hasRoute = agent.state === "investigating" && agent.route.length > 0;

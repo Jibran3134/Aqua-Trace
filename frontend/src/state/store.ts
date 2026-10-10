@@ -13,10 +13,11 @@ import type {
   NoiseLevel,
   RevealResponse,
   ScenarioResponse,
+  SensorPlaceResponse,
 } from "../contracts/types";
 import { Graph } from "../lib/graph";
 
-export type Busy = null | "network" | "simulate" | "detect" | "reveal" | "agent" | "field";
+export type Busy = null | "network" | "simulate" | "detect" | "reveal" | "agent" | "field" | "place";
 export type TabId = "candidates" | "agent" | "evaluation" | "sensors" | "repairs";
 
 export interface AgentRun {
@@ -71,6 +72,10 @@ interface State {
   tab: TabId;
   evaluation: EvalResponse | null;
   evaluationError: ApiError | null;
+  placement: SensorPlaceResponse | null;
+  placementK: number;
+  /** Sensor set chosen in the Sensors tab; used by the next Simulate instead of default_sensors(k). */
+  customSensors: string[] | null;
 
   focusNode: string | null;
   hoverNode: string | null;
@@ -83,6 +88,8 @@ interface State {
   /** true/false = manual report; "crew" = let the server's simulated crew inspect the node. */
   reportField: (outcome: boolean | "crew") => Promise<void>;
   loadEvaluation: () => Promise<void>;
+  loadPlacement: (k: number) => Promise<void>;
+  applySensors: (ids: string[] | null) => void;
   setFocus: (id: string | null) => void;
   setHover: (id: string | null) => void;
   flyTo: (id: string) => void;
@@ -120,6 +127,9 @@ export const useStore = create<State>((set, get) => ({
   tab: "candidates",
   evaluation: null,
   evaluationError: null,
+  placement: null,
+  placementK: 6,
+  customSensors: null,
 
   focusNode: null,
   hoverNode: null,
@@ -162,6 +172,7 @@ export const useStore = create<State>((set, get) => ({
     const epoch = get().epoch + 1;
     set({ busy: "simulate", epoch, scenario: null, detection: null, reveal: null, expired: false, focusNode: null, agent: EMPTY_AGENT });
     const seed = over?.seed ?? (controls.seed.trim() === "" ? undefined : Number(controls.seed));
+    const sensors = over?.sensors ?? get().customSensors ?? undefined;
     if (seed !== undefined && (!Number.isInteger(seed) || seed < 0)) {
       set({ busy: null });
       toast.error("Seed must be a whole number", { description: "Leave it blank for a random scenario." });
@@ -171,8 +182,8 @@ export const useStore = create<State>((set, get) => ({
       const scenario = await api.leak({
         seed,
         noise: controls.noise,
-        k: over?.sensors ? undefined : controls.k,
-        sensors: over?.sensors,
+        k: sensors ? undefined : controls.k,
+        sensors,
         size: controls.size === "random" ? undefined : controls.size,
       });
       if (get().epoch !== epoch) return;
@@ -308,5 +319,25 @@ export const useStore = create<State>((set, get) => ({
     } catch (e) {
       set({ evaluationError: e instanceof ApiError ? e : new ApiError(0, "internal_error", String(e), "Retry.") });
     }
+  },
+
+  loadPlacement: async (k) => {
+    if (get().busy) return;
+    set({ busy: "place", placementK: k });
+    try {
+      const placement = await api.placeSensors({ k, noise: get().controls.noise });
+      if (get().placementK === k) set({ placement });
+    } catch (e) {
+      report(e, "Sensor placement");
+    } finally {
+      set({ busy: null });
+    }
+  },
+
+  applySensors: (ids) => {
+    set({ customSensors: ids });
+    toast(ids ? `Using ${ids.length} optimized sensors` : "Back to default sensors", {
+      description: ids ? "The next simulated leak is read by these sensors." : "Farthest-point placement, k from the top bar.",
+    });
   },
 }));

@@ -20,6 +20,7 @@ export function TopBar() {
   const simulate = useStore((s) => s.simulate);
   const detect = useStore((s) => s.detect);
   const revealTruth = useStore((s) => s.revealTruth);
+  const customSensors = useStore((s) => s.customSensors);
 
   const notReady = !network || health?.signatures_ready === false;
   const locked = busy !== null;
@@ -67,13 +68,19 @@ export function TopBar() {
           </select>
         </Field>
         <Field label="Sensors">
-          <select className={cn(field, "w-[4.6rem]")} value={controls.k} disabled={locked} onChange={(e) => setControls({ k: Number(e.target.value) })}>
-            {[3, 6, 10].map((k) => (
-              <option key={k} value={k}>
-                {k}
-              </option>
-            ))}
-          </select>
+          {customSensors ? (
+            <div className={cn(field, "num flex w-[4.6rem] items-center text-phosphor ring-phosphor/40")} title="Optimized sensor set from the Sensors tab">
+              opt·{customSensors.length}
+            </div>
+          ) : (
+            <select className={cn(field, "w-[4.6rem]")} value={controls.k} disabled={locked} onChange={(e) => setControls({ k: Number(e.target.value) })}>
+              {[3, 6, 10].map((k) => (
+                <option key={k} value={k}>
+                  {k}
+                </option>
+              ))}
+            </select>
+          )}
         </Field>
       </div>
 
