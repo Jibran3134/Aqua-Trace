@@ -33,13 +33,15 @@ const TABS: TabId[] = ["candidates", "agent", "evaluation", "sensors", "repairs"
 export function usePresenterKeys(toggleHelp: () => void) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement;
-      if (e.ctrlKey || e.metaKey || e.altKey || t.closest("input, select, textarea, [contenteditable]")) return;
+      const t = e.target instanceof Element ? e.target : null;
+      if (e.ctrlKey || e.metaKey || e.altKey || t?.closest("input, select, textarea, [contenteditable]")) return;
       const s = useStore.getState();
       const key = e.key.toLowerCase();
       if (key === "?" || (key === "/" && e.shiftKey)) return toggleHelp();
       if (/^[1-5]$/.test(key)) return s.setTab(TABS[Number(key) - 1]);
       if (key === "p" && s.initialDetection) return s.setReport(!s.reportOpen);
+      if (key === "t") return s.toggleTheme();
+      if (key === "f") return s.setPresent(!s.present);
       if (s.busy) return;
       if (key === "s") void s.simulate();
       else if (key === "d") void s.detect();
@@ -70,7 +72,7 @@ export function NextStepChip() {
             exit={{ opacity: 0, y: -6 }}
             className="group flex items-center gap-2 rounded-xl bg-ink-850/90 py-2 pl-3 pr-2 text-[0.84rem] text-limestone ring-1 ring-verdigris/40 backdrop-blur transition hover:ring-verdigris"
           >
-            <span className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-verdigris-bright">Next</span>
+            <span className="font-mono text-[0.8rem] uppercase tracking-[0.16em] text-verdigris-bright">Next</span>
             <span>{next.label}</span>
             <Kbd>{next.key}</Kbd>
             <ArrowRight className="size-4 text-verdigris-bright transition group-hover:translate-x-0.5" />
@@ -88,6 +90,8 @@ const SHORTCUTS: [string, string][] = [
   ["I", "Investigate with the agent"],
   ["C", "Send simulated crew"],
   ["V", "Reveal truth"],
+  ["F", "Present mode"],
+  ["T", "Projector / dark theme"],
   ["P", "Investigation report"],
   ["R", "Reset map view"],
   ["1–5", "Switch tabs"],
@@ -143,7 +147,7 @@ export function HelpSheet({ open, onClose }: { open: boolean; onClose: () => voi
                 </li>
               ))}
             </ul>
-            <p className="mt-3 text-[0.76rem] text-silt">Shortcuts are ignored while typing in a field. The “Next” chip on the map always shows the next step.</p>
+            <p className="mt-3 text-[0.8rem] text-silt">Shortcuts are ignored while typing in a field. The “Next” chip on the map always shows the next step.</p>
           </motion.div>
         </motion.div>
       )}

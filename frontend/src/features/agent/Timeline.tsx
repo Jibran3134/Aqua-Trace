@@ -85,7 +85,7 @@ function EventBody({ e }: { e: AgentEvent }) {
             <span className="num">{summarize(e)}</span>
           </button>
           {open && (
-            <pre className="num mt-1.5 max-h-56 overflow-auto rounded-lg bg-ink-950/70 p-2.5 text-[0.72rem] leading-relaxed text-limestone-dim ring-1 ring-ink-700">
+            <pre className="num mt-1.5 max-h-56 overflow-auto rounded-lg bg-ink-950/70 p-2.5 text-[0.8rem] leading-relaxed text-limestone-dim ring-1 ring-ink-700">
               {JSON.stringify(e.result, null, 2)}
             </pre>
           )}

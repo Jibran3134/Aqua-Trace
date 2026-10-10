@@ -8,6 +8,7 @@ import { CandidatesTab } from "../candidates/CandidatesTab";
 import { EvaluationTab } from "../evaluation/EvaluationTab";
 import { RepairsTab } from "../repairs/RepairsTab";
 import { SensorsTab } from "../sensors/SensorsTab";
+import { StatusLine } from "./StatusLine";
 
 
 const TABS: { id: TabId; label: string; icon: ReactNode; ready: boolean; stage?: string }[] = [
@@ -24,6 +25,7 @@ export function SidePanel() {
   const active = TABS.find((t) => t.id === tab)!;
   return (
     <aside className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-ink-600/70 bg-gradient-to-b from-ink-850/95 to-ink-900/95 shadow-lift">
+      <StatusLine />
       <nav role="tablist" className="flex shrink-0 gap-1 border-b border-ink-700 p-1.5">
         {TABS.map((t) => (
           <button

@@ -77,7 +77,7 @@ export function IntroPage({ onEnter }: { onEnter: () => void }) {
 
         <div className="max-w-xl">
           <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15, duration: 0.7 }}>
-            <div className="font-mono text-[0.72rem] uppercase tracking-[0.22em] text-verdigris-bright">Leak localization for water utilities</div>
+            <div className="font-mono text-[0.8rem] uppercase tracking-[0.22em] text-verdigris-bright">Leak localization for water utilities</div>
             <h1 className="mt-3 font-display text-[clamp(2.4rem,5.5vw,4.4rem)] font-bold leading-[1.02] tracking-tight">
               Find the leak,
               <br />
@@ -107,7 +107,7 @@ export function IntroPage({ onEnter }: { onEnter: () => void }) {
           </motion.div>
         </div>
 
-        <motion.footer initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="flex flex-wrap items-end justify-between gap-3 text-[0.76rem] text-silt">
+        <motion.footer initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="flex flex-wrap items-end justify-between gap-3 text-[0.8rem] text-silt">
           <span>Network: EPANET Net3 (benchmark stand-in) · heights from real node elevations</span>
           <span className="flex items-center gap-1.5">
             <span className="size-2 rounded-full bg-vermilion" /> the pulse is decorative; real scenarios keep the leak hidden until Reveal

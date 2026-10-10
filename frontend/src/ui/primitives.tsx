@@ -59,7 +59,7 @@ const BADGE: Record<BadgeTone, string> = {
 
 export function Badge({ tone = "neutral", className, children, dot }: { tone?: BadgeTone; className?: string; children: ReactNode; dot?: boolean }) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.72rem] font-semibold ring-1", BADGE[tone], className)}>
+    <span className={cn("inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.8rem] font-semibold ring-1", BADGE[tone], className)}>
       {dot && <span className="size-1.5 rounded-full bg-current" />}
       {children}
     </span>
@@ -71,7 +71,7 @@ export type Provenance = "measured" | "simulated" | "assumed" | "relative score"
 
 export function Prov({ kind, className }: { kind: Provenance; className?: string }) {
   const tone = kind === "assumed" ? "text-saffron/90" : kind === "relative score" ? "text-verdigris-bright/80" : "text-silt";
-  return <span className={cn("mx-0.5 inline-block whitespace-nowrap font-mono text-[0.62rem] uppercase tracking-[0.12em]", tone, className)}>{kind}</span>;
+  return <span className={cn("mx-0.5 inline-block whitespace-nowrap font-mono text-[0.8rem] uppercase tracking-[0.12em]", tone, className)}>{kind}</span>;
 }
 
 // ---------- Panel ----------
@@ -90,7 +90,7 @@ export function Panel({ className, children, ...rest }: HTMLAttributes<HTMLDivEl
 }
 
 export function Eyebrow({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cn("font-mono text-[0.68rem] uppercase tracking-[0.18em] text-silt", className)}>{children}</div>;
+  return <div className={cn("font-mono text-[0.8rem] uppercase tracking-[0.18em] text-silt", className)}>{children}</div>;
 }
 
 // ---------- Spinner: a pressure ripple, not a generic wheel ----------
@@ -137,5 +137,5 @@ export function AquaTraceMark({ className }: { className?: string }) {
 }
 
 export function Kbd({ children }: { children: ReactNode }) {
-  return <kbd className="rounded-md border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-[0.7rem] text-silt">{children}</kbd>;
+  return <kbd className="rounded-md border border-ink-600 bg-ink-800 px-1.5 py-0.5 font-mono text-[0.8rem] text-silt">{children}</kbd>;
 }

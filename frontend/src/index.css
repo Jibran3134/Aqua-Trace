@@ -61,6 +61,40 @@
   }
 }
 
+/*
+  Projector theme "Indus Silt" (plan W8): the same token names remapped for a light, high-contrast
+  surface. Tailwind v4 utilities read these variables, so every component follows automatically.
+  "ink" = surfaces, "limestone" = text, regardless of theme.
+*/
+:root[data-theme="projector"] {
+  color-scheme: light;
+  --color-ink-950: #f3eee3;
+  --color-ink-900: #ece5d6;
+  --color-ink-850: #e6dfcd;
+  --color-ink-800: #ddd4bf;
+  --color-ink-700: #cfc5ae;
+  --color-ink-600: #b9ae95;
+  --color-ink-500: #9c917a;
+  --color-limestone: #1b2340;
+  --color-limestone-dim: #333d5e;
+  --color-silt: #4f5875;
+  --color-silt-dim: #6d7390;
+  --color-verdigris: #008c74;
+  --color-verdigris-bright: #00735f;
+  --color-verdigris-deep: #005e4f;
+  --color-saffron: #a86d00;
+  --color-vermilion: #c4452b;
+  --color-tracer: #5b3fd6;
+  --color-phosphor: #2f7d4f;
+  --shadow-lift: 0 1px 0 0 rgb(255 255 255 / 0.6) inset, 0 14px 30px -18px rgb(27 35 64 / 0.35);
+}
+:root[data-theme="projector"] .aquifer-grain {
+  opacity: 0.04;
+}
+:root[data-theme="projector"] .score-ramp {
+  background: linear-gradient(90deg, #9db2ad 0%, #c4b060 35%, #e9a23b 60%, #c4452b 100%);
+}
+
 :root {
   color-scheme: dark;
   /* Projector-first: generous base size (judges may view at 1280x720). */

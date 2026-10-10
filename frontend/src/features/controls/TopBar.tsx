@@ -1,154 +1,105 @@
-import { Eye, Radar, Waves } from "lucide-react";
+import { Check, Eye, HardHat, Monitor, Moon, Radar, Search, Sun, Waves } from "lucide-react";
+import { motion } from "motion/react";
 import type { ReactNode } from "react";
 import { API_URL, USE_MOCKS } from "../../api/client";
-import { DEMO_PRESETS } from "../../lib/demo";
-import { HelpButton } from "../presenter/Presenter";
-import type { LeakSize, NoiseLevel } from "../../contracts/types";
 import { useStore } from "../../state/store";
-import { AquaTraceMark, Badge, Button, cn } from "../../ui/primitives";
+import { spring } from "../../ui/motion";
+import { AquaTraceMark, Badge, cn } from "../../ui/primitives";
+import { HelpButton } from "../presenter/Presenter";
+import { ScenarioPopover } from "./ScenarioPopover";
 
-const field =
-  "h-10 rounded-xl bg-ink-850 px-3 text-[0.9rem] text-limestone ring-1 ring-ink-600 outline-none transition focus:ring-2 focus:ring-verdigris/70 disabled:opacity-50";
+type StepState = "done" | "current" | "locked";
+
+interface Step {
+  n: number;
+  label: string;
+  icon: ReactNode;
+  state: StepState;
+  run?: () => void;
+  busy?: boolean;
+}
+
+/** The demo's five beats as the app's primary navigation (plan W5). */
+function useSteps(): Step[] {
+  const s = useStore();
+  const ok = s.detection?.status === "ok";
+  const started = s.agent.events.length > 0;
+  const resolved = s.agent.state === "resolved";
+  const idle = !s.busy && !!s.network && s.health?.signatures_ready !== false;
+
+  const raw: Omit<Step, "state">[] = [
+    { n: 1, label: "Simulate", icon: <Waves className="size-4" />, run: () => s.simulate(), busy: s.busy === "simulate" },
+    { n: 2, label: "Detect", icon: <Radar className="size-4" />, run: s.scenario ? s.detect : undefined, busy: s.busy === "detect" },
+    { n: 3, label: "Investigate", icon: <Search className="size-4" />, run: ok && !started ? s.investigate : undefined, busy: s.busy === "agent" },
+    {
+      n: 4,
+      label: "Confirm",
+      icon: <HardHat className="size-4" />,
+      run: s.agent.state === "investigating" && s.agent.recommended ? () => s.reportField("crew") : undefined,
+      busy: s.busy === "field",
+    },
+    { n: 5, label: "Reveal", icon: <Eye className="size-4" />, run: s.detection && !s.reveal ? s.revealTruth : undefined, busy: s.busy === "reveal" },
+  ];
+  const done = [!!s.scenario, !!s.detection, started, resolved, !!s.reveal];
+  // Current = first step not done; with insufficient evidence the story jumps to Reveal.
+  let current = done.findIndex((d) => !d);
+  if (s.detection && !ok && current === 2) current = 4;
+  return raw.map((r, i) => ({
+    ...r,
+    run: idle ? r.run : undefined,
+    state: done[i] && i !== current ? "done" : i === current ? "current" : "locked",
+  }));
+}
 
 export function TopBar() {
-  const controls = useStore((s) => s.controls);
-  const setControls = useStore((s) => s.setControls);
-  const busy = useStore((s) => s.busy);
-  const scenario = useStore((s) => s.scenario);
-  const detection = useStore((s) => s.detection);
-  const reveal = useStore((s) => s.reveal);
-  const network = useStore((s) => s.network);
-  const health = useStore((s) => s.health);
-  const simulate = useStore((s) => s.simulate);
-  const detect = useStore((s) => s.detect);
-  const revealTruth = useStore((s) => s.revealTruth);
-  const customSensors = useStore((s) => s.customSensors);
+  const steps = useSteps();
   const setHelp = useStore((s) => s.setHelp);
-
-  const notReady = !network || health?.signatures_ready === false;
-  const isDemo = DEMO_PRESETS.some((p) => p.id === controls.preset);
-
-  function pickPreset(id: string) {
-    const demo = DEMO_PRESETS.find((p) => p.id === id);
-    if (demo) setControls({ preset: id, seed: String(demo.seed), size: demo.size, noise: demo.noise, k: demo.k });
-    else setControls({ preset: id, seed: id === "random" ? "" : controls.seed });
-  }
-  // Editing a demo preset's knobs turns it into a custom scenario (same seed), so the label never lies.
-  const tweak = (c: Partial<typeof controls>) => setControls({ ...c, ...(isDemo ? { preset: "custom" } : {}) });
-  const locked = busy !== null;
+  const theme = useStore((s) => s.theme);
+  const toggleTheme = useStore((s) => s.toggleTheme);
+  const setPresent = useStore((s) => s.setPresent);
 
   return (
-    <header className="relative z-20 flex h-[68px] shrink-0 items-center gap-4 border-b border-ink-700/80 bg-ink-950/70 px-5 backdrop-blur-md">
-      <div className="flex items-center gap-2.5 pr-2">
+    <header className="relative z-20 flex h-[68px] shrink-0 items-center gap-3 border-b border-ink-700/80 bg-ink-950/75 px-4 backdrop-blur-md">
+      <a href="#/intro" className="flex shrink-0 items-center gap-2 pr-1" title="Back to intro">
         <AquaTraceMark className="size-9" />
-        <div className="leading-tight">
-          <div className="font-display text-[1.3rem] font-bold tracking-tight">
-            Aqua<span className="text-verdigris">Trace</span>
-          </div>
-          <div className="font-mono text-[0.58rem] uppercase tracking-[0.2em] text-silt">leak localization</div>
-        </div>
-      </div>
+        <span className="hidden font-display text-[1.25rem] font-bold tracking-tight 2xl:inline">
+          Aqua<span className="text-verdigris">Trace</span>
+        </span>
+      </a>
 
-      <div className="mx-1 h-8 w-px bg-ink-700" />
-
-      <div className="flex items-end gap-2">
-        <Field label="Scenario">
-          <div className="flex gap-1">
-            <select
-              className={cn(field, "w-[6.9rem]", isDemo && "text-phosphor ring-phosphor/40")}
-              value={controls.preset}
-              disabled={locked}
-              title={DEMO_PRESETS.find((p) => p.id === controls.preset)?.story}
-              aria-label="Scenario preset"
-              onChange={(e) => pickPreset(e.target.value)}
-            >
-              <option value="random">Random</option>
-              {DEMO_PRESETS.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.label}
-                </option>
-              ))}
-              <option value="custom">Custom seed</option>
-            </select>
-            {controls.preset === "custom" && (
-              <input
-                className={cn(field, "num w-[4.6rem]")}
-                placeholder="seed"
-                inputMode="numeric"
-                value={controls.seed}
-                disabled={locked}
-                onChange={(e) => setControls({ seed: e.target.value.replace(/[^\d]/g, "").slice(0, 7) })}
-                onKeyDown={(e) => e.key === "Enter" && simulate()}
-                aria-label="Scenario seed"
-                autoFocus
-              />
+      <nav aria-label="Investigation steps" className="mx-auto flex min-w-0 items-center">
+        {steps.map((st, i) => (
+          <div key={st.n} className="flex items-center">
+            {i > 0 && (
+              <span className="relative mx-1 h-0.5 w-4 overflow-hidden rounded-full bg-ink-700 2xl:w-8">
+                <motion.span
+                  className="absolute inset-y-0 left-0 bg-verdigris"
+                  initial={false}
+                  animate={{ width: steps[i - 1].state === "done" ? "100%" : "0%" }}
+                  transition={{ duration: 0.5 }}
+                />
+              </span>
             )}
+            <StepPill step={st} />
           </div>
-        </Field>
-        <Field label="Leak size">
-          <select className={cn(field, "w-[6.6rem]")} value={controls.size} disabled={locked} onChange={(e) => tweak({ size: e.target.value as LeakSize | "random" })}>
-            <option value="random">random</option>
-            <option value="small">small</option>
-            <option value="medium">medium</option>
-            <option value="large">large</option>
-          </select>
-        </Field>
-        <Field label="Noise">
-          <select className={cn(field, "w-[5.4rem]")} value={controls.noise} disabled={locked} onChange={(e) => tweak({ noise: e.target.value as NoiseLevel })}>
-            <option value="low">low</option>
-            <option value="mid">mid</option>
-            <option value="high">high</option>
-          </select>
-        </Field>
-        <Field label="Sensors">
-          {customSensors ? (
-            <div className={cn(field, "num flex w-[4.6rem] items-center text-phosphor ring-phosphor/40")} title="Optimized sensor set from the Sensors tab">
-              opt·{customSensors.length}
-            </div>
-          ) : (
-            <select className={cn(field, "w-[4.6rem]")} value={controls.k} disabled={locked} onChange={(e) => tweak({ k: Number(e.target.value) })}>
-              {[3, 6, 10].map((k) => (
-                <option key={k} value={k}>
-                  {k}
-                </option>
-              ))}
-            </select>
-          )}
-        </Field>
-      </div>
+        ))}
+      </nav>
 
-      <div className="ml-1 flex items-center gap-2">
-        <Step n={1} done={!!scenario}>
-          <Button tone="primary" loading={busy === "simulate"} disabled={notReady || locked} icon={<Waves className="size-4" />} onClick={() => simulate()}>
-            Simulate leak
-          </Button>
-        </Step>
-        <Step n={2} done={!!detection}>
-          <Button
-            tone={scenario && !detection ? "primary" : "ghost"}
-            loading={busy === "detect"}
-            disabled={!scenario || locked}
-            icon={<Radar className="size-4" />}
-            onClick={detect}
-          >
-            Detect
-          </Button>
-        </Step>
-        <Step n={3} done={!!reveal}>
-          <Button tone="tracer" loading={busy === "reveal"} disabled={!detection || !!reveal || locked} icon={<Eye className="size-4" />} onClick={revealTruth}>
-            Reveal
-          </Button>
-        </Step>
-      </div>
-
-      <div className="ml-auto flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-1.5">
+        <ScenarioPopover />
+        <IconBtn label="Present mode (F)" onClick={() => setPresent(true)}>
+          <Monitor className="size-4" />
+        </IconBtn>
+        <IconBtn label={theme === "dark" ? "Projector theme (T)" : "Dark theme (T)"} onClick={toggleTheme}>
+          {theme === "dark" ? <Sun className="size-4" /> : <Moon className="size-4" />}
+        </IconBtn>
         <HelpButton onClick={() => setHelp(true)} />
         {USE_MOCKS ? (
           <Badge tone="saffron" dot className="whitespace-nowrap">
-            MOCK ENGINE
+            MOCK
           </Badge>
         ) : (
-          <Badge tone="verdigris" dot className="whitespace-nowrap" >
+          <Badge tone="verdigris" dot className="whitespace-nowrap">
             LIVE · {API_URL.replace(/^https?:\/\//, "")}
           </Badge>
         )}
@@ -157,27 +108,59 @@ export function TopBar() {
   );
 }
 
-function Field({ label, children }: { label: string; children: ReactNode }) {
+function StepPill({ step }: { step: Step }) {
+  const actionable = !!step.run && step.state !== "locked";
   return (
-    <label className="flex flex-col gap-0.5">
-      <span className="pl-1 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-silt">{label}</span>
-      {children}
-    </label>
+    <motion.button
+      type="button"
+      layout
+      transition={spring.ui}
+      disabled={!actionable}
+      onClick={step.run}
+      aria-current={step.state === "current" ? "step" : undefined}
+      className={cn(
+        "relative flex h-10 items-center gap-2 whitespace-nowrap rounded-full pl-1.5 pr-3 text-[0.92rem] font-semibold transition-colors",
+        step.state === "current" && actionable && "bg-verdigris text-ink-950 shadow-glow-verdigris hover:bg-verdigris-bright",
+        step.state === "current" && !actionable && "bg-ink-800 text-limestone ring-1 ring-verdigris/60",
+        step.state === "done" && "text-limestone-dim hover:bg-ink-800",
+        step.state === "locked" && "text-silt-dim",
+        actionable ? "cursor-pointer" : "cursor-default",
+      )}
+    >
+      {step.state === "current" && actionable && !step.busy && (
+        <span className="pointer-events-none absolute inset-0 animate-ripple rounded-full ring-2 ring-verdigris/60 [animation-duration:2.8s]" />
+      )}
+      <span
+        className={cn(
+          "num grid size-7 place-items-center rounded-full text-[0.8rem] font-bold",
+          step.state === "done" && "bg-verdigris/20 text-verdigris-bright",
+          step.state === "current" && (actionable ? "bg-ink-950/20" : "bg-verdigris/20 text-verdigris-bright"),
+          step.state === "locked" && "bg-ink-800 text-silt-dim",
+        )}
+      >
+        {step.busy ? (
+          <span className="size-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+        ) : step.state === "done" ? (
+          <Check className="size-4" />
+        ) : (
+          step.icon
+        )}
+      </span>
+      {step.label}
+    </motion.button>
   );
 }
 
-function Step({ n, done, children }: { n: number; done: boolean; children: ReactNode }) {
+function IconBtn({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
   return (
-    <div className="relative">
-      <span
-        className={cn(
-          "num absolute -left-1.5 -top-1.5 z-10 grid size-[18px] place-items-center rounded-full text-[0.62rem] font-bold ring-2 ring-ink-950 transition-colors",
-          done ? "bg-verdigris text-ink-950" : "bg-ink-600 text-limestone-dim",
-        )}
-      >
-        {n}
-      </span>
+    <button
+      type="button"
+      title={label}
+      aria-label={label}
+      onClick={onClick}
+      className="grid size-9 place-items-center rounded-xl text-silt ring-1 ring-ink-600 transition hover:text-limestone hover:ring-ink-500"
+    >
       {children}
-    </div>
+    </button>
   );
 }

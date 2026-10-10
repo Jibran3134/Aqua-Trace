@@ -1,25 +1,25 @@
-// One score -> color mapping for the whole UI (canvas fills, bars, legend). Keep in sync with
-// .score-ramp in index.css.
-const STOPS: [number, [number, number, number]][] = [
-  [0, [59, 91, 87]], // #3b5b57 cold slate-verdigris: "no evidence"
-  [0.35, [154, 154, 74]], // olive transition
-  [0.6, [242, 179, 61]], // #f2b33d saffron
-  [1, [255, 90, 54]], // #ff5a36 vermilion
-];
+// One score -> color mapping for the whole UI (map fills, bars, legend). Stops live in ui/tokens.ts
+// per theme; keep in sync with .score-ramp in index.css.
+import { palette } from "../ui/tokens";
 
-/** t in [0,1] -> hex color along the leak-heat ramp. */
-export function rampColor(t: number): string {
+/** t in [0,1] -> [r,g,b] along the current theme's leak-heat ramp. */
+export function rampRgb(t: number): [number, number, number] {
+  const STOPS = palette().ramp;
   const x = Math.max(0, Math.min(1, t));
   for (let i = 1; i < STOPS.length; i++) {
     const [p1, c1] = STOPS[i];
     const [p0, c0] = STOPS[i - 1];
     if (x <= p1) {
       const f = (x - p0) / (p1 - p0);
-      const c = c0.map((v, k) => Math.round(v + (c1[k] - v) * f));
-      return `#${c.map((v) => v.toString(16).padStart(2, "0")).join("")}`;
+      return c0.map((v, k) => Math.round(v + (c1[k] - v) * f)) as [number, number, number];
     }
   }
-  return "#ff5a36";
+  return STOPS[STOPS.length - 1][1];
+}
+
+/** t in [0,1] -> hex color along the leak-heat ramp. */
+export function rampColor(t: number): string {
+  return `#${rampRgb(t).map((v) => v.toString(16).padStart(2, "0")).join("")}`;
 }
 
 /** Scores are relative and small in absolute terms; display relative to the current leader. */

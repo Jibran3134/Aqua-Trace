@@ -34,25 +34,25 @@ export function RepairsTab() {
 
       <div className="grid grid-cols-2 gap-2">
         <label className="block">
-          <span className="flex items-center justify-between text-[0.76rem] text-silt">
+          <span className="flex items-center justify-between text-[0.8rem] text-silt">
             Budget <Prov kind="assumed" />
           </span>
           <input className={cn(field, "mt-1")} type="number" min={0} step={50_000} value={budget} onChange={(e) => setInputs({ budget: Math.max(0, Number(e.target.value) || 0) })} />
         </label>
         <label className="block">
-          <span className="flex items-center justify-between text-[0.76rem] text-silt">
+          <span className="flex items-center justify-between text-[0.8rem] text-silt">
             Rs per litre <Prov kind="assumed" />
           </span>
           <input className={cn(field, "mt-1")} type="number" min={0} step={0.01} value={vpl} onChange={(e) => setInputs({ valuePerLitre: Math.max(0, Number(e.target.value) || 0) })} />
         </label>
       </div>
-      <p className="-mt-2 text-[0.72rem] text-saffron/90">ASSUMPTION: placeholder values; replace with utility data (production + pumping cost, contractor quotes).</p>
+      <p className="-mt-2 text-[0.8rem] text-saffron/90">ASSUMPTION: placeholder values; replace with utility data (production + pumping cost, contractor quotes).</p>
 
       <div>
         <div className="mb-1.5 flex items-center justify-between">
-          <span className="text-[0.76rem] font-semibold uppercase tracking-wider text-silt">Repair backlog ({backlog.length})</span>
+          <span className="text-[0.8rem] font-semibold uppercase tracking-wider text-silt">Repair backlog ({backlog.length})</span>
           {backlog.length > 0 && (
-            <button type="button" className="flex items-center gap-1 text-[0.74rem] text-silt hover:text-vermilion" onClick={() => setBacklog([])}>
+            <button type="button" className="flex items-center gap-1 text-[0.8rem] text-silt hover:text-vermilion" onClick={() => setBacklog([])}>
               <Trash2 className="size-3" /> clear
             </button>
           )}
@@ -61,7 +61,7 @@ export function RepairsTab() {
           <div className="rounded-xl p-4 text-center ring-1 ring-ink-700">
             <Wrench className="mx-auto size-5 text-silt" />
             <p className="mt-1.5 text-[0.84rem] text-limestone-dim">Leaks confirmed by a crew land here automatically.</p>
-            <p className="text-[0.76rem] text-silt">Run a few investigations, or load a labeled sample to try the optimizer.</p>
+            <p className="text-[0.8rem] text-silt">Run a few investigations, or load a labeled sample to try the optimizer.</p>
             <Button tone="ghost" size="sm" className="mt-3" onClick={() => setBacklog(SAMPLE_BACKLOG)}>
               Load sample backlog
             </Button>
@@ -88,13 +88,13 @@ export function RepairsTab() {
                       {sel && <Badge tone="verdigris">fix</Badge>}
                       {b.source === "sample" ? <Badge tone="neutral">sample</Badge> : <Badge tone="vermilion">crew-confirmed</Badge>}
                     </div>
-                    <div className="text-[0.72rem] text-silt">
+                    <div className="text-[0.8rem] text-silt">
                       ≈<span className="num">{b.est_leak_lps.toFixed(1)} L/s</span> · {litres(b.est_leak_lps * 86_400)}/day <Prov kind="simulated estimate" />
                     </div>
                   </button>
                   <input
                     aria-label={`Repair cost for node ${b.node} in rupees`}
-                    className={cn(field, "h-8 text-right text-[0.78rem]")}
+                    className={cn(field, "h-8 text-right text-[0.8rem]")}
                     type="number"
                     min={0}
                     step={10_000}
@@ -135,7 +135,7 @@ export function RepairsTab() {
             <span className="num">{rs(repair.total_cost_pkr)}</span> of <span className="num">{rs(budget)}</span>.
             {repair.selected.some((s) => s.cost_defaulted) && <span className="text-saffron"> Some costs use the default ({rs(repair.assumptions.default_repair_cost_pkr)}).</span>}
           </div>
-          <div className="rounded-lg bg-ink-850 px-3 py-2 text-[0.76rem] text-silt ring-1 ring-ink-700">
+          <div className="rounded-lg bg-ink-850 px-3 py-2 text-[0.8rem] text-silt ring-1 ring-ink-700">
             Greedy (best litres per rupee) would save <span className="num text-limestone-dim">{litres(repair.greedy.litres_per_day_saved)}</span>/day
             {dpBeatsGreedy ? (
               <>
@@ -145,7 +145,7 @@ export function RepairsTab() {
               <>; on this backlog greedy is already optimal.</>
             )}
           </div>
-          <div className="num text-[0.7rem] leading-relaxed text-silt">
+          <div className="num text-[0.8rem] leading-relaxed text-silt">
             litres/day = L/s × 86,400 · value/day = litres/day × Rs {repair.assumptions.value_per_litre_pkr}/L · payback = cost ÷ value/day
             <br />
             <span className="font-sans">Note: {repair.note}. {repair.assumptions.label}.</span>
@@ -159,12 +159,12 @@ export function RepairsTab() {
 function Stat({ label, value, prov, icon }: { label: string; value: string; prov: "assumed" | "simulated"; icon?: React.ReactNode }) {
   return (
     <div className="rounded-lg bg-ink-850 px-2.5 py-2 ring-1 ring-ink-700">
-      <div className="flex items-center gap-1 text-[0.68rem] leading-tight text-silt">
+      <div className="flex items-center gap-1 text-[0.8rem] leading-tight text-silt">
         {icon}
         {label}
       </div>
       <div className="num mt-0.5 text-[0.98rem] font-bold leading-tight text-limestone">{value}</div>
-      <Prov kind={prov} className="!mx-0 !text-[0.55rem]" />
+      <Prov kind={prov} className="!mx-0 !text-[0.8rem]" />
     </div>
   );
 }

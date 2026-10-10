@@ -1,3 +1,4 @@
+import { palette } from "../../ui/tokens";
 import { RotateCcw, Table2, BarChart3 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
@@ -9,8 +10,7 @@ import { Badge, Button, Eyebrow, Prov, cn } from "../../ui/primitives";
 // Validated pair (dataviz validator, dark surface #0C1F23): L in band, chroma >= 0.1, normal-vision
 // dE 19.2, protan dE 6.6 -> legal only with secondary encoding, so baseline is also hatched and
 // every bar is direct-labeled.
-const METHOD = "#2A9C86";
-const BASELINE = "#C2785F";
+
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
@@ -97,7 +97,7 @@ export function EvaluationTab() {
         </div>
       )}
 
-      <p className="text-[0.74rem] leading-snug text-silt">
+      <p className="text-[0.8rem] leading-snug text-silt">
         {evaluation.meta.seeds} fixed test seeds · {evaluation.meta.k} sensors · time step {evaluation.meta.time_step} · {evaluation.meta.note} Failures included; nothing
         cherry-picked.
       </p>
@@ -108,9 +108,9 @@ export function EvaluationTab() {
 function Kpi({ label, method, base, lowerIsBetter }: { label: string; method: string; base: string; lowerIsBetter?: boolean }) {
   return (
     <div className="rounded-xl bg-ink-950/50 p-2.5 ring-1 ring-ink-700">
-      <div className="text-[0.7rem] leading-tight text-silt">{label}</div>
+      <div className="text-[0.8rem] leading-tight text-silt">{label}</div>
       <div className="num mt-1 text-[1.35rem] font-bold leading-none text-limestone">{method}</div>
-      <div className="mt-1 text-[0.7rem] text-silt">
+      <div className="mt-1 text-[0.8rem] text-silt">
         baseline <span className="num text-limestone-dim">{base}</span>
         {lowerIsBetter && <span className="text-silt-dim"> · lower is better</span>}
       </div>
@@ -141,12 +141,12 @@ function Verdict({ lift }: { lift: number }) {
 
 function Legend() {
   return (
-    <div className="flex items-center gap-4 text-[0.78rem] text-limestone-dim">
+    <div className="flex items-center gap-4 text-[0.8rem] text-limestone-dim">
       <span className="inline-flex items-center gap-1.5">
-        <span className="h-2.5 w-4 rounded-[3px]" style={{ background: METHOD }} /> AquaTrace
+        <span className="h-2.5 w-4 rounded-[3px]" style={{ background: palette().chartMethod }} /> AquaTrace
       </span>
       <span className="inline-flex items-center gap-1.5">
-        <span className="h-2.5 w-4 rounded-[3px]" style={hatch(BASELINE)} /> Naive baseline
+        <span className="h-2.5 w-4 rounded-[3px]" style={hatch(palette().chartBaseline)} /> Naive baseline
       </span>
       <span className="text-silt">top-3 hit rate</span>
     </div>
@@ -161,7 +161,7 @@ function Group({ title, rows }: { title: string; rows: [string, Metrics][] }) {
   const [hover, setHover] = useState<string | null>(null);
   return (
     <div>
-      <div className="mb-1.5 text-[0.76rem] font-semibold uppercase tracking-wider text-silt">{title}</div>
+      <div className="mb-1.5 text-[0.8rem] font-semibold uppercase tracking-wider text-silt">{title}</div>
       <div className="space-y-2.5">
         {rows.map(([label, v], i) => {
           const base = v.baseline_top3 ?? 0;
@@ -169,10 +169,10 @@ function Group({ title, rows }: { title: string; rows: [string, Metrics][] }) {
             <div key={label} className="grid grid-cols-[4.2rem_1fr] items-center gap-2">
               <div className="text-[0.82rem] capitalize text-limestone-dim">{label}</div>
               <div className="relative space-y-[2px]" onMouseLeave={() => setHover(null)}>
-                <Bar value={v.top3} color={METHOD} delay={i * 0.06} onHover={() => setHover(`${label}-m`)} />
-                <Bar value={base} color={BASELINE} hatched delay={i * 0.06 + 0.03} onHover={() => setHover(`${label}-b`)} />
+                <Bar value={v.top3} color={palette().chartMethod} delay={i * 0.06} onHover={() => setHover(`${label}-m`)} />
+                <Bar value={base} color={palette().chartBaseline} hatched delay={i * 0.06 + 0.03} onHover={() => setHover(`${label}-b`)} />
                 {(hover === `${label}-m` || hover === `${label}-b`) && (
-                  <div className="pointer-events-none absolute right-0 top-full z-20 mt-1 whitespace-nowrap rounded-lg bg-ink-800 px-2.5 py-1.5 text-[0.74rem] shadow-lift ring-1 ring-ink-600">
+                  <div className="pointer-events-none absolute right-0 top-full z-20 mt-1 whitespace-nowrap rounded-lg bg-ink-800 px-2.5 py-1.5 text-[0.8rem] shadow-lift ring-1 ring-ink-600">
                     <div className="font-semibold capitalize text-limestone">{label}</div>
                     <div className="text-limestone-dim">
                       AquaTrace top-3 <span className="num">{pct(v.top3)}</span> · top-1 <span className="num">{pct(v.top1)}</span> · hops <span className="num">{v.mean_hop_error}</span>
@@ -204,7 +204,7 @@ function Bar({ value, color, hatched, delay, onHover }: { value: number; color: 
           transition={{ delay, duration: 0.7, ease: [0.2, 0.7, 0.2, 1] }}
         />
       </div>
-      <span className="num w-9 text-right text-[0.74rem] text-limestone-dim">{pct(value)}</span>
+      <span className="num w-9 text-right text-[0.8rem] text-limestone-dim">{pct(value)}</span>
     </div>
   );
 }
@@ -220,7 +220,7 @@ function MetricsTable({ evaluation }: { evaluation: EvalResponse }) {
   return (
     <div className="overflow-hidden rounded-xl ring-1 ring-ink-700">
       <table className="w-full text-[0.8rem]">
-        <thead className="bg-ink-800/80 text-left text-[0.66rem] uppercase tracking-wider text-silt">
+        <thead className="bg-ink-800/80 text-left text-[0.8rem] uppercase tracking-wider text-silt">
           <tr>
             <th className="px-2.5 py-2">Slice</th>
             <th className="px-2 py-2 text-right">Top-1</th>

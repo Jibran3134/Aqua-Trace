@@ -44,7 +44,7 @@ export function AgentTab() {
         </div>
         <div className="text-right">
           <div className="num text-xl font-bold text-limestone">{agent.cleared.length + (agent.foundAt ? 1 : 0)}</div>
-          <div className="text-[0.7rem] text-silt">inspections used</div>
+          <div className="text-[0.8rem] text-silt">inspections used</div>
         </div>
       </div>
 
@@ -75,7 +75,7 @@ function Intro({ children }: { children: React.ReactNode }) {
       </p>
       <div className="mt-4 flex flex-wrap gap-1.5">
         {tools.map((t) => (
-          <span key={t} className="num rounded-lg bg-ink-800 px-2 py-1 text-[0.72rem] text-verdigris-bright ring-1 ring-ink-600">
+          <span key={t} className="num rounded-lg bg-ink-800 px-2 py-1 text-[0.8rem] text-verdigris-bright ring-1 ring-ink-600">
             {t}
           </span>
         ))}
@@ -129,7 +129,7 @@ function Dock() {
             <span className="num text-lg font-bold text-verdigris-bright">node {agent.recommended}</span>
           </button>
           {agent.routeLength !== null && (
-            <span className="text-right text-[0.74rem] text-silt">
+            <span className="text-right text-[0.8rem] text-silt">
               route <span className="num text-limestone-dim">{agent.routeLength} m</span> <Prov kind="simulated" />
             </span>
           )}
@@ -145,11 +145,11 @@ function Dock() {
         >
           Send simulated crew
         </Button>
-        <p className="mt-1.5 text-[0.72rem] text-silt">
+        <p className="mt-1.5 text-[0.8rem] text-silt">
           The server checks this node against the hidden leak. Crews miss real leaks 5% of the time, so "nothing found" only down-weights a node.
         </p>
         <div className="mt-2.5 flex items-center gap-2 border-t border-ink-700 pt-2.5">
-          <span className="text-[0.7rem] uppercase tracking-wider text-silt-dim">Manual</span>
+          <span className="text-[0.8rem] uppercase tracking-wider text-silt-dim">Manual</span>
           <Button tone="quiet" size="sm" disabled={busy !== null} icon={<SearchX className="size-3.5" />} onClick={() => reportField(false)}>
             Nothing found
           </Button>

@@ -187,7 +187,7 @@ function Insufficient() {
         <div className="mt-3 flex items-center justify-between gap-3 rounded-xl bg-ink-950/50 px-3 py-2.5 ring-1 ring-phosphor/30">
           <div className="text-[0.86rem]">
             Add a sensor at <span className="num font-bold text-phosphor">{rec}</span>
-            <div className="text-[0.74rem] text-silt">best separates the two leading candidates</div>
+            <div className="text-[0.8rem] text-silt">best separates the two leading candidates</div>
           </div>
           <Button
             tone="ghost"
@@ -201,7 +201,7 @@ function Insufficient() {
         </div>
       )}
       {detection.candidates.length > 0 && (
-        <div className="mt-3 text-[0.78rem] text-silt">
+        <div className="mt-3 text-[0.8rem] text-silt">
           Weak leaders (not actionable): {detection.candidates.slice(0, 3).map((c) => c.node).join(", ")} <Prov kind="relative score" />
         </div>
       )}

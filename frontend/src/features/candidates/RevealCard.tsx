@@ -43,7 +43,7 @@ export function RevealCard() {
 function Metric({ label, value, good }: { label: string; value: string; good: boolean }) {
   return (
     <div className="rounded-xl bg-ink-950/50 px-3 py-2 ring-1 ring-ink-700">
-      <div className="text-[0.72rem] text-silt">{label}</div>
+      <div className="text-[0.8rem] text-silt">{label}</div>
       <div className={`num text-lg font-bold ${good ? "text-verdigris-bright" : "text-saffron"}`}>{value}</div>
     </div>
   );

@@ -17,6 +17,7 @@ export function ConsolePage() {
   const loadNetwork = useStore((s) => s.loadNetwork);
   const pollHealth = useStore((s) => s.pollHealth);
   const helpOpen = useStore((s) => s.helpOpen);
+  const theme = useStore((s) => s.theme);
   const setHelp = useStore((s) => s.setHelp);
   const toggleHelp = useCallback(() => setHelp(!useStore.getState().helpOpen), [setHelp]);
   const closeHelp = useCallback(() => setHelp(false), [setHelp]);
@@ -63,7 +64,8 @@ export function ConsolePage() {
         )}
       </AnimatePresence>
 
-      <main className="relative z-10 grid min-h-0 flex-1 grid-cols-[minmax(0,65fr)_minmax(0,35fr)] gap-3 p-3">
+      {/* Keyed by theme: canvas/SVG colors are computed in JS, so a theme switch remounts them. */}
+      <main key={theme} className="relative z-10 grid min-h-0 flex-1 grid-cols-[minmax(0,65fr)_minmax(0,35fr)] gap-3 p-3">
         <section className="relative min-h-0">
           {network ? (
             <ErrorBoundary area="map">

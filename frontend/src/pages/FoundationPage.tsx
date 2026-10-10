@@ -144,7 +144,7 @@ export function FoundationPage() {
                   <CheckIcon state={c.state} />
                   <div className="min-w-0 flex-1">
                     <div className="num text-[0.85rem] text-limestone">{c.label}</div>
-                    {c.detail && <div className={`mt-0.5 text-[0.78rem] ${c.state === "fail" ? "text-vermilion" : "text-silt"}`}>{c.detail}</div>}
+                    {c.detail && <div className={`mt-0.5 text-[0.8rem] ${c.state === "fail" ? "text-vermilion" : "text-silt"}`}>{c.detail}</div>}
                   </div>
                 </motion.li>
               ))}
@@ -167,7 +167,7 @@ export function FoundationPage() {
             <div className="mt-6">
               <Eyebrow>Relative score ramp</Eyebrow>
               <div className="score-ramp mt-2 h-3 rounded-full" />
-              <div className="mt-1.5 flex justify-between text-[0.72rem] text-silt">
+              <div className="mt-1.5 flex justify-between text-[0.8rem] text-silt">
                 <span>weak evidence</span>
                 <span>leading candidate</span>
               </div>
@@ -197,9 +197,9 @@ export function FoundationPage() {
                 <div className="p-3">
                   <div className="flex items-baseline justify-between">
                     <span className="font-display font-semibold">{s.name}</span>
-                    <span className="num text-[0.7rem] text-silt">{s.hex}</span>
+                    <span className="num text-[0.8rem] text-silt">{s.hex}</span>
                   </div>
-                  <p className="mt-1 text-[0.78rem] leading-snug text-silt">{s.role}</p>
+                  <p className="mt-1 text-[0.8rem] leading-snug text-silt">{s.role}</p>
                 </div>
               </motion.div>
             ))}
@@ -235,7 +235,7 @@ export function FoundationPage() {
               <Badge tone="phosphor">sensor</Badge>
               <Badge tone="vermilion">insufficient evidence</Badge>
               <Badge tone="saffron">scripted mode</Badge>
-              <span className="text-[0.78rem] text-silt">
+              <span className="text-[0.8rem] text-silt">
                 Reset view <Kbd>R</Kbd>
               </span>
             </div>

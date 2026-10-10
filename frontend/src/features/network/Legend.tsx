@@ -5,7 +5,7 @@ export function Legend() {
   const reveal = useStore((s) => s.reveal);
   return (
     <div className="absolute bottom-3 left-3 rounded-xl bg-ink-900/85 px-3.5 py-2.5 ring-1 ring-ink-600 backdrop-blur">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[0.76rem] text-limestone-dim">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[0.8rem] text-limestone-dim">
         <Item>
           <svg viewBox="0 0 14 14" className="size-3.5">
             <path d="M7 1 13 7 7 13 1 7Z" fill="#d4f26a" />
@@ -33,9 +33,9 @@ export function Legend() {
       </div>
       {detection && (
         <div className="mt-2 flex items-center gap-2">
-          <span className="font-mono text-[0.62rem] uppercase tracking-[0.12em] text-verdigris-bright/80">relative score</span>
+          <span className="font-mono text-[0.8rem] uppercase tracking-[0.12em] text-verdigris-bright/80">relative score</span>
           <div className="score-ramp h-2 w-28 rounded-full" />
-          <span className="text-[0.7rem] text-silt">low → high</span>
+          <span className="text-[0.8rem] text-silt">low → high</span>
         </div>
       )}
     </div>

@@ -17,6 +17,24 @@ import type {
   SensorPlaceResponse,
 } from "../contracts/types";
 import { Graph } from "../lib/graph";
+import type { ThemeName } from "../ui/tokens";
+
+const THEME_KEY = "aquatrace.theme";
+function initialTheme(): ThemeName {
+  try {
+    return localStorage.getItem(THEME_KEY) === "projector" ? "projector" : "dark";
+  } catch {
+    return "dark";
+  }
+}
+function applyTheme(theme: ThemeName) {
+  document.documentElement.dataset.theme = theme;
+  try {
+    localStorage.setItem(THEME_KEY, theme);
+  } catch {
+    // storage blocked: theme still applies for this session
+  }
+}
 
 export type Busy = null | "network" | "simulate" | "detect" | "reveal" | "agent" | "field" | "place" | "repair";
 
@@ -114,6 +132,10 @@ interface State {
   tab: TabId;
   helpOpen: boolean;
   setHelp: (open: boolean) => void;
+  theme: ThemeName;
+  toggleTheme: () => void;
+  present: boolean;
+  setPresent: (on: boolean) => void;
   /** True while the agent timeline is still revealing events (presenter cues wait for it). */
   narrating: boolean;
   setNarrating: (v: boolean) => void;
@@ -162,6 +184,8 @@ function report(e: unknown, what: string) {
   else toast.error(`${what} failed`, { description: String(e) });
 }
 
+applyTheme(initialTheme());
+
 export const useStore = create<State>((set, get) => ({
   network: null,
   graph: null,
@@ -184,6 +208,14 @@ export const useStore = create<State>((set, get) => ({
   tab: "candidates",
   helpOpen: false,
   setHelp: (helpOpen) => set({ helpOpen }),
+  present: false,
+  setPresent: (present) => set({ present }),
+  theme: initialTheme(),
+  toggleTheme: () => {
+    const theme = get().theme === "dark" ? "projector" : "dark";
+    applyTheme(theme);
+    set({ theme });
+  },
   narrating: false,
   setNarrating: (narrating) => set({ narrating }),
   evaluation: null,

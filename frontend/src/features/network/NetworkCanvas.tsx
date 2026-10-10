@@ -344,7 +344,7 @@ export function NetworkCanvas() {
                 )}
                 {dy !== 0 && <span className="absolute left-[6px] w-px bg-limestone/40" style={{ top: dy - 14, height: -dy + 6 }} />}
                 <span
-                  className="num absolute left-[8px] flex h-6 items-center gap-1 whitespace-nowrap rounded-full pl-1 pr-2 text-[0.78rem] font-bold text-ink-950 shadow-lg ring-2 ring-ink-950"
+                  className="num absolute left-[8px] flex h-6 items-center gap-1 whitespace-nowrap rounded-full pl-1 pr-2 text-[0.8rem] font-bold text-ink-950 shadow-lg ring-2 ring-ink-950"
                   style={{ background: color, top: dy - 30 }}
                 >
                   <span className="grid size-[18px] place-items-center rounded-full bg-ink-950/25">{i + 1}</span>
@@ -373,7 +373,7 @@ export function NetworkCanvas() {
                   <span className="absolute -left-[1px] top-4 h-6 w-0.5 bg-tracer" />
                   <span className="absolute -left-10 -top-[1px] h-0.5 w-6 bg-tracer" />
                   <span className="absolute left-4 -top-[1px] h-0.5 w-6 bg-tracer" />
-                  <span className="absolute -left-12 top-8 whitespace-nowrap rounded-md bg-tracer px-2 py-0.5 font-mono text-[0.72rem] font-bold text-ink-950 shadow-glow-tracer">
+                  <span className="absolute -left-12 top-8 whitespace-nowrap rounded-md bg-tracer px-2 py-0.5 font-mono text-[0.8rem] font-bold text-ink-950 shadow-glow-tracer">
                     TRUE LEAK · {reveal.true_leak_node}
                   </span>
                 </motion.div>
@@ -397,7 +397,7 @@ export function NetworkCanvas() {
                 >
                   <span className="absolute -left-7 -top-7 size-14 animate-ripple rounded-full border-2 border-verdigris-bright" />
                   <span className="absolute -left-5 -top-5 size-10 rounded-full border-2 border-verdigris-bright shadow-glow-verdigris" />
-                  <span className="absolute -left-10 top-6 whitespace-nowrap rounded-md bg-verdigris-bright px-2 py-0.5 font-mono text-[0.7rem] font-bold text-ink-950">
+                  <span className="absolute -left-10 top-6 whitespace-nowrap rounded-md bg-verdigris-bright px-2 py-0.5 font-mono text-[0.8rem] font-bold text-ink-950">
                     CREW → {agent.recommended}
                   </span>
                 </motion.div>
@@ -410,7 +410,7 @@ export function NetworkCanvas() {
               return (
                 <motion.div key={`fix-${r.node}`} className="absolute" style={{ left: p.x, top: p.y }} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
                   <span className="absolute -left-5 -top-5 size-10 rounded-full border-2 border-verdigris-bright shadow-glow-verdigris" />
-                  <span className="absolute left-3 -top-8 whitespace-nowrap rounded-md bg-verdigris-bright px-1.5 py-0.5 font-mono text-[0.68rem] font-bold text-ink-950">
+                  <span className="absolute left-3 -top-8 whitespace-nowrap rounded-md bg-verdigris-bright px-1.5 py-0.5 font-mono text-[0.8rem] font-bold text-ink-950">
                     FIX · {r.node}
                   </span>
                 </motion.div>
@@ -424,7 +424,7 @@ export function NetworkCanvas() {
               return (
                 <motion.div key={`found-${agent.foundAt}`} className="absolute" style={{ left: p.x, top: p.y }} initial={{ opacity: 0, scale: 1.8 }} animate={{ opacity: 1, scale: 1 }}>
                   <span className="absolute -left-6 -top-6 size-12 rounded-full border-[3px] border-vermilion shadow-glow-vermilion" />
-                  <span className="absolute -left-12 -top-12 whitespace-nowrap rounded-md bg-vermilion px-2 py-0.5 font-mono text-[0.7rem] font-bold text-ink-950">
+                  <span className="absolute -left-12 -top-12 whitespace-nowrap rounded-md bg-vermilion px-2 py-0.5 font-mono text-[0.8rem] font-bold text-ink-950">
                     CREW: LEAK FOUND
                   </span>
                 </motion.div>
@@ -438,7 +438,7 @@ export function NetworkCanvas() {
               return (
                 <motion.div key="suggest" className="absolute" style={{ left: p.x, top: p.y }} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                   <span className="absolute -left-6 -top-6 size-12 animate-ripple rounded-full border-2 border-dashed border-phosphor" />
-                  <span className="absolute left-5 top-2 whitespace-nowrap rounded-md bg-phosphor/90 px-2 py-0.5 text-[0.72rem] font-bold text-ink-950">
+                  <span className="absolute left-5 top-2 whitespace-nowrap rounded-md bg-phosphor/90 px-2 py-0.5 text-[0.8rem] font-bold text-ink-950">
                     + add sensor
                   </span>
                 </motion.div>
