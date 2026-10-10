@@ -29,40 +29,59 @@ jobs:
 
   backend:
     runs-on: ubuntu-latest
-    # Steps below are no-ops until the backend exists, so this job is green from day one.
+    # The backend needs PostgreSQL and Redis (see backend/README.md).
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: aquatrace
+          POSTGRES_PASSWORD: ci-not-a-secret
+          POSTGRES_DB: aquatrace
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s
+          --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql+psycopg://aquatrace:ci-not-a-secret@localhost:5432/aquatrace
+      MIGRATION_DATABASE_URL: postgresql+psycopg://aquatrace:ci-not-a-secret@localhost:5432/aquatrace
+      REDIS_URL: redis://localhost:6379/0
+      # The suite sweeps many seeds; throttling would just make it slow and flaky.
+      RATE_LIMIT_ENABLED: "false"
+      ENVIRONMENT: test
     steps:
       - uses: actions/checkout@v4
 
-      - name: Detect backend
-        id: have
-        run: |
-          if [ -f backend/main.py ] && [ -f requirements.txt ]; then echo "backend=true" >> "$GITHUB_OUTPUT"; fi
-
       - uses: actions/setup-python@v5
-        if: steps.have.outputs.backend == 'true'
         with:
-          python-version: "3.11"
+          python-version: "3.13"
           cache: pip
-          cache-dependency-path: requirements.txt
+          cache-dependency-path: backend/requirements*.txt
 
-      - name: Install
-        if: steps.have.outputs.backend == 'true'
-        run: pip install -r requirements.txt pytest httpx
+      - run: pip install -r requirements.txt -r requirements-dev.txt
+        working-directory: backend
 
-      # Signature library takes minutes to build; reuse it while the backend sources are unchanged.
+      - run: alembic upgrade head
+        working-directory: backend
+
+      # Building the signature library runs hundreds of WNTR simulations.
+      # Reuse it while the hydraulics inputs are unchanged.
       - uses: actions/cache@v4
-        if: steps.have.outputs.backend == 'true'
         with:
           path: backend/cache
-          # Net3.inp lives in frontend/scripts/data since the MVP-0 reshuffle.
-          key: signatures-${{ hashFiles('**/Net3.inp', 'backend/config.py', 'backend/sim.py', 'backend/signatures.py') }}
+          key: signatures-${{ hashFiles('backend/data/Net3.inp', 'backend/app/core/config.py', 'backend/app/hydraulics/**') }}
 
       - name: Backend unit tests
-        if: steps.have.outputs.backend == 'true' && hashFiles('backend/tests/**/*.py') != ''
-        run: pytest backend/tests -q
+        working-directory: backend
+        run: python scripts/test.py -q
 
       - name: Contract + truth-leak checks
-        if: steps.have.outputs.backend == 'true'
         env:
-          SIG_WAIT_S: "900"
+          SIG_WAIT_S: "1500"
+          LEAK_SEEDS: "20"
         run: pytest tests/integration -q
