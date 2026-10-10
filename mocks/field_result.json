@@ -1,0 +1,46 @@
+{
+  "state": "investigating",
+  "ranking": [
+    {
+      "node": "259",
+      "score": 0.2106
+    },
+    {
+      "node": "257",
+      "score": 0.2103
+    },
+    {
+      "node": "119",
+      "score": 0.1548
+    },
+    {
+      "node": "263",
+      "score": 0.0886
+    },
+    {
+      "node": "261",
+      "score": 0.0885
+    },
+    {
+      "node": "117",
+      "score": 0.0661
+    },
+    {
+      "node": "157",
+      "score": 0.0477
+    },
+    {
+      "node": "121",
+      "score": 0.0335
+    },
+    {
+      "node": "123",
+      "score": 0.0295
+    },
+    {
+      "node": "10",
+      "score": 0.0191
+    }
+  ],
+  "note": null
+}

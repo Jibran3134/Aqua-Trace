@@ -1,0 +1,26 @@
+{
+  "scenario_id": "sc_1rs",
+  "seed": 1000,
+  "sensors": [
+    "50",
+    "15",
+    "35",
+    "10",
+    "60",
+    "219"
+  ],
+  "readings": {
+    "10": 22.131,
+    "15": 52.402,
+    "35": 61.232,
+    "50": 31.271,
+    "60": 66.742,
+    "219": 60.869
+  },
+  "meta": {
+    "time_step": "t0",
+    "noise_sigma": 0.2,
+    "noise_level": "mid",
+    "demand_mult_known": false
+  }
+}

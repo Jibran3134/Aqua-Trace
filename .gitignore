@@ -1,16 +1,33 @@
+# Local tools and Python environments
 .tools/
 **/.venv/
 **/__pycache__/
+*.pyc
 **/.pytest_cache/
 **/.ruff_cache/
 **/.coverage
 **/htmlcov/
+
+# Dependencies and builds
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Environment files: publish templates only
 **/.env
 **/.env.*
 !**/.env.example
+
+# Generated backend artifacts
 backend/cache/*
 !backend/cache/.gitkeep
 !backend/cache/eval.json
 !backend/cache/calibration.json
 !backend/cache/tuning.json
 *.log
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

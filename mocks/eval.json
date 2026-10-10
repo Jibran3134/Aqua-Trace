@@ -1,0 +1,118 @@
+{
+  "meta": {
+    "seeds": 100,
+    "k": 6,
+    "tau": 0.25,
+    "time_step": "t0",
+    "network": "Net3",
+    "note": "MOCK physics surrogate: demand multiplier ±10%, sensor noise, synthetic scenarios. Replace with backend eval.json.",
+    "generated_at": "1970-01-01T00:00:00.000Z"
+  },
+  "results": {
+    "n": 100,
+    "top1": 0.2,
+    "top3": 0.45,
+    "mean_hop_error": 2.79,
+    "insufficient": 0.12,
+    "skipped": 0
+  },
+  "baseline": {
+    "n": 100,
+    "top1": 0.08,
+    "top3": 0.17,
+    "mean_hop_error": 6.3,
+    "insufficient": 0,
+    "skipped": 0
+  },
+  "by_noise": {
+    "low": {
+      "n": 100,
+      "top1": 0.27,
+      "top3": 0.52,
+      "mean_hop_error": 2.56,
+      "insufficient": 0.06,
+      "skipped": 0,
+      "baseline_top3": 0.17
+    },
+    "mid": {
+      "n": 100,
+      "top1": 0.2,
+      "top3": 0.45,
+      "mean_hop_error": 2.79,
+      "insufficient": 0.12,
+      "skipped": 0,
+      "baseline_top3": 0.17
+    },
+    "high": {
+      "n": 100,
+      "top1": 0.13,
+      "top3": 0.31,
+      "mean_hop_error": 4.33,
+      "insufficient": 0.23,
+      "skipped": 0,
+      "baseline_top3": 0.17
+    }
+  },
+  "by_size": {
+    "small": {
+      "n": 100,
+      "top1": 0.09,
+      "top3": 0.2,
+      "mean_hop_error": 4.15,
+      "insufficient": 0.28,
+      "skipped": 0,
+      "baseline_top3": 0.17
+    },
+    "medium": {
+      "n": 100,
+      "top1": 0.17,
+      "top3": 0.43,
+      "mean_hop_error": 2.78,
+      "insufficient": 0.02,
+      "skipped": 0,
+      "baseline_top3": 0.17
+    },
+    "large": {
+      "n": 100,
+      "top1": 0.25,
+      "top3": 0.61,
+      "mean_hop_error": 1.85,
+      "insufficient": 0.02,
+      "skipped": 0,
+      "baseline_top3": 0.17
+    }
+  },
+  "by_k": {
+    "3": {
+      "n": 100,
+      "top1": 0.05,
+      "top3": 0.15,
+      "mean_hop_error": 6.4,
+      "insufficient": 0.15,
+      "skipped": 0,
+      "baseline_top3": 0.06
+    },
+    "6": {
+      "n": 100,
+      "top1": 0.2,
+      "top3": 0.45,
+      "mean_hop_error": 2.79,
+      "insufficient": 0.12,
+      "skipped": 0,
+      "baseline_top3": 0.17
+    },
+    "10": {
+      "n": 100,
+      "top1": 0.35,
+      "top3": 0.71,
+      "mean_hop_error": 1.72,
+      "insufficient": 0.07,
+      "skipped": 0,
+      "baseline_top3": 0.28
+    }
+  },
+  "gate": {
+    "no_leak_flagged": 0.98,
+    "small_leak_flagged": 0.28
+  }
+}

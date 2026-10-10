@@ -1,0 +1,123 @@
+{
+  "status": "ok",
+  "candidates": [
+    {
+      "node": "259",
+      "score": 0.1782,
+      "adjacent_pipes": [
+        "299",
+        "301"
+      ],
+      "est_leak_lps": 8.99,
+      "tie_group": 1
+    },
+    {
+      "node": "257",
+      "score": 0.1779,
+      "adjacent_pipes": [
+        "297",
+        "299",
+        "303"
+      ],
+      "est_leak_lps": 8.95,
+      "tie_group": 1
+    },
+    {
+      "node": "120",
+      "score": 0.162,
+      "adjacent_pipes": [
+        "120",
+        "121",
+        "122",
+        "297"
+      ],
+      "est_leak_lps": 9.06,
+      "tie_group": null
+    },
+    {
+      "node": "119",
+      "score": 0.131,
+      "adjacent_pipes": [
+        "120",
+        "123",
+        "171",
+        "173"
+      ],
+      "est_leak_lps": 8.65,
+      "tie_group": null
+    },
+    {
+      "node": "263",
+      "score": 0.075,
+      "adjacent_pipes": [
+        "117",
+        "301",
+        "307"
+      ],
+      "est_leak_lps": 9.23,
+      "tie_group": 2
+    },
+    {
+      "node": "261",
+      "score": 0.0749,
+      "adjacent_pipes": [
+        "303",
+        "305",
+        "307"
+      ],
+      "est_leak_lps": 9,
+      "tie_group": 2
+    },
+    {
+      "node": "117",
+      "score": 0.0559,
+      "adjacent_pipes": [
+        "119",
+        "121",
+        "305"
+      ],
+      "est_leak_lps": 8.35,
+      "tie_group": null
+    },
+    {
+      "node": "157",
+      "score": 0.0404,
+      "adjacent_pipes": [
+        "173",
+        "175"
+      ],
+      "est_leak_lps": 8,
+      "tie_group": null
+    },
+    {
+      "node": "121",
+      "score": 0.0284,
+      "adjacent_pipes": [
+        "122",
+        "123",
+        "125",
+        "129"
+      ],
+      "est_leak_lps": 8.68,
+      "tie_group": null
+    },
+    {
+      "node": "123",
+      "score": 0.0249,
+      "adjacent_pipes": [
+        "125",
+        "329"
+      ],
+      "est_leak_lps": 9.41,
+      "tie_group": null
+    }
+  ],
+  "evidence": {
+    "residual_norm": 1.707,
+    "noise_floor": 1.026,
+    "margin_top1_vs_top2": 1.001,
+    "live_sensors": 6
+  },
+  "note": null,
+  "recommended_sensor": null
+}

@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "signatures_not_ready",
+    "message": "Leak signature library is still building.",
+    "hint": "About 0% done; try again in a few seconds."
+  }
+}
