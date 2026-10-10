@@ -16,6 +16,7 @@ from app.api.cache import cached_dto
 from app.api.dependencies import enforce_rate_limit
 from app.api.detection import router as detection_router
 from app.api.investigation import router as investigation_router
+from app.api.optimization import router as optimization_router
 from app.api.middleware import BodyLimitMiddleware, SafeErrorMiddleware
 from app.api.scenarios import router as scenarios_router
 from app.core.config import Settings
@@ -165,6 +166,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(scenarios_router)
     app.include_router(detection_router)
     app.include_router(investigation_router)
+    app.include_router(optimization_router)
     return app
 
 

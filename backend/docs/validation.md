@@ -82,3 +82,11 @@ after execution. Pending work is not evidence of passing tests.
 - No live Gemini/Groq completion has been tested; provider validation uses
   deterministic mocked HTTP transports without external requests or real keys.
 - Numerical tool and scripted investigation acceptance is still pending.
+
+## Module 5a: repair optimization
+
+- **2 tests passed** for exact sparse selection and explicit default-cost assumptions.
+- Costs and benefits are converted from decimal input to bounded exact frontier
+  values before comparison. The API validates all candidate junctions and returns
+  the frontend contract's selected list, totals, payback, greedy comparison and
+  assumptions. It does not infer utility costs.

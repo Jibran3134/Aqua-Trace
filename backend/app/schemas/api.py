@@ -176,6 +176,7 @@ class RevealResponse(DTO):
 
 class PlacementRequest(DTO):
     k: Annotated[int, Field(ge=1, le=12, strict=True)]
+    noise: Noise = "mid"
 
 
 class AccuracyPoint(DTO):
@@ -198,6 +199,7 @@ class RepairCandidate(DTO):
 
 class RepairRequest(DTO):
     budget_pkr: Annotated[FiniteFloat, Field(ge=0, le=1e9, strict=True)]
+    value_per_litre_pkr: Annotated[FiniteFloat, Field(gt=0, le=1e6, strict=True)] = .05
     candidates: Annotated[list[RepairCandidate], Field(max_length=50)]
 
     @model_validator(mode="after")
@@ -208,18 +210,20 @@ class RepairRequest(DTO):
 
 
 class RepairSelection(DTO):
-    nodes: list[NodeId]
+    selected: list[dict[str, Any]]
     total_cost_pkr: FiniteFloat
-    litres_per_day: FiniteFloat
+    litres_per_day_saved: FiniteFloat
 
 
 class RepairResponse(DTO):
-    selected: RepairSelection
-    greedy: RepairSelection
-    budget_pkr: FiniteFloat
-    defaulted_cost_nodes: list[NodeId]
+    selected: list[dict[str, Any]]
+    total_cost_pkr: FiniteFloat
+    litres_per_day_saved: FiniteFloat
+    value_pkr_per_day: FiniteFloat
+    payback_days: FiniteFloat | None
+    greedy: dict[str, Any]
     assumptions: dict[str, Any]
-    note: str = "Assumes independent leaks; savings are simulated estimates."
+    note: str
 
 
 class EvaluationResponse(DTO):

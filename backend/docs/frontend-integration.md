@@ -38,6 +38,9 @@ surrogate. They are not validation of WNTR physics. Recheck demo scenarios again
 the real backend before presenting them. Public JSON examples in `backend/mocks/`
 are also illustrative, not a substitute for the generated benchmark report.
 
-Evaluation and repair response shapes are being aligned with the existing
-frontend as their modules are implemented. Do not infer supported fields from
-a draft example; consult OpenAPI and the module's tests.
+Repair optimization now returns the frontend-compatible selection list, totals,
+payback calculation, greedy comparison and explicit cost/value assumptions.
+It uses an exact sparse 0/1 frontier under the supplied budget; the greedy result
+is included only as a comparison. Evaluation and sensor-placement response shapes
+remain pending their benchmark module; consult OpenAPI and module tests before
+binding draft examples.

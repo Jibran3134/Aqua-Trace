@@ -19,7 +19,8 @@ def enforce_rate_limit(request: Request, response: Response) -> None:
     if request.url.path in {"/health", "/ready", "/docs", "/openapi.json", "/redoc"}:
         return
     runtime = request.app.state.runtime
-    expensive = request.url.path in {"/scenario/leak", "/agent/step", "/sensors/place"}
+    expensive = request.url.path in {"/scenario/leak", "/agent/step", "/sensors/place",
+                                     "/repair/optimize"}
     # All heavy routes share a quota, preventing endpoint switching to bypass limits.
     bucket = "expensive" if expensive else "general"
     identity = request.client.host if request.client else "unknown"
