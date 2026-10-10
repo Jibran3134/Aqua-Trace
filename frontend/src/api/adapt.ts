@@ -47,10 +47,15 @@ const LEAK_SIZES = new Set<string>(["small", "medium", "large"]);
 
 export function adaptHealth(raw: unknown): HealthResponse {
   const r = rec(raw);
+  // Two different scales: the contract's `progress` is a 0..1 fraction, while the
+  // backend's `signatures_progress` is a 0..100 percentage (verified live: 100.0
+  // when ready). Keying off the field name avoids guessing at the boundary.
+  const fraction = num(r.progress);
+  const percent = num(r.signatures_progress);
   return {
     status: r.status === "degraded" ? "degraded" : "ok",
     signatures_ready: r.signatures_ready === true,
-    progress: num(r.progress) ?? num(r.signatures_progress) ?? 0,
+    progress: fraction ?? (percent === undefined ? 0 : percent / 100),
     database: str(r.database) === "unavailable" ? "unavailable" : str(r.database) === "ok" ? "ok" : undefined,
     redis: str(r.redis) === "unavailable" ? "unavailable" : str(r.redis) === "ok" ? "ok" : undefined,
   };

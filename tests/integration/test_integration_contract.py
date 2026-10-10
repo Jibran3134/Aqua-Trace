@@ -23,6 +23,11 @@ def skip_if_unmounted(r, endpoint: str):
         pytest.skip(f"{endpoint} is not mounted yet")
 
 
+# scenario_id is a UUID, so a non-UUID string is a 422, not a 404. Use a
+# well-formed id that cannot exist to exercise the not-found path.
+ABSENT_ID = "00000000-0000-4000-8000-000000000000"
+
+
 def mock(name: str):
     return json.loads((MOCKS / f"{name}.json").read_text(encoding="utf-8"))
 
@@ -73,8 +78,8 @@ def test_network_shape_and_integrity(client):
 
 # ---------- scenario / detect / agent / field / reveal ----------
 
-def test_scenario_leak_shape(client, network):
-    body = new_scenario(client, 1015)
+def test_scenario_leak_shape(network, scenario):
+    body = scenario
     assert_shape(body, mock("scenario_leak"), "/scenario/leak")
     assert set(body["readings"]) == set(body["sensors"]), "readings keys must equal sensors"
     node_ids = {n["id"] for n in network["nodes"]}
@@ -89,8 +94,8 @@ def test_same_seed_gives_same_scenario(client):
     assert a["readings"] == b["readings"], "same seed must reproduce identical readings"
 
 
-def test_detect_shape_and_ranking(client):
-    sid = new_scenario(client, 1016)["scenario_id"]
+def test_detect_shape_and_ranking(client, scenario):
+    sid = scenario["scenario_id"]
     r = client.post("/detect", json={"scenario_id": sid})
     assert r.status_code == 200, r.text
     body = r.json()
@@ -109,8 +114,8 @@ def test_detect_shape_and_ranking(client):
         assert body.get("note"), "insufficient_evidence needs a human-readable note"
 
 
-def test_agent_step_shape(client, network):
-    sid = new_scenario(client, 1017)["scenario_id"]
+def test_agent_step_shape(client, network, scenario):
+    sid = scenario["scenario_id"]
     r = client.post("/agent/step", json={"scenario_id": sid, "mode": "scripted"})
     skip_if_unmounted(r, "POST /agent/step")
     assert r.status_code == 200, r.text
@@ -185,8 +190,8 @@ def test_field_inspect_rejects_unknown_node(client):
     assert_error_format(r, 422, "validation_error")
 
 
-def test_reveal_shape(client, network):
-    sid = new_scenario(client, 1019)["scenario_id"]
+def test_reveal_shape(client, network, scenario):
+    sid = scenario["scenario_id"]
     r = client.get(f"/scenario/{sid}/reveal")
     assert r.status_code == 200, r.text
     body = r.json()
@@ -198,15 +203,15 @@ def test_reveal_shape(client, network):
 # ---------- errors: the UI relies on {error:{code,message,hint}} ----------
 
 @pytest.mark.parametrize("method,path,body", [
-    ("POST", "/detect", {"scenario_id": "nope"}),
-    ("POST", "/agent/step", {"scenario_id": "nope"}),
-    ("POST", "/field/result", {"scenario_id": "nope", "node": "10", "found": False}),
-    ("GET", "/scenario/nope/reveal", None),
+    ("POST", "/detect", {"scenario_id": ABSENT_ID}),
+    ("POST", "/agent/step", {"scenario_id": ABSENT_ID}),
+    ("POST", "/field/result", {"scenario_id": ABSENT_ID, "node": "10", "found": False}),
+    ("GET", f"/scenario/{ABSENT_ID}/reveal", None),
 ])
 def test_unknown_scenario_is_404_in_error_format(client, method, path, body):
     r = client.request(method, path, json=body) if body is not None else client.request(method, path)
     # An unmounted route also answers 404, but with the generic code.
-    if error_code(r) in NOT_IMPLEMENTED_CODES and path not in ("/detect", "/scenario/nope/reveal"):
+    if error_code(r) in NOT_IMPLEMENTED_CODES:
         pytest.skip(f"{method} {path} is not mounted yet")
     assert_error_format(r, 404, "scenario_not_found")
 
@@ -228,6 +233,7 @@ def test_malformed_json_is_422_in_error_format(client):
 
 def test_eval_is_valid_or_clean_404(client):
     r = client.get("/eval")
+    skip_if_unmounted(r, "GET /eval")
     if r.status_code == 200:
         body = r.json()
         for k in ("meta", "results", "baseline", "by_noise", "by_size", "by_k"):

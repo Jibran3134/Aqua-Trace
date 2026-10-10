@@ -65,22 +65,28 @@ def route_missing(response) -> bool:
 
 
 class Client:
-    """httpx wrapper that retries throttled requests so rate limits don't fail the suite."""
+    """httpx wrapper that waits out throttling, since a 429 is backpressure, not a failure."""
+
+    #: Total seconds to spend waiting on one request before giving up.
+    THROTTLE_BUDGET_S = 240.0
 
     def __init__(self, inner: httpx.Client) -> None:
         self._inner = inner
 
     def request(self, method: str, path: str, **kw):
-        for attempt in range(6):
+        spent = 0.0
+        while True:
             r = self._inner.request(method, path, **kw)
             if r.status_code != 429:
                 return r
-            wait = float(r.headers.get("Retry-After") or 2)
-            time.sleep(min(wait, 15) + attempt)
-        pytest.fail(
-            f"{method} {path} stayed rate-limited after 6 retries. "
-            "Restart the backend with RATE_LIMIT_ENABLED=false for this suite."
-        )
+            wait = min(float(r.headers.get("Retry-After") or 2), 15.0)
+            if spent + wait > self.THROTTLE_BUDGET_S:
+                pytest.fail(
+                    f"{method} {path} stayed rate-limited for {spent:.0f}s. Restart the backend "
+                    "with RATE_LIMIT_ENABLED=false (see backend/.env) for this suite."
+                )
+            time.sleep(wait)
+            spent += wait
 
     def get(self, path, **kw):
         return self.request("GET", path, **kw)
@@ -146,6 +152,17 @@ def network(client):
     r = client.get("/network")
     assert r.status_code == 200, r.text
     return r.json()
+
+
+@pytest.fixture(scope="session")
+def scenario(client):
+    """One scenario shared by read-only shape tests.
+
+    /scenario/leak sits in the backend's "expensive" quota (10 burst, then 0.1/s),
+    so creating one per test turns the suite into a queue. Tests that mutate
+    investigation state still make their own.
+    """
+    return new_scenario(client, 1015)
 
 
 def new_scenario(client, seed: int, **extra) -> dict:

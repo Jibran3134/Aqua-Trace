@@ -18,16 +18,22 @@ import type { RepairRequest } from "../contracts/types";
  */
 
 describe("adaptHealth", () => {
-  it("maps signatures_progress to progress", () => {
+  it("rescales signatures_progress from percent to the contract's fraction", () => {
+    // Live backend payload: percentage, not a fraction.
     const h = adaptHealth({
       status: "ok",
       signatures_ready: false,
-      signatures_progress: 0.42,
+      signatures_progress: 51.09,
       database: "ok",
       redis: "ok",
     });
-    expect(h.progress).toBe(0.42);
+    expect(h.progress).toBeCloseTo(0.5109, 6);
     expect(h.signatures_ready).toBe(false);
+  });
+
+  it("reads a ready backend as 100%, not 10000%", () => {
+    const h = adaptHealth({ status: "ok", signatures_ready: true, signatures_progress: 100.0, database: "ok", redis: "ok" });
+    expect(h.progress).toBe(1);
   });
 
   it("keeps a degraded status and surfaces the failing dependency", () => {

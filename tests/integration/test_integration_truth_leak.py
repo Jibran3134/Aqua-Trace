@@ -25,8 +25,10 @@ FORBIDDEN_KEYS = {
     "truth", "ground_truth", "true_node", "leak_node", "leak_area", "leak_size",
     "true_leak", "demand_mult",
 }
-LEAK_RESPONSE_KEYS = {"scenario_id", "seed", "sensors", "readings", "meta"}
-LEAK_META_KEYS = {"time_step", "noise_sigma", "noise_level", "demand_mult_known"}
+LEAK_RESPONSE_KEYS = {"scenario_id", "seed", "sensors", "readings", "meta", "provenance"}
+# `provenance` holds the backend's measured/simulated/assumed labels, which is the
+# honesty requirement, not a leak. Its free text is exempt from the size-word scan.
+LEAK_META_KEYS = {"time_step", "noise_sigma", "noise_level", "demand_mult_known", "provenance"}
 SIZE_WORDS = {"small", "medium", "large"}
 
 
@@ -65,6 +67,8 @@ def test_truth_is_absent_until_reveal(client, seed):
         problems.append(f"/scenario/leak.meta has unexpected keys {sorted(extra_meta)}")
     # The leak size must not be echoed back as a value either.
     for p, _, v in walk(leak):
+        if ".provenance" in p:
+            continue
         if isinstance(v, str) and v in SIZE_WORDS:
             problems.append(f"/scenario/leak {p} exposes a leak size word '{v}'")
 

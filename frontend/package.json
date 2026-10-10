@@ -10,6 +10,7 @@
     "preview": "vite preview",
     "mocks": "node scripts/build-network.mjs && tsx scripts/gen-mocks.ts",
     "test": "vitest run",
+    "verify:backend": "tsx scripts/verify-backend.ts",
     "calibrate": "tsx scripts/calibrate.ts"
   },
   "dependencies": {
