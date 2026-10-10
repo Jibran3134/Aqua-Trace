@@ -34,7 +34,7 @@ const STATS = [
 ];
 
 export function IntroPage({ onEnter }: { onEnter: () => void }) {
-  const gl = useMemo(webglAvailable, []);
+  const gl = useMemo(() => webglAvailable(), []);
   const still = useMemo(() => window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false, []);
 
   useEffect(() => {

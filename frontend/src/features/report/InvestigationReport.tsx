@@ -1,6 +1,6 @@
 import { Printer, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { USE_MOCKS } from "../../api/client";
 import type { AgentEvent } from "../../contracts/types";
@@ -78,6 +78,7 @@ function ReportBody() {
   const detection = useStore((s) => s.detection);
   const agent = useStore((s) => s.agent);
   const reveal = useStore((s) => s.reveal);
+  const [generatedAt] = useState(() => new Date()); // fixed when the report opens
   if (!scenario || !initial) return <p>No investigation to report yet.</p>;
 
   const plan = lastResult<{ order: string[]; total_length_m: number; depot: string }>(agent.events, "plan_inspection");
@@ -92,7 +93,6 @@ function ReportBody() {
           ? "No crew dispatched: evidence insufficient."
           : `Investigation open: ${visits.length} inspection${visits.length === 1 ? "" : "s"} so far.`;
   const ev = initial.evidence;
-  const now = new Date();
 
   return (
     <div className="font-sans text-[13px] leading-relaxed">
@@ -107,7 +107,7 @@ function ReportBody() {
         <dl className="text-right font-mono text-[11px] text-[#4b5d5a]">
           <div>scenario {scenario.scenario_id}</div>
           <div>seed {scenario.seed ?? "n/a"} · time step {scenario.meta.time_step}</div>
-          <div>{now.toLocaleString()}</div>
+          <div>{generatedAt.toLocaleString()}</div>
         </dl>
       </header>
 

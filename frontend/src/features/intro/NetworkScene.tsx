@@ -1,6 +1,7 @@
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
+import { rng } from "../../lib/rng";
 import net3 from "../../mock/data/net3.json";
 
 // The intro draws the real Net3 topology: x/z from .inp coordinates, height from true elevation.
@@ -93,14 +94,20 @@ function LeakPulse({ at }: { at: THREE.Vector3 }) {
   const ring = useRef<THREE.Mesh>(null);
   const core = useRef<THREE.Mesh>(null);
   const drops = useRef<THREE.Points>(null);
-  const seeds = useMemo(() => Float32Array.from({ length: 60 * 3 }, () => Math.random()), []);
-  const positions = useMemo(() => new Float32Array(60 * 3), []);
+  const seeds = useMemo(() => {
+    const r = rng(42); // seeded: identical droplets on every render and every machine
+    return Float32Array.from({ length: 60 * 3 }, () => r());
+  }, []);
+  const initial = useMemo(() => new Float32Array(60 * 3), []);
   useFrame(({ clock }) => {
     const t = clock.elapsedTime;
     const phase = (t % 2.2) / 2.2;
     ring.current!.scale.setScalar(0.4 + phase * 3.2);
     (ring.current!.material as THREE.MeshBasicMaterial).opacity = 0.75 * (1 - phase);
     core.current!.scale.setScalar(1 + 0.18 * Math.sin(t * 4));
+    // Write straight into the GPU buffer owned by the geometry.
+    const attr = drops.current!.geometry.attributes.position as THREE.BufferAttribute;
+    const positions = attr.array as Float32Array;
     for (let i = 0; i < 60; i++) {
       const life = (t * 0.45 + seeds[i * 3]) % 1;
       const ang = seeds[i * 3 + 1] * Math.PI * 2;
@@ -109,7 +116,7 @@ function LeakPulse({ at }: { at: THREE.Vector3 }) {
       positions[i * 3 + 1] = at.y + life * 1.4;
       positions[i * 3 + 2] = at.z + Math.sin(ang) * r;
     }
-    drops.current!.geometry.attributes.position.needsUpdate = true;
+    attr.needsUpdate = true;
   });
   return (
     <group>
@@ -124,7 +131,7 @@ function LeakPulse({ at }: { at: THREE.Vector3 }) {
       </mesh>
       <points ref={drops}>
         <bufferGeometry>
-          <bufferAttribute attach="attributes-position" args={[positions, 3]} />
+          <bufferAttribute attach="attributes-position" args={[initial.slice(), 3]} />
         </bufferGeometry>
         <pointsMaterial color="#6fe0c7" size={0.05} transparent opacity={0.8} sizeAttenuation />
       </points>

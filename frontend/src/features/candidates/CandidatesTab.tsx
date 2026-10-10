@@ -66,6 +66,7 @@ function Empty() {
   const simulate = useStore((s) => s.simulate);
   const busy = useStore((s) => s.busy);
   const network = useStore((s) => s.network);
+  const networkError = useStore((s) => s.networkError);
   const steps = [
     ["Simulate", "A leak is hidden somewhere in the network. Nobody, including the UI, knows where."],
     ["Detect", "Sensor residuals are matched to leak signatures and candidates are ranked by relative score."],
@@ -76,8 +77,11 @@ function Empty() {
       <Eyebrow>No scenario yet</Eyebrow>
       <h2 className="mt-1 font-display text-2xl font-bold leading-tight tracking-tight">Where is the water going?</h2>
       <p className="mt-2 text-[0.92rem] text-limestone-dim">
-        {network ? `${network.nodes.filter((n) => n.type === "junction").length} junctions, ${network.default_sensors.length} pressure sensors.` : "Loading network…"} Find a hidden leak
-        from a handful of readings.
+        {network
+          ? `${network.nodes.filter((n) => n.type === "junction").length} junctions, ${network.default_sensors.length} pressure sensors. Find a hidden leak from a handful of readings.`
+          : networkError
+            ? "The network could not be loaded. Fix the connection shown on the map, then retry."
+            : "Loading network…"}
       </p>
       <ol className="mt-5 space-y-3">
         {steps.map(([t, d], i) => (

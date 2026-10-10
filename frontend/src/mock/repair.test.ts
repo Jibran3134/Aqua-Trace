@@ -7,7 +7,12 @@ function bruteForce(costs: number[], litres: number[], budget: number): number {
   for (let mask = 0; mask < 1 << costs.length; mask++) {
     let c = 0;
     let l = 0;
-    for (let i = 0; i < costs.length; i++) if (mask & (1 << i)) (c += costs[i]), (l += litres[i]);
+    for (let i = 0; i < costs.length; i++) {
+      if (mask & (1 << i)) {
+        c += costs[i];
+        l += litres[i];
+      }
+    }
     if (c <= budget) best = Math.max(best, l);
   }
   return best;

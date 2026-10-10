@@ -17,17 +17,18 @@ const KIND: Record<AgentEvent["type"], { icon: React.ReactNode; dot: string; lab
 
 /** Reveals new events one by one so a live audience can follow the agent's reasoning. */
 export function Timeline({ events, onSettled }: { events: AgentEvent[]; onSettled?: (settled: boolean) => void }) {
-  const [shown, setShown] = useState(0);
+  const [revealed, setRevealed] = useState(0);
+  // Derived, not synced: if the event list shrinks (new scenario) we simply show fewer.
+  const shown = Math.min(revealed, events.length);
   const end = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (shown > events.length) setShown(events.length); // scenario reset
     if (shown >= events.length) {
       onSettled?.(true);
       return;
     }
     onSettled?.(false);
-    const t = setTimeout(() => setShown((n) => n + 1), shown === 0 ? 120 : REVEAL_MS);
+    const t = setTimeout(() => setRevealed(shown + 1), shown === 0 ? 120 : REVEAL_MS);
     return () => clearTimeout(t);
   }, [shown, events.length, onSettled]);
 

@@ -124,7 +124,8 @@ export function NetworkCanvas() {
 
   const host = useRef<HTMLDivElement>(null);
   const cyRef = useRef<Core | null>(null);
-  const [tick, setTick] = useState(0); // bumps on pan/zoom so overlays re-project
+  /** Screen positions of every node, refreshed on pan/zoom/resize; overlays render from this. */
+  const [screen, setScreen] = useState<Map<string, { x: number; y: number }>>(() => new Map());
 
   const positions = useMemo(() => (network ? layout(network) : {}), [network]);
 
@@ -149,7 +150,17 @@ export function NetworkCanvas() {
       autoungrabify: true,
     });
     cyRef.current = cy;
-    const bump = () => setTick((t) => t + 1);
+    // Project once per animation frame at most (pan/zoom fire many events per frame).
+    let frame = 0;
+    const bump = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const next = new Map<string, { x: number; y: number }>();
+        cy.nodes().forEach((n) => void next.set(n.id(), { ...n.renderedPosition() }));
+        setScreen(next);
+      });
+    };
     cy.on("viewport resize", bump);
     cy.on("mouseover", "node", (e) => {
       e.target.addClass("hover");
@@ -169,6 +180,7 @@ export function NetworkCanvas() {
     ro.observe(host.current);
     bump();
     return () => {
+      cancelAnimationFrame(frame);
       ro.disconnect();
       cy.destroy();
       cyRef.current = null;
@@ -276,13 +288,7 @@ export function NetworkCanvas() {
   }, []);
 
   // Overlay projections (rank badges, ripples, truth marker, sensor suggestion).
-  const project = (id: string) => {
-    const cy = cyRef.current;
-    const n = cy?.getElementById(id);
-    if (!cy || !n || n.empty()) return null;
-    return n.renderedPosition();
-  };
-  void tick;
+  const project = (id: string) => screen.get(id) ?? null;
   // Planning tabs (sensors, repairs) are about the whole network: hide the live scenario's markers.
   const scenarioLayer = tab !== "sensors" && tab !== "repairs";
   const tops = scenarioLayer && detection?.status === "ok" ? detection.candidates.slice(0, 3) : [];

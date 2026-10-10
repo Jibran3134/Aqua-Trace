@@ -30,6 +30,8 @@ export function SidePanel() {
             key={t.id}
             role="tab"
             aria-selected={tab === t.id}
+            aria-label={t.label}
+            title={`${t.label} (${TABS.indexOf(t) + 1})`}
             onClick={() => setTab(t.id)}
             className={cn(
               "relative flex items-center justify-center gap-1 rounded-xl py-2 text-[0.8rem] font-semibold transition-colors",
