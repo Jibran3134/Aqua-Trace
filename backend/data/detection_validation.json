@@ -1,0 +1,43 @@
+{
+  "validation_range": [
+    0,
+    49
+  ],
+  "acceptance_range": [
+    0,
+    9
+  ],
+  "heldout_no_leak_range": [
+    30000,
+    30029
+  ],
+  "top3_validation": {
+    "hits": 33,
+    "count": 50
+  },
+  "top3_acceptance": {
+    "hits": 7,
+    "count": 10
+  },
+  "no_leak_abstention": {
+    "hits": 29,
+    "count": 30
+  },
+  "sensors": [
+    "101",
+    "253",
+    "15",
+    "203",
+    "219",
+    "166"
+  ],
+  "noise": "mid",
+  "center_residuals": false,
+  "demand_projection": true,
+  "tau": 0.05,
+  "noise_percentile": 95.0,
+  "fingerprint": "293a0079268bee50f3070a08e92a560c8e232f4407c1f1aa275cd6cdf23a4648",
+  "elapsed_seconds_measured": 14.709326700074598,
+  "provenance": "simulated benchmark outcomes; measured validation duration",
+  "note": "Frozen on validation only; final test seeds 1000-1099 are unused here."
+}

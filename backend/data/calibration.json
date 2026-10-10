@@ -1,0 +1,934 @@
+{
+  "network": "Net3",
+  "network_sha256": "54987a3d342706ecebf2d951d36f125b4263ea8bb291e5d4201cb901999ecc9e",
+  "wntr": "1.5.0",
+  "seed": 2026,
+  "time_step": "t0",
+  "baseline_seconds_measured": 0.22648470010608435,
+  "baseline_negative_pressures_m": {
+    "10": -0.45007331
+  },
+  "provenance": {
+    "pressures_and_flows": "simulated",
+    "areas": "assumed",
+    "timing": "measured"
+  },
+  "rows": [
+    {
+      "node": "209",
+      "size": "small",
+      "requested_area_m2": 0.006,
+      "effective_area_m2": 0.006,
+      "retry_count": 0,
+      "leak_flow_lps": 123.72975637,
+      "local_drop_m": 4.52643326,
+      "nearby": [
+        {
+          "node": "209",
+          "distance_m": 0,
+          "drop_m": 4.52643326
+        },
+        {
+          "node": "208",
+          "distance_m": 269.748,
+          "drop_m": 3.20873903
+        },
+        {
+          "node": "211",
+          "distance_m": 368.808,
+          "drop_m": 4.42949842
+        },
+        {
+          "node": "206",
+          "distance_m": 425.196,
+          "drop_m": 2.44938846
+        },
+        {
+          "node": "207",
+          "distance_m": 562.356,
+          "drop_m": 1.77937293
+        },
+        {
+          "node": "213",
+          "distance_m": 670.56,
+          "drop_m": 4.41339892
+        },
+        {
+          "node": "205",
+          "distance_m": 928.116,
+          "drop_m": 1.2343795
+        },
+        {
+          "node": "275",
+          "distance_m": 998.22,
+          "drop_m": 1.2264525
+        },
+        {
+          "node": "237",
+          "distance_m": 1002.792,
+          "drop_m": 3.78399349
+        },
+        {
+          "node": "201",
+          "distance_m": 1089.66,
+          "drop_m": 1.14351901
+        }
+      ]
+    },
+    {
+      "node": "209",
+      "size": "medium",
+      "requested_area_m2": 0.012,
+      "effective_area_m2": 0.012,
+      "retry_count": 0,
+      "leak_flow_lps": 224.11571785,
+      "local_drop_m": 11.45332536,
+      "nearby": [
+        {
+          "node": "209",
+          "distance_m": 0,
+          "drop_m": 11.45332536
+        },
+        {
+          "node": "208",
+          "distance_m": 269.748,
+          "drop_m": 7.99423025
+        },
+        {
+          "node": "211",
+          "distance_m": 368.808,
+          "drop_m": 11.1341206
+        },
+        {
+          "node": "206",
+          "distance_m": 425.196,
+          "drop_m": 6.00085089
+        },
+        {
+          "node": "207",
+          "distance_m": 562.356,
+          "drop_m": 4.24198614
+        },
+        {
+          "node": "213",
+          "distance_m": 670.56,
+          "drop_m": 11.1139746
+        },
+        {
+          "node": "205",
+          "distance_m": 928.116,
+          "drop_m": 2.84338269
+        },
+        {
+          "node": "275",
+          "distance_m": 998.22,
+          "drop_m": 2.72118228
+        },
+        {
+          "node": "237",
+          "distance_m": 1002.792,
+          "drop_m": 9.19831769
+        },
+        {
+          "node": "201",
+          "distance_m": 1089.66,
+          "drop_m": 2.46144436
+        }
+      ]
+    },
+    {
+      "node": "209",
+      "size": "large",
+      "requested_area_m2": 0.02,
+      "effective_area_m2": 0.02,
+      "retry_count": 0,
+      "leak_flow_lps": 317.44421451,
+      "local_drop_m": 20.23144068,
+      "nearby": [
+        {
+          "node": "209",
+          "distance_m": 0,
+          "drop_m": 20.23144068
+        },
+        {
+          "node": "208",
+          "distance_m": 269.748,
+          "drop_m": 13.97538338
+        },
+        {
+          "node": "211",
+          "distance_m": 368.808,
+          "drop_m": 19.58007113
+        },
+        {
+          "node": "206",
+          "distance_m": 425.196,
+          "drop_m": 10.37019419
+        },
+        {
+          "node": "207",
+          "distance_m": 562.356,
+          "drop_m": 7.18914404
+        },
+        {
+          "node": "213",
+          "distance_m": 670.56,
+          "drop_m": 19.55452396
+        },
+        {
+          "node": "205",
+          "distance_m": 928.116,
+          "drop_m": 4.70292481
+        },
+        {
+          "node": "275",
+          "distance_m": 998.22,
+          "drop_m": 4.3959308
+        },
+        {
+          "node": "237",
+          "distance_m": 1002.792,
+          "drop_m": 15.9181572
+        },
+        {
+          "node": "201",
+          "distance_m": 1089.66,
+          "drop_m": 3.8937043
+        }
+      ]
+    },
+    {
+      "node": "169",
+      "size": "small",
+      "requested_area_m2": 0.006,
+      "effective_area_m2": 0.006,
+      "retry_count": 0,
+      "leak_flow_lps": 134.25980703,
+      "local_drop_m": 1.00644734,
+      "nearby": [
+        {
+          "node": "169",
+          "distance_m": 0,
+          "drop_m": 1.00644734
+        },
+        {
+          "node": "167",
+          "distance_m": 18.288,
+          "drop_m": 1.00644733
+        },
+        {
+          "node": "265",
+          "distance_m": 179.83200000000002,
+          "drop_m": 0.97455837
+        },
+        {
+          "node": "269",
+          "distance_m": 196.9008,
+          "drop_m": 0.91305512
+        },
+        {
+          "node": "171",
+          "distance_m": 387.096,
+          "drop_m": 0.89914167
+        },
+        {
+          "node": "189",
+          "distance_m": 393.8016,
+          "drop_m": 0.85201027
+        },
+        {
+          "node": "173",
+          "distance_m": 402.336,
+          "drop_m": 0.89864999
+        },
+        {
+          "node": "163",
+          "distance_m": 545.592,
+          "drop_m": 0.91157689
+        },
+        {
+          "node": "187",
+          "distance_m": 546.2016,
+          "drop_m": 0.83225352
+        },
+        {
+          "node": "204",
+          "distance_m": 576.65112,
+          "drop_m": 0.82447281
+        }
+      ]
+    },
+    {
+      "node": "169",
+      "size": "medium",
+      "requested_area_m2": 0.012,
+      "effective_area_m2": 0.012,
+      "retry_count": 0,
+      "leak_flow_lps": 264.15354259,
+      "local_drop_m": 2.46986277,
+      "nearby": [
+        {
+          "node": "169",
+          "distance_m": 0,
+          "drop_m": 2.46986277
+        },
+        {
+          "node": "167",
+          "distance_m": 18.288,
+          "drop_m": 2.46986276
+        },
+        {
+          "node": "265",
+          "distance_m": 179.83200000000002,
+          "drop_m": 2.38590014
+        },
+        {
+          "node": "269",
+          "distance_m": 196.9008,
+          "drop_m": 2.31033013
+        },
+        {
+          "node": "171",
+          "distance_m": 387.096,
+          "drop_m": 2.30021132
+        },
+        {
+          "node": "189",
+          "distance_m": 393.8016,
+          "drop_m": 2.20315658
+        },
+        {
+          "node": "173",
+          "distance_m": 402.336,
+          "drop_m": 2.29913883
+        },
+        {
+          "node": "163",
+          "distance_m": 545.592,
+          "drop_m": 2.21827877
+        },
+        {
+          "node": "187",
+          "distance_m": 546.2016,
+          "drop_m": 2.1549102
+        },
+        {
+          "node": "204",
+          "distance_m": 576.65112,
+          "drop_m": 2.14405448
+        }
+      ]
+    },
+    {
+      "node": "169",
+      "size": "large",
+      "requested_area_m2": 0.02,
+      "effective_area_m2": 0.02,
+      "retry_count": 0,
+      "leak_flow_lps": 429.91473755,
+      "local_drop_m": 4.50827702,
+      "nearby": [
+        {
+          "node": "169",
+          "distance_m": 0,
+          "drop_m": 4.50827702
+        },
+        {
+          "node": "167",
+          "distance_m": 18.288,
+          "drop_m": 4.50827702
+        },
+        {
+          "node": "265",
+          "distance_m": 179.83200000000002,
+          "drop_m": 4.33648601
+        },
+        {
+          "node": "269",
+          "distance_m": 196.9008,
+          "drop_m": 4.30162864
+        },
+        {
+          "node": "171",
+          "distance_m": 387.096,
+          "drop_m": 4.29161324
+        },
+        {
+          "node": "189",
+          "distance_m": 393.8016,
+          "drop_m": 4.15546036
+        },
+        {
+          "node": "173",
+          "distance_m": 402.336,
+          "drop_m": 4.28999006
+        },
+        {
+          "node": "163",
+          "distance_m": 545.592,
+          "drop_m": 3.99104978
+        },
+        {
+          "node": "187",
+          "distance_m": 546.2016,
+          "drop_m": 4.06459195
+        },
+        {
+          "node": "204",
+          "distance_m": 576.65112,
+          "drop_m": 4.05123231
+        }
+      ]
+    },
+    {
+      "node": "129",
+      "size": "small",
+      "requested_area_m2": 0.006,
+      "effective_area_m2": 0.006,
+      "retry_count": 0,
+      "leak_flow_lps": 113.68803433,
+      "local_drop_m": 0.30380507,
+      "nearby": [
+        {
+          "node": "129",
+          "distance_m": 0,
+          "drop_m": 0.30380507
+        },
+        {
+          "node": "127",
+          "distance_m": 274.32,
+          "drop_m": 0.20845571
+        },
+        {
+          "node": "20",
+          "distance_m": 513.588,
+          "drop_m": 4.96e-06
+        },
+        {
+          "node": "139",
+          "distance_m": 838.2,
+          "drop_m": 0.24746339
+        },
+        {
+          "node": "125",
+          "distance_m": 1261.872,
+          "drop_m": 0.16914176
+        },
+        {
+          "node": "141",
+          "distance_m": 1463.04,
+          "drop_m": 0.206392
+        },
+        {
+          "node": "121",
+          "distance_m": 1545.336,
+          "drop_m": 0.15698393
+        },
+        {
+          "node": "143",
+          "distance_m": 1889.76,
+          "drop_m": 0.206392
+        },
+        {
+          "node": "131",
+          "distance_m": 1975.104,
+          "drop_m": 0.30380507
+        },
+        {
+          "node": "123",
+          "distance_m": 2002.536,
+          "drop_m": 0.15373002
+        }
+      ]
+    },
+    {
+      "node": "129",
+      "size": "medium",
+      "requested_area_m2": 0.012,
+      "effective_area_m2": 0.012,
+      "retry_count": 0,
+      "leak_flow_lps": 226.36912328,
+      "local_drop_m": 0.59130247,
+      "nearby": [
+        {
+          "node": "129",
+          "distance_m": 0,
+          "drop_m": 0.59130247
+        },
+        {
+          "node": "127",
+          "distance_m": 274.32,
+          "drop_m": 0.29395851
+        },
+        {
+          "node": "20",
+          "distance_m": 513.588,
+          "drop_m": 7e-06
+        },
+        {
+          "node": "139",
+          "distance_m": 838.2,
+          "drop_m": 0.45550562
+        },
+        {
+          "node": "125",
+          "distance_m": 1261.872,
+          "drop_m": 0.23915582
+        },
+        {
+          "node": "141",
+          "distance_m": 1463.04,
+          "drop_m": 0.35654315
+        },
+        {
+          "node": "121",
+          "distance_m": 1545.336,
+          "drop_m": 0.22210728
+        },
+        {
+          "node": "143",
+          "distance_m": 1889.76,
+          "drop_m": 0.35654315
+        },
+        {
+          "node": "131",
+          "distance_m": 1975.104,
+          "drop_m": 0.59130247
+        },
+        {
+          "node": "123",
+          "distance_m": 2002.536,
+          "drop_m": 0.21750323
+        }
+      ]
+    },
+    {
+      "node": "129",
+      "size": "large",
+      "requested_area_m2": 0.02,
+      "effective_area_m2": 0.02,
+      "retry_count": 0,
+      "leak_flow_lps": 372.63971684,
+      "local_drop_m": 1.37989744,
+      "nearby": [
+        {
+          "node": "129",
+          "distance_m": 0,
+          "drop_m": 1.37989744
+        },
+        {
+          "node": "127",
+          "distance_m": 274.32,
+          "drop_m": 0.67819861
+        },
+        {
+          "node": "20",
+          "distance_m": 513.588,
+          "drop_m": 1.613e-05
+        },
+        {
+          "node": "139",
+          "distance_m": 838.2,
+          "drop_m": 1.0620871
+        },
+        {
+          "node": "125",
+          "distance_m": 1261.872,
+          "drop_m": 0.54241418
+        },
+        {
+          "node": "141",
+          "distance_m": 1463.04,
+          "drop_m": 0.83065319
+        },
+        {
+          "node": "121",
+          "distance_m": 1545.336,
+          "drop_m": 0.50029738
+        },
+        {
+          "node": "143",
+          "distance_m": 1889.76,
+          "drop_m": 0.83065319
+        },
+        {
+          "node": "131",
+          "distance_m": 1975.104,
+          "drop_m": 1.37989744
+        },
+        {
+          "node": "123",
+          "distance_m": 2002.536,
+          "drop_m": 0.48992412
+        }
+      ]
+    },
+    {
+      "node": "255",
+      "size": "small",
+      "requested_area_m2": 0.006,
+      "effective_area_m2": 0.006,
+      "retry_count": 0,
+      "leak_flow_lps": 110.80707454,
+      "local_drop_m": 3.3167878,
+      "nearby": [
+        {
+          "node": "255",
+          "distance_m": 0,
+          "drop_m": 3.3167878
+        },
+        {
+          "node": "50",
+          "distance_m": 281.94,
+          "drop_m": 2.29e-06
+        },
+        {
+          "node": "251",
+          "distance_m": 335.28000000000003,
+          "drop_m": 3.08560709
+        },
+        {
+          "node": "253",
+          "distance_m": 335.28000000000003,
+          "drop_m": 3.31678781
+        },
+        {
+          "node": "247",
+          "distance_m": 423.672,
+          "drop_m": 3.03527432
+        },
+        {
+          "node": "249",
+          "distance_m": 426.72,
+          "drop_m": 3.03502035
+        },
+        {
+          "node": "239",
+          "distance_m": 557.784,
+          "drop_m": 2.989105
+        },
+        {
+          "node": "241",
+          "distance_m": 559.308,
+          "drop_m": 2.9906135
+        },
+        {
+          "node": "237",
+          "distance_m": 713.232,
+          "drop_m": 2.83262257
+        },
+        {
+          "node": "229",
+          "distance_m": 954.024,
+          "drop_m": 2.7711935
+        }
+      ]
+    },
+    {
+      "node": "255",
+      "size": "medium",
+      "requested_area_m2": 0.012,
+      "effective_area_m2": 0.012,
+      "retry_count": 0,
+      "leak_flow_lps": 202.20728448,
+      "local_drop_m": 8.49231113,
+      "nearby": [
+        {
+          "node": "255",
+          "distance_m": 0,
+          "drop_m": 8.49231113
+        },
+        {
+          "node": "50",
+          "distance_m": 281.94,
+          "drop_m": 5.85e-06
+        },
+        {
+          "node": "251",
+          "distance_m": 335.28000000000003,
+          "drop_m": 7.602016
+        },
+        {
+          "node": "253",
+          "distance_m": 335.28000000000003,
+          "drop_m": 8.49231113
+        },
+        {
+          "node": "247",
+          "distance_m": 423.672,
+          "drop_m": 7.41812947
+        },
+        {
+          "node": "249",
+          "distance_m": 426.72,
+          "drop_m": 7.41732261
+        },
+        {
+          "node": "239",
+          "distance_m": 557.784,
+          "drop_m": 7.25828659
+        },
+        {
+          "node": "241",
+          "distance_m": 559.308,
+          "drop_m": 7.2634154
+        },
+        {
+          "node": "237",
+          "distance_m": 713.232,
+          "drop_m": 6.75970306
+        },
+        {
+          "node": "229",
+          "distance_m": 954.024,
+          "drop_m": 6.53330187
+        }
+      ]
+    },
+    {
+      "node": "255",
+      "size": "large",
+      "requested_area_m2": 0.02,
+      "effective_area_m2": 0.02,
+      "retry_count": 0,
+      "leak_flow_lps": 289.02013651,
+      "local_drop_m": 15.29818807,
+      "nearby": [
+        {
+          "node": "255",
+          "distance_m": 0,
+          "drop_m": 15.29818807
+        },
+        {
+          "node": "50",
+          "distance_m": 281.94,
+          "drop_m": 1.054e-05
+        },
+        {
+          "node": "251",
+          "distance_m": 335.28000000000003,
+          "drop_m": 13.40765625
+        },
+        {
+          "node": "253",
+          "distance_m": 335.28000000000003,
+          "drop_m": 15.29528354
+        },
+        {
+          "node": "247",
+          "distance_m": 423.672,
+          "drop_m": 13.03009375
+        },
+        {
+          "node": "249",
+          "distance_m": 426.72,
+          "drop_m": 13.02852031
+        },
+        {
+          "node": "239",
+          "distance_m": 557.784,
+          "drop_m": 12.70869472
+        },
+        {
+          "node": "241",
+          "distance_m": 559.308,
+          "drop_m": 12.71893722
+        },
+        {
+          "node": "237",
+          "distance_m": 713.232,
+          "drop_m": 11.73608722
+        },
+        {
+          "node": "229",
+          "distance_m": 954.024,
+          "drop_m": 11.24565671
+        }
+      ]
+    },
+    {
+      "node": "105",
+      "size": "small",
+      "requested_area_m2": 0.006,
+      "effective_area_m2": 0.006,
+      "retry_count": 0,
+      "leak_flow_lps": 111.18801064,
+      "local_drop_m": 4.95021773,
+      "nearby": [
+        {
+          "node": "105",
+          "distance_m": 0,
+          "drop_m": 4.95021773
+        },
+        {
+          "node": "107",
+          "distance_m": 448.05600000000004,
+          "drop_m": 4.76348925
+        },
+        {
+          "node": "101",
+          "distance_m": 774.192,
+          "drop_m": 4.30587076
+        },
+        {
+          "node": "263",
+          "distance_m": 830.58,
+          "drop_m": 2.71396919
+        },
+        {
+          "node": "261",
+          "distance_m": 937.26,
+          "drop_m": 2.54118852
+        },
+        {
+          "node": "115",
+          "distance_m": 1042.4160000000002,
+          "drop_m": 2.33530657
+        },
+        {
+          "node": "117",
+          "distance_m": 1133.856,
+          "drop_m": 2.3904546
+        },
+        {
+          "node": "103",
+          "distance_m": 1185.672,
+          "drop_m": 4.20258278
+        },
+        {
+          "node": "259",
+          "distance_m": 1257.3000000000002,
+          "drop_m": 2.17690876
+        },
+        {
+          "node": "257",
+          "distance_m": 1363.98,
+          "drop_m": 2.04264304
+        }
+      ]
+    },
+    {
+      "node": "105",
+      "size": "medium",
+      "requested_area_m2": 0.012,
+      "effective_area_m2": 0.012,
+      "retry_count": 0,
+      "leak_flow_lps": 196.76796367,
+      "local_drop_m": 11.70413683,
+      "nearby": [
+        {
+          "node": "105",
+          "distance_m": 0,
+          "drop_m": 11.70413683
+        },
+        {
+          "node": "107",
+          "distance_m": 448.05600000000004,
+          "drop_m": 11.19533307
+        },
+        {
+          "node": "101",
+          "distance_m": 774.192,
+          "drop_m": 9.92837258
+        },
+        {
+          "node": "263",
+          "distance_m": 830.58,
+          "drop_m": 6.1867292
+        },
+        {
+          "node": "261",
+          "distance_m": 937.26,
+          "drop_m": 5.75029106
+        },
+        {
+          "node": "115",
+          "distance_m": 1042.4160000000002,
+          "drop_m": 5.31479925
+        },
+        {
+          "node": "117",
+          "distance_m": 1133.856,
+          "drop_m": 5.33471937
+        },
+        {
+          "node": "103",
+          "distance_m": 1185.672,
+          "drop_m": 9.62237867
+        },
+        {
+          "node": "259",
+          "distance_m": 1257.3000000000002,
+          "drop_m": 4.9110925
+        },
+        {
+          "node": "257",
+          "distance_m": 1363.98,
+          "drop_m": 4.59218208
+        }
+      ]
+    },
+    {
+      "node": "105",
+      "size": "large",
+      "requested_area_m2": 0.02,
+      "effective_area_m2": 0.02,
+      "retry_count": 0,
+      "leak_flow_lps": 273.04252867,
+      "local_drop_m": 19.1787668,
+      "nearby": [
+        {
+          "node": "105",
+          "distance_m": 0,
+          "drop_m": 19.1787668
+        },
+        {
+          "node": "107",
+          "distance_m": 448.05600000000004,
+          "drop_m": 18.27983096
+        },
+        {
+          "node": "101",
+          "distance_m": 774.192,
+          "drop_m": 15.75462765
+        },
+        {
+          "node": "263",
+          "distance_m": 830.58,
+          "drop_m": 9.84033948
+        },
+        {
+          "node": "261",
+          "distance_m": 937.26,
+          "drop_m": 9.09200775
+        },
+        {
+          "node": "115",
+          "distance_m": 1042.4160000000002,
+          "drop_m": 8.3750085
+        },
+        {
+          "node": "117",
+          "distance_m": 1133.856,
+          "drop_m": 8.34876448
+        },
+        {
+          "node": "103",
+          "distance_m": 1185.672,
+          "drop_m": 15.20780183
+        },
+        {
+          "node": "259",
+          "distance_m": 1257.3000000000002,
+          "drop_m": 7.73985857
+        },
+        {
+          "node": "257",
+          "distance_m": 1363.98,
+          "drop_m": 7.21473651
+        }
+      ]
+    }
+  ],
+  "network_hash_policy": "sha256-lf-v1"
+}

@@ -1,0 +1,13 @@
+.venv
+.env
+.env.*
+!.env.example
+cache
+tests
+docs
+scripts
+__pycache__
+.pytest_cache
+.ruff_cache
+.coverage
+*.log

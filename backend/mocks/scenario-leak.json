@@ -1,0 +1,28 @@
+{
+  "scenario_id": "a6710fae-56e1-4aec-89e4-b1c135afbe1b",
+  "sensors": [
+    "10",
+    "15",
+    "20",
+    "40",
+    "50",
+    "60"
+  ],
+  "readings": {
+    "10": 29.42,
+    "15": 41.83,
+    "20": 34.54,
+    "40": 27.69,
+    "50": 37.12,
+    "60": null
+  },
+  "meta": {
+    "time_step": "t0",
+    "noise_sigma": 0.2,
+    "demand_mult_known": false,
+    "provenance": {
+      "readings": "simulated: illustrative mock pressure readings in metres; not computed benchmark output",
+      "noise_sigma": "assumed: sensor noise standard deviation in metres"
+    }
+  }
+}

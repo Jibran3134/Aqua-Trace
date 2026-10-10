@@ -114,3 +114,18 @@ optional and additive; the UI degrades gracefully without it. Worth a look:
 
 Benchmark network stand-in (EPANET Net3), synthetic demand, junction-level localization, single leak,
 steady-state snapshot. The mock engine is a qualitative surrogate for the WNTR backend, not physics.
+
+## Backend handoff
+
+The backend foundation is now included. See [backend/README.md](backend/README.md)
+for setup and implementation status, [backend/docs/operations.md](backend/docs/operations.md)
+for PostgreSQL, Redis and Docker instructions, and [backend/docs/validation.md](backend/docs/validation.md)
+for actual test results.
+
+The tested endpoints cover health/readiness, network topology, hidden-leak scenarios,
+detection and explicit reveal. Investigation, evaluation, sensor placement and repair
+optimization are in progress. The frontend and its offline mock engine are preserved.
+Use the running backend OpenAPI (`/docs`) for available endpoints; frontend integration
+shapes in `contracts/api.md` will be reconciled as the remaining modules are completed.
+Credentials and device-specific environments are excluded from Git. Generate a local
+`backend/.env` with `python scripts/init_env.py` from the backend directory.

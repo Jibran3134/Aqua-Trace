@@ -1,0 +1,14 @@
+{
+  "fingerprint": "c606767e81206f156284aff62f15659263d66a9a9eebb18c6a33cbe94caddcdb",
+  "build_seconds_measured": 12.39132499997504,
+  "load_seconds_measured": 0.007630500011146069,
+  "state": {
+    "ready": true,
+    "progress": 100.0,
+    "built_at": "2026-10-10T08:37:39.318487+00:00",
+    "n_candidates": 91,
+    "skipped": [
+      "10"
+    ]
+  }
+}
