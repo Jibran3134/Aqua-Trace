@@ -28,6 +28,7 @@ class HealthResponse(DTO):
     status: Literal["ok", "degraded"]
     signatures_ready: bool
     signatures_progress: float = 0
+    progress: Annotated[FiniteFloat, Field(ge=0, le=1)] = 0
     database: Literal["ok", "unavailable"]
     redis: Literal["ok", "unavailable"]
 
@@ -45,6 +46,12 @@ class NetworkPipe(DTO):
     to: NodeId
     length: Annotated[FiniteFloat, Field(ge=0)]
     type: Literal["pipe", "pump", "valve"] = "pipe"
+    kind: Literal["pipe", "pump", "valve"] | None = None
+
+    @model_validator(mode="after")
+    def link_kind(self):
+        self.kind = self.type if self.kind is None else self.kind
+        return self
 
 
 class NetworkResponse(DTO):
@@ -74,6 +81,7 @@ class LeakRequest(DTO):
 class ScenarioMeta(DTO):
     time_step: Literal["t0"] = "t0"
     noise_sigma: FiniteFloat
+    noise_level: Noise = "mid"
     demand_mult_known: Literal[False] = False
     provenance: dict[str, str] = Field(default_factory=lambda: {
         "readings": "simulated: hydraulic pressure in metres with synthetic sensor noise",
@@ -139,6 +147,8 @@ class AgentResponse(DTO):
     route: list[NodeId] | None = None
     state: Literal["investigating", "resolved", "abstained"]
     recommended_sensor: NodeId | None = None
+    route_length_m: Annotated[FiniteFloat, Field(ge=0)] = 0
+    inspections_used: Annotated[int, Field(ge=0)] = 0
 
 
 class FieldRequest(ScenarioRequest):

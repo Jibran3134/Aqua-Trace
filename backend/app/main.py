@@ -15,6 +15,7 @@ from starlette.responses import JSONResponse
 from app.api.cache import cached_dto
 from app.api.dependencies import enforce_rate_limit
 from app.api.detection import router as detection_router
+from app.api.investigation import router as investigation_router
 from app.api.middleware import BodyLimitMiddleware, SafeErrorMiddleware
 from app.api.scenarios import router as scenarios_router
 from app.core.config import Settings
@@ -25,6 +26,9 @@ from app.detection.service import Detector
 from app.hydraulics.service import HydraulicService
 from app.hydraulics.signatures import SignatureLibrary, SignaturesNotReady
 from app.infra.redis_service import RedisService
+from app.investigation.llm import LLMInvestigator
+from app.investigation.scripted import ScriptedInvestigator
+from app.investigation.tools import InvestigationTools
 from app.schemas.api import HealthResponse, NetworkResponse
 
 logger = logging.getLogger("aquatrace")
@@ -33,6 +37,7 @@ logger = logging.getLogger("aquatrace")
 def create_app(settings: Settings | None = None) -> FastAPI:
     """Construct an isolated application, allowing controlled settings in tests."""
     settings = settings or Settings()
+    logger.setLevel(settings.log_level)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
@@ -46,6 +51,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             settings, app.state.runtime.hydraulics, signatures)
         app.state.runtime.detector = Detector(settings, app.state.runtime.hydraulics,
                                               signatures, app.state.runtime.generator, redis)
+        tools = InvestigationTools(settings, app.state.runtime.hydraulics,
+                                   app.state.runtime.detector, signatures)
+        app.state.runtime.tools = tools
+        app.state.runtime.scripted = ScriptedInvestigator(tools)
+        app.state.runtime.llm = LLMInvestigator(settings, tools)
         builder = None
         try:
             signatures.load()
@@ -61,6 +71,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             yield
         finally:
+            await app.state.runtime.llm.aclose()
             if builder is not None:
                 await asyncio.to_thread(builder.join, 2)
             redis.close()
@@ -126,6 +137,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         return HealthResponse(status="ok" if db_status == redis_status == "ok" else "degraded",
                               signatures_ready=signature_state["ready"],
                               signatures_progress=signature_state["progress"],
+                              progress=signature_state["progress"] / 100,
                               database=db_status, redis=redis_status)
 
     @app.get("/ready", response_model=HealthResponse, tags=["operations"])
@@ -152,6 +164,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.include_router(scenarios_router)
     app.include_router(detection_router)
+    app.include_router(investigation_router)
     return app
 
 

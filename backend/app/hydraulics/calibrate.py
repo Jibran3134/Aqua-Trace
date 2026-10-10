@@ -1,6 +1,5 @@
 """Reproducible physical calibration artifact: python -m app.hydraulics.calibrate."""
 
-import hashlib
 import json
 from pathlib import Path
 from time import perf_counter
@@ -10,6 +9,7 @@ import numpy as np
 import wntr
 
 from app.core.config import LEAK_AREAS_M2, Settings
+from app.hydraulics.fingerprint import NETWORK_HASH_POLICY, canonical_network_sha256
 from app.hydraulics.service import HydraulicService, SimulationError
 
 
@@ -41,7 +41,8 @@ def calibrate(output: Path | None = None) -> dict:
             except SimulationError:
                 rows.append({"node": node, "size": size, "failed": True})
     artifact = {
-        "network": "Net3", "network_sha256": hashlib.sha256(settings.net_file.read_bytes()).hexdigest(),
+        "network": "Net3", "network_sha256": canonical_network_sha256(settings.net_file),
+        "network_hash_policy": NETWORK_HASH_POLICY,
         "wntr": wntr.__version__, "seed": 2026, "time_step": "t0",
         "baseline_seconds_measured": baseline_seconds,
         "baseline_negative_pressures_m": {n: p for n, p in baseline.pressures.items() if p < 0},

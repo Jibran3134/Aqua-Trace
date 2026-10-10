@@ -75,10 +75,14 @@ temporary file and atomic replacement; NumPy loads with `allow_pickle=False`.
 Missing/corrupt/stale cache raises `signatures_not_ready`, and `build()` recovers
 by regenerating it. Health progress is available while the builder runs.
 
-Fingerprint inputs include network SHA-256, WNTR/NumPy/SciPy versions, snapshot,
+Fingerprint inputs include the canonical network SHA-256, WNTR/NumPy/SciPy versions, snapshot,
 PDD/leak assumptions, numerical precision and cache format. Restart/rebuild
 after changing network or hydraulic constants; configuration updates do not
 silently mutate already-created service instances.
+The `sha256-lf-v1` network hash policy normalizes CRLF to LF before hashing, so
+the same input has identical identity in Windows and Linux Git checkouts.
+Network parsing and physical inputs are unchanged. A regression test verifies
+that LF and CRLF copies share both network hash and signature fingerprint.
 
 Default sensors use deterministic farthest-point sampling by structural graph hops,
 starting from the lexicographically first eligible junction (`101`). Default
@@ -100,8 +104,10 @@ retry effective area, known nonpositive-head rejection, full signatures,
 cache recovery, thread coordination and network hash invalidation. Baseline
 acceptance enforces less than two seconds and cache loading less than one second.
 `data/signature_validation.json` records the final cache build/load timings.
-The completed cache build took **measured 12.634387 s** and reload took **measured
-0.013817 s** on the development machine, with 91 usable candidates and one skip.
+The latest portable cache build took **measured 12.391325 s** and reload took
+**measured 0.007631 s** on the development machine, with 91 usable candidates and
+one skip. Two portability/hash-invalidation regressions passed in **measured
+1.98 s** after introducing the canonical LF hash policy.
 
 SciPy reports an `OptimizeWarning` when WNTR fits a three-point pump curve;
 tested results still converge and remain finite. This warning is not evidence
@@ -115,4 +121,5 @@ snapshot; it does not validate real utility performance or multiple leaks.
 - [Pinned Net3 source](https://raw.githubusercontent.com/USEPA/WNTR/1.5.0/examples/networks/Net3.inp)
 
 Network SHA-256:
-`ea3e825c4fef0b5cba47fb06301bc85253f18b6364dc96c44d9fb492c40faa52`.
+`54987a3d342706ecebf2d951d36f125b4263ea8bb291e5d4201cb901999ecc9e`
+under the canonical `sha256-lf-v1` policy.

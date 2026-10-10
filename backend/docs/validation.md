@@ -53,3 +53,32 @@ after execution. Pending work is not evidence of passing tests.
 - Sensor readings remain stable across reordered/subset selections.
 - Signature-ineligible junctions are not selected as hidden truth; explicit
   known junction 10 remains a permitted but uninformative sensor input.
+
+## Module 3b: observation-only detector
+
+- The frozen detector produced **33/50** validation top-three hits and **7/10**
+  fixed acceptance hits. Independent no-leak holdout abstention was **29/30**.
+- Initial demand-unadjusted variants failed the required leak gate. The complete
+  comparisons are retained in `data/detector_diagnostics.json`; projection and
+  the Gaussian noise-floor guard are explained in `docs/detection.md`.
+- The pre-push contract/detector selection passed **31 tests** in measured
+  40.63 seconds. Native warnings were documented; no failures remained.
+- Real PostgreSQL/Redis API selection passed **4 tests** in measured 64.42 seconds,
+  covering durable restart reads, public response boundaries and peer-IP quotas.
+  Later investigation/version compatibility checks are recorded below.
+- LF/CRLF signature identity regressions passed **2 tests** in measured 1.98 seconds.
+  Canonical line-ending hashing preserves cache identity across clean checkouts.
+- Frontend-compatible network/contract selection passed **12 tests** in measured
+  10.11 seconds. This does not validate unfinished frontend feature endpoints.
+
+## Module 4: investigation (remaining tool checks pending)
+
+- Real PostgreSQL/Redis API selection passed **6 tests** in measured 104.97 seconds,
+  covering crew report idempotence/conflicts, resolved closure, stale agent turns
+  during concurrent crew reports, and rejection after a detector version change.
+- Mocked provider selection passed **29 tests** in measured 0.85 seconds,
+  covering bounded decoding, malicious/mutating tool calls, private context
+  exclusion, Gemini signature handling, failover, retry and time budgets.
+- No live Gemini/Groq completion has been tested; provider validation uses
+  deterministic mocked HTTP transports without external requests or real keys.
+- Numerical tool and scripted investigation acceptance is still pending.

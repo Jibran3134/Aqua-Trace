@@ -6,7 +6,9 @@ https://raw.githubusercontent.com/USEPA/WNTR/1.5.0/examples/networks/Net3.inp
 Source project: https://github.com/USEPA/WNTR (Revised BSD license).
 This is a benchmark stand-in, not a Pakistani utility's surveyed network.
 Coordinates are schematic; input units are converted to SI by WNTR.
-Signatures include this file's SHA-256 so edits invalidate cached calculations.
+Signatures include this file's canonical SHA-256 so physical edits invalidate
+cached calculations. Policy `sha256-lf-v1` normalizes CRLF to LF before hashing,
+giving the same identity in Windows and Linux Git checkouts.
 
 Net3 contains 92 junctions, 2 reservoirs, 3 tanks, 117 pipes and 2 pumps.
 The original t=0 state has negative pressure at junction10; it is documented

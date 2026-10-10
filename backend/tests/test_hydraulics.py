@@ -162,3 +162,20 @@ def test_center_works_for_sensor_vectors_and_matrices():
     np.testing.assert_array_equal(center(np.array([1., 3.])), [-1., 1.])
     np.testing.assert_array_equal(center(np.array([[1., 2.], [3., 4.]])), [[-1., -1.], [1., 1.]])
     assert center(np.array([])).size == 0
+
+
+def test_signature_identity_is_portable_across_lf_and_crlf(hydraulics, tmp_path):
+    from app.hydraulics.fingerprint import canonical_network_sha256
+    from app.hydraulics.signatures import SignatureLibrary
+
+    settings = Settings(_env_file=None, environment="test", cache_dir=tmp_path)
+    lf = tmp_path / "lf.inp"
+    crlf = tmp_path / "crlf.inp"
+    canonical = settings.net_file.read_bytes().replace(b"\r\n", b"\n")
+    lf.write_bytes(canonical)
+    crlf.write_bytes(canonical.replace(b"\n", b"\r\n"))
+    assert lf.read_bytes() != crlf.read_bytes()
+    assert canonical_network_sha256(lf) == canonical_network_sha256(crlf)
+    unix = SignatureLibrary(settings.model_copy(update={"net_file": lf}), hydraulics)
+    windows = SignatureLibrary(settings.model_copy(update={"net_file": crlf}), hydraulics)
+    assert unix.fingerprint == windows.fingerprint

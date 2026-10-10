@@ -36,8 +36,8 @@
   "demand_projection": true,
   "tau": 0.05,
   "noise_percentile": 95.0,
-  "fingerprint": "6c19921bb7a8a879d358c700461ea000db94b82d105eefdca60d672db326cbc5",
-  "elapsed_seconds_measured": 14.786397899966687,
+  "fingerprint": "293a0079268bee50f3070a08e92a560c8e232f4407c1f1aa275cd6cdf23a4648",
+  "elapsed_seconds_measured": 14.709326700074598,
   "provenance": "simulated benchmark outcomes; measured validation duration",
   "note": "Frozen on validation only; final test seeds 1000-1099 are unused here."
 }

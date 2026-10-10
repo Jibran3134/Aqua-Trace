@@ -12,7 +12,13 @@ from app.db.models import ScenarioRow
 from app.hydraulics.service import HydraulicService
 from app.hydraulics.signatures import SignatureLibrary
 from app.main import create_app
-from app.schemas.api import DetectionResponse, LeakResponse, RevealResponse
+from app.schemas.api import (
+    AgentResponse,
+    DetectionResponse,
+    FieldResponse,
+    LeakResponse,
+    RevealResponse,
+)
 
 pytestmark = pytest.mark.integration
 
@@ -25,6 +31,7 @@ def api_settings(tmp_path_factory):
         pytest.skip("Enable real integration infrastructure with scripts/test.py --integration.")
     settings = Settings(database_url=database_url, redis_url=redis_url,
                         environment="test", rate_limit_enabled=False,
+                        llm_enabled=False,
                         signature_auto_build=False, cache_dir=tmp_path_factory.mktemp("api-cache"))
     SignatureLibrary(settings, HydraulicService(settings)).build()
     return settings
@@ -81,6 +88,11 @@ def test_real_leak_detect_reveal_and_restart_persistence(client, api_settings):
             truth = RevealResponse.model_validate(reveal.json())
             assert truth.true_leak_node in restarted.app.state.runtime.signatures.candidate_order
             assert truth.rank_of_truth is not None and truth.hop_error_top1 >= 0
+        changed = api_settings.model_copy(update={"detector_tau": api_settings.detector_tau * 2})
+        with TestClient(create_app(changed)) as updated:
+            stale = updated.post("/detect", json={"scenario_id": scenario_id})
+            assert stale.status_code == 409
+            assert stale.json()["error"]["code"] == "scenario_version_conflict"
     finally:
         _delete_scenarios(api_settings, leak.scenario_id)
 
@@ -122,3 +134,78 @@ def test_api_quota_uses_peer_not_spoofed_forwarding_headers(api_settings):
         response = probe.get("/network", headers={"X-Forwarded-For": "203.0.113.2"})
         assert response.status_code == 429
         assert int(response.headers["retry-after"]) > 0
+
+
+def test_scripted_investigation_crew_reports_and_closure(client, api_settings):
+    leak = LeakResponse.model_validate(client.post("/scenario/leak", json={"seed": 7}).json())
+    body = {"scenario_id": str(leak.scenario_id)}
+    try:
+        detection = client.post("/detect", json=body).json()
+        turn = client.post("/agent/step", json={**body, "mode": "auto"})
+        assert turn.status_code == 200
+        agent = AgentResponse.model_validate(turn.json())
+        assert agent.source == "scripted" and agent.events
+        _assert_public(turn.json())
+        node = detection["candidates"][0]["node"]
+        report = {**body, "node": node, "found": False}
+        negative = client.post("/field/result", json=report)
+        assert negative.status_code == 200
+        result = FieldResponse.model_validate(negative.json())
+        assert result.state == "investigating"
+        from app.db.repository import ScenarioRepository
+        with client.app.state.runtime.database.sessions() as session:
+            updated = ScenarioRepository(session).load(leak.scenario_id)
+            assert updated.weights[node] > 0
+        assert client.post("/field/result", json=report).json() == negative.json()
+        assert client.post("/field/result", json={**report, "found": True}).status_code == 409
+        next_turn = client.post("/agent/step", json={**body, "mode": "scripted"})
+        assert next_turn.status_code == 200
+        next_agent = next_turn.json()
+        if next_agent["state"] == "investigating":
+            assert next_agent["recommended_node"] != node
+        confirmed = result.ranking[-1].node
+        positive = client.post("/field/result", json={**body, "node": confirmed, "found": True})
+        assert positive.status_code == 200 and positive.json()["state"] == "resolved"
+        closing = client.post("/agent/step", json={**body, "mode": "scripted"})
+        assert closing.status_code == 200
+        assert closing.json()["state"] == "resolved"
+        assert closing.json()["events"][-1]["type"] == "final"
+        _assert_public(closing.json())
+    finally:
+        _delete_scenarios(api_settings, leak.scenario_id)
+
+
+def test_investigation_rejects_a_turn_stale_after_a_crew_report(client, api_settings, monkeypatch):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+
+    from app.db.repository import ScenarioRepository
+
+    leak = LeakResponse.model_validate(client.post("/scenario/leak", json={"seed": 7}).json())
+    body = {"scenario_id": str(leak.scenario_id)}
+    entered, proceed = Event(), Event()
+    runtime = client.app.state.runtime
+    original = runtime.scripted.run
+
+    def delayed(state):
+        entered.set()
+        assert proceed.wait(10)
+        return original(state)
+
+    try:
+        detection = client.post("/detect", json=body).json()
+        node = detection["candidates"][0]["node"]
+        monkeypatch.setattr(runtime.scripted, "run", delayed)
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            pending = pool.submit(client.post, "/agent/step", json={**body, "mode": "scripted"})
+            assert entered.wait(10)
+            report = client.post("/field/result", json={**body, "node": node, "found": False})
+            assert report.status_code == 200
+            proceed.set()
+            assert pending.result(timeout=20).status_code == 409
+        with runtime.database.sessions() as session:
+            state = ScenarioRepository(session).load(leak.scenario_id)
+            assert state.inspected == {node: False}
+    finally:
+        proceed.set()
+        _delete_scenarios(api_settings, leak.scenario_id)

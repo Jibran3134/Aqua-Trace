@@ -19,6 +19,8 @@ def create_scenario(body: LeakRequest, request: Request) -> LeakResponse:
         seed=body.seed if body.seed is not None else randbits(32),
         size=body.size, noise=body.noise, sensors=body.sensors, k=body.k,
     )
+    observation.hydraulic_fingerprint = runtime.signatures.fingerprint
+    observation.detector_fingerprint = runtime.detector.fingerprint
     with runtime.database.sessions.begin() as session:
         # A transaction-scoped lock enforces retention even across concurrent replicas.
         # It is PostgreSQL correctness, independent of disposable Redis locks.
@@ -28,4 +30,5 @@ def create_scenario(body: LeakRequest, request: Request) -> LeakResponse:
         repository.cleanup()
     return LeakResponse(scenario_id=scenario_id, sensors=observation.sensors,
                         readings=observation.readings,
-                        meta=ScenarioMeta(noise_sigma=observation.noise_sigma))
+                        meta=ScenarioMeta(noise_sigma=observation.noise_sigma,
+                                          noise_level=observation.noise))
