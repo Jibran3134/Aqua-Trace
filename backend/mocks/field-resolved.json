@@ -1,0 +1,17 @@
+{
+  "state": "resolved",
+  "ranking": [
+    {
+      "node": "111",
+      "score": 0.6
+    },
+    {
+      "node": "103",
+      "score": 0.25
+    },
+    {
+      "node": "101",
+      "score": 0.15
+    }
+  ]
+}

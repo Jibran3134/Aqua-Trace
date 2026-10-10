@@ -1,0 +1,16 @@
+.tools/
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/.coverage
+**/htmlcov/
+**/.env
+**/.env.*
+!**/.env.example
+backend/cache/*
+!backend/cache/.gitkeep
+!backend/cache/eval.json
+!backend/cache/calibration.json
+!backend/cache/tuning.json
+*.log

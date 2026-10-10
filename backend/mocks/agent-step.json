@@ -1,0 +1,212 @@
+{
+  "events": [
+    {
+      "step": 1,
+      "type": "thought",
+      "name": null,
+      "args": null,
+      "result": null,
+      "text": "Ranking candidates from sensor residuals."
+    },
+    {
+      "step": 2,
+      "type": "tool_call",
+      "name": "rank_candidates",
+      "args": {
+        "top_k": 3
+      },
+      "result": null,
+      "text": null
+    },
+    {
+      "step": 3,
+      "type": "tool_result",
+      "name": "rank_candidates",
+      "args": null,
+      "result": {
+        "status": "ok",
+        "candidates": [
+          {
+            "node": "111",
+            "score": 0.6,
+            "adjacent_pipes": [
+              "111",
+              "112",
+              "113",
+              "225"
+            ],
+            "est_leak_lps": 8,
+            "tie_group": null
+          },
+          {
+            "node": "103",
+            "score": 0.25,
+            "adjacent_pipes": [
+              "103",
+              "109"
+            ],
+            "est_leak_lps": 6.5,
+            "tie_group": null
+          },
+          {
+            "node": "101",
+            "score": 0.15,
+            "adjacent_pipes": [
+              "101",
+              "103",
+              "105"
+            ],
+            "est_leak_lps": 5,
+            "tie_group": null
+          }
+        ],
+        "evidence": {
+          "residual_norm": 2.4,
+          "noise_floor": 0.65,
+          "margin_top1_vs_top2": 2.4,
+          "live_sensors": 5
+        },
+        "note": null,
+        "provenance": {
+          "score": "simulated: illustrative relative fit weights, not calibrated probabilities",
+          "est_leak_lps": "simulated: illustrative leak-flow estimates in litres per second",
+          "evidence": "simulated: illustrative pressure residuals and noise floor in metres"
+        }
+      },
+      "text": null
+    },
+    {
+      "step": 4,
+      "type": "tool_call",
+      "name": "simulate_hypothesis",
+      "args": {
+        "node": "111"
+      },
+      "result": null,
+      "text": null
+    },
+    {
+      "step": 5,
+      "type": "tool_result",
+      "name": "simulate_hypothesis",
+      "args": null,
+      "result": {
+        "node": "111",
+        "per_sensor": [
+          {
+            "sensor": "10",
+            "observed": -0.1,
+            "predicted": -0.12
+          },
+          {
+            "sensor": "15",
+            "observed": -0.82,
+            "predicted": -0.79
+          },
+          {
+            "sensor": "20",
+            "observed": -1.24,
+            "predicted": -1.21
+          },
+          {
+            "sensor": "40",
+            "observed": -1.42,
+            "predicted": -1.46
+          },
+          {
+            "sensor": "50",
+            "observed": -0.98,
+            "predicted": -0.99
+          }
+        ],
+        "rmse": 0.02792848008753788,
+        "fit_label": "closest relative fit among checked hypotheses",
+        "provenance": "simulated: illustrative pressure residuals and RMSE in metres"
+      },
+      "text": null
+    },
+    {
+      "step": 6,
+      "type": "tool_call",
+      "name": "plan_inspection",
+      "args": {
+        "nodes": [
+          "111",
+          "103",
+          "101"
+        ]
+      },
+      "result": null,
+      "text": null
+    },
+    {
+      "step": 7,
+      "type": "tool_result",
+      "name": "plan_inspection",
+      "args": null,
+      "result": {
+        "order": [
+          "111",
+          "103",
+          "101"
+        ],
+        "total_length_m": 18760.44,
+        "legs": [
+          {
+            "from": "60",
+            "to": "111",
+            "length_m": 16538.448,
+            "path": [
+              "60",
+              "61",
+              "123",
+              "121",
+              "120",
+              "117",
+              "115",
+              "111"
+            ]
+          },
+          {
+            "from": "111",
+            "to": "103",
+            "length_m": 1810.512,
+            "path": [
+              "111",
+              "109",
+              "103"
+            ]
+          },
+          {
+            "from": "103",
+            "to": "101",
+            "length_m": 411.48,
+            "path": [
+              "103",
+              "101"
+            ]
+          }
+        ],
+        "provenance": "simulated: Net3 shortest paths in metres; pipe inspection routes, not road routes"
+      },
+      "text": null
+    },
+    {
+      "step": 8,
+      "type": "recommendation",
+      "name": null,
+      "args": null,
+      "result": null,
+      "text": "Inspect node 111 first. The proposed pipe inspection order is 111, 103, 101."
+    }
+  ],
+  "source": "scripted",
+  "recommended_node": "111",
+  "route": [
+    "111",
+    "103",
+    "101"
+  ],
+  "state": "investigating",
+  "recommended_sensor": null
+}

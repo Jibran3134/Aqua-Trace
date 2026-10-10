@@ -1,0 +1,7 @@
+{
+  "status": "ok",
+  "signatures_ready": false,
+  "signatures_progress": 42,
+  "database": "ok",
+  "redis": "ok"
+}

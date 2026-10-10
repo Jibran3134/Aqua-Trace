@@ -1,0 +1,78 @@
+{
+  "events": [
+    {
+      "step": 1,
+      "type": "thought",
+      "name": null,
+      "args": null,
+      "result": null,
+      "text": "Ranking candidates from sensor residuals."
+    },
+    {
+      "step": 2,
+      "type": "tool_call",
+      "name": "rank_candidates",
+      "args": {
+        "top_k": 3
+      },
+      "result": null,
+      "text": null
+    },
+    {
+      "step": 3,
+      "type": "tool_result",
+      "name": "rank_candidates",
+      "args": null,
+      "result": {
+        "status": "insufficient_evidence",
+        "candidates": [],
+        "evidence": {
+          "residual_norm": 0.12,
+          "noise_floor": 0.65,
+          "margin_top1_vs_top2": 1,
+          "live_sensors": 1
+        },
+        "note": "Fewer than two live sensors; add a sensor before choosing an inspection.",
+        "provenance": {
+          "score": "simulated: illustrative relative fit weights, not calibrated probabilities",
+          "est_leak_lps": "simulated: illustrative leak-flow estimates in litres per second",
+          "evidence": "simulated: illustrative pressure residuals and noise floor in metres"
+        }
+      },
+      "text": null
+    },
+    {
+      "step": 4,
+      "type": "tool_call",
+      "name": "recommend_sensor_addition",
+      "args": {},
+      "result": null,
+      "text": null
+    },
+    {
+      "step": 5,
+      "type": "tool_result",
+      "name": "recommend_sensor_addition",
+      "args": null,
+      "result": {
+        "recommended": "199",
+        "reason": "An additional sensor can improve separation of the leading candidate signatures.",
+        "provenance": "simulated: illustrative signature-separation recommendation"
+      },
+      "text": null
+    },
+    {
+      "step": 6,
+      "type": "abstain",
+      "name": null,
+      "args": null,
+      "result": null,
+      "text": "More evidence is needed. Add a sensor at node 199."
+    }
+  ],
+  "source": "scripted",
+  "recommended_node": null,
+  "route": null,
+  "state": "abstained",
+  "recommended_sensor": "199"
+}

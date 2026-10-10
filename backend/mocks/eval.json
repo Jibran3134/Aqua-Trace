@@ -1,0 +1,125 @@
+{
+  "meta": {
+    "seeds": [
+      1000,
+      1001,
+      1002,
+      1003
+    ],
+    "k": 6,
+    "tau": 0.05,
+    "time_step": "t0",
+    "network": "Net3",
+    "mock": true,
+    "note": "SIMULATED ILLUSTRATIVE FIXTURE. This is not a computed evaluation or field-performance claim. Metric dictionary keys are provisional until evaluation implementation."
+  },
+  "results": {
+    "n_scenarios": 4,
+    "n_completed": 4,
+    "skipped_simulations": 0,
+    "top1": 0.5,
+    "top3": 0.75,
+    "mean_hop_error_top1": 1.25,
+    "insufficient_evidence_fraction": 0.25
+  },
+  "baseline": {
+    "n_scenarios": 4,
+    "n_completed": 4,
+    "skipped_simulations": 0,
+    "top1": 0.25,
+    "top3": 0.5,
+    "mean_hop_error_top1": 2.25,
+    "insufficient_evidence_fraction": 0.25
+  },
+  "by_noise": {
+    "low": {
+      "n_scenarios": 2,
+      "n_completed": 2,
+      "skipped_simulations": 0,
+      "top1": 0.5,
+      "top3": 1,
+      "mean_hop_error_top1": 0.5,
+      "insufficient_evidence_fraction": 0.5
+    },
+    "mid": {
+      "n_scenarios": 1,
+      "n_completed": 1,
+      "skipped_simulations": 0,
+      "top1": 1,
+      "top3": 1,
+      "mean_hop_error_top1": 0,
+      "insufficient_evidence_fraction": 0
+    },
+    "high": {
+      "n_scenarios": 1,
+      "n_completed": 1,
+      "skipped_simulations": 0,
+      "top1": 0,
+      "top3": 0,
+      "mean_hop_error_top1": 4,
+      "insufficient_evidence_fraction": 0
+    }
+  },
+  "by_size": {
+    "small": {
+      "n_scenarios": 1,
+      "n_completed": 1,
+      "skipped_simulations": 0,
+      "top1": 0,
+      "top3": 1,
+      "mean_hop_error_top1": 1,
+      "insufficient_evidence_fraction": 1
+    },
+    "medium": {
+      "n_scenarios": 2,
+      "n_completed": 2,
+      "skipped_simulations": 0,
+      "top1": 1,
+      "top3": 1,
+      "mean_hop_error_top1": 0,
+      "insufficient_evidence_fraction": 0
+    },
+    "large": {
+      "n_scenarios": 1,
+      "n_completed": 1,
+      "skipped_simulations": 0,
+      "top1": 0,
+      "top3": 0,
+      "mean_hop_error_top1": 4,
+      "insufficient_evidence_fraction": 0
+    }
+  },
+  "by_k": {
+    "3": {
+      "n_scenarios": 4,
+      "n_completed": 4,
+      "skipped_simulations": 0,
+      "top1": 0.25,
+      "top3": 0.5,
+      "mean_hop_error_top1": 3,
+      "insufficient_evidence_fraction": 0.5
+    },
+    "6": {
+      "n_scenarios": 4,
+      "n_completed": 4,
+      "skipped_simulations": 0,
+      "top1": 0.5,
+      "top3": 0.75,
+      "mean_hop_error_top1": 1.25,
+      "insufficient_evidence_fraction": 0.25
+    },
+    "10": {
+      "n_scenarios": 4,
+      "n_completed": 4,
+      "skipped_simulations": 0,
+      "top1": 0.75,
+      "top3": 1,
+      "mean_hop_error_top1": 0.25,
+      "insufficient_evidence_fraction": 0
+    }
+  },
+  "gate": {
+    "no_leak_correctly_insufficient_fraction": 0.95,
+    "small_leak_insufficient_fraction": 0.25
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "signatures_not_ready",
+    "message": "Hydraulic signatures are still being prepared.",
+    "hint": "Wait for signatures_ready in /health, then retry."
+  }
+}

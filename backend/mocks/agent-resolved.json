@@ -1,0 +1,21 @@
+{
+  "events": [
+    {
+      "step": 1,
+      "type": "final",
+      "name": null,
+      "args": null,
+      "result": {
+        "inspections_used": 1,
+        "total_length_m": 18760.44,
+        "provenance": "simulated: illustrative completed investigation statistics"
+      },
+      "text": "Investigation closed after 1 crew report. The planned pipe route length was 18760.44 metres."
+    }
+  ],
+  "source": "scripted",
+  "recommended_node": null,
+  "route": null,
+  "state": "resolved",
+  "recommended_sensor": null
+}

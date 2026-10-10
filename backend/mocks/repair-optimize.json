@@ -1,0 +1,31 @@
+{
+  "selected": {
+    "nodes": [
+      "111",
+      "103"
+    ],
+    "total_cost_pkr": 120000,
+    "litres_per_day": 1252800
+  },
+  "greedy": {
+    "nodes": [
+      "111",
+      "103"
+    ],
+    "total_cost_pkr": 120000,
+    "litres_per_day": 1252800
+  },
+  "budget_pkr": 150000,
+  "defaulted_cost_nodes": [
+    "103"
+  ],
+  "assumptions": {
+    "provenance": "ASSUMPTION: illustrative fixture; replace all economic inputs with utility data",
+    "value_per_litre_pkr": 0.01,
+    "default_repair_cost_pkr": 50000,
+    "cost_unit_pkr": 100,
+    "value_formula": "estimated litres per second * 86400 * assumed value per litre",
+    "independent_leaks": true
+  },
+  "note": "Assumes independent leaks. Litres/day saved are simulated illustrative estimates; economic values are assumptions."
+}

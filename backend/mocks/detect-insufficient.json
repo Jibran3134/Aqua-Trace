@@ -1,0 +1,16 @@
+{
+  "status": "insufficient_evidence",
+  "candidates": [],
+  "evidence": {
+    "residual_norm": 0.12,
+    "noise_floor": 0.65,
+    "margin_top1_vs_top2": 1,
+    "live_sensors": 1
+  },
+  "note": "Fewer than two live sensors; add a sensor before choosing an inspection.",
+  "provenance": {
+    "score": "simulated: illustrative relative fit weights, not calibrated probabilities",
+    "est_leak_lps": "simulated: illustrative leak-flow estimates in litres per second",
+    "evidence": "simulated: illustrative pressure residuals and noise floor in metres"
+  }
+}

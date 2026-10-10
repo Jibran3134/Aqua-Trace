@@ -1,0 +1,7 @@
+{
+  "error": {
+    "code": "scenario_not_found",
+    "message": "This scenario does not exist or has expired.",
+    "hint": "Simulate another hidden leak to begin a new investigation."
+  }
+}
