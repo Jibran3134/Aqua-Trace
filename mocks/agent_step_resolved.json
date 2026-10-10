@@ -11,8 +11,8 @@
       "name": "plan_inspection",
       "args": {
         "nodes": [
-          "275",
-          "205"
+          "120",
+          "119"
         ]
       }
     },
@@ -23,20 +23,20 @@
       "result": {
         "depot": "60",
         "order": [
-          "275",
-          "205"
+          "119",
+          "120"
         ],
-        "total_length_m": 20349,
+        "total_length_m": 15159,
         "legs": [
           {
             "from": "60",
-            "to": "275",
-            "length_m": 19648
+            "to": "119",
+            "length_m": 14936
           },
           {
-            "from": "275",
-            "to": "205",
-            "length_m": 701
+            "from": "119",
+            "to": "120",
+            "length_m": 223
           }
         ]
       }
@@ -44,16 +44,16 @@
     {
       "step": 2,
       "type": "final",
-      "text": "Leak confirmed at node 205 after 2 inspections. Crew route covered 20349 m from depot 60."
+      "text": "Leak confirmed at node 119 after 2 inspections. Crew route covered 15159 m from depot 60."
     }
   ],
   "source": "scripted",
-  "recommended_node": "205",
+  "recommended_node": "119",
   "route": [
-    "275",
-    "205"
+    "119",
+    "120"
   ],
-  "route_length_m": 20349,
+  "route_length_m": 15159,
   "inspections_used": 2,
   "state": "resolved"
 }

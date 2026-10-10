@@ -2,44 +2,44 @@
   "state": "investigating",
   "ranking": [
     {
-      "node": "207",
-      "score": 0.1846
+      "node": "259",
+      "score": 0.2106
     },
     {
-      "node": "206",
-      "score": 0.1461
+      "node": "257",
+      "score": 0.2103
     },
     {
-      "node": "205",
-      "score": 0.1293
+      "node": "119",
+      "score": 0.1548
     },
     {
-      "node": "201",
-      "score": 0.1231
+      "node": "263",
+      "score": 0.0886
     },
     {
-      "node": "203",
-      "score": 0.1231
+      "node": "261",
+      "score": 0.0885
     },
     {
-      "node": "273",
-      "score": 0.122
+      "node": "117",
+      "score": 0.0661
     },
     {
-      "node": "208",
-      "score": 0.0847
+      "node": "157",
+      "score": 0.0477
     },
     {
-      "node": "199",
-      "score": 0.0622
+      "node": "121",
+      "score": 0.0335
     },
     {
-      "node": "209",
-      "score": 0.0153
+      "node": "123",
+      "score": 0.0295
     },
     {
-      "node": "275",
-      "score": 0.0078
+      "node": "10",
+      "score": 0.0191
     }
   ],
   "note": null

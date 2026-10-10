@@ -1,6 +1,6 @@
 {
-  "true_leak_node": "207",
-  "true_size": "large",
+  "true_leak_node": "259",
+  "true_size": "medium",
   "rank_of_truth": 1,
   "hop_error_top1": 0
 }

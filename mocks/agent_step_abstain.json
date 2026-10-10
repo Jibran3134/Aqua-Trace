@@ -22,7 +22,7 @@
         "candidates": [
           {
             "node": "15",
-            "score": 0.0109,
+            "score": 0.0114,
             "est_leak_lps": 0.28,
             "adjacent_pipes": [
               "151"
@@ -31,7 +31,7 @@
           },
           {
             "node": "143",
-            "score": 0.0109,
+            "score": 0.0113,
             "est_leak_lps": 0.34,
             "adjacent_pipes": [
               "149",
@@ -41,7 +41,7 @@
           },
           {
             "node": "141",
-            "score": 0.0109,
+            "score": 0.0113,
             "est_leak_lps": 0.35,
             "adjacent_pipes": [
               "147",
@@ -54,7 +54,7 @@
         "evidence": {
           "residual_norm": 0.817,
           "noise_floor": 1.516,
-          "margin_top1_vs_top2": 1,
+          "margin_top1_vs_top2": 1.005,
           "live_sensors": 6
         },
         "note": "Residual is below the noise floor: no leak signal stands out from demand drift and sensor noise."

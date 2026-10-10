@@ -31,7 +31,7 @@ export function Button({ tone = "ghost", loading, icon, size = "md", className, 
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       className={cn(
-        "relative inline-flex items-center justify-center gap-2 rounded-xl font-semibold tracking-tight transition-all duration-200",
+        "relative inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-xl font-semibold tracking-tight transition-all duration-200",
         "active:translate-y-px disabled:cursor-not-allowed",
         size === "lg" && "h-12 px-5 text-[1rem]",
         size === "md" && "h-10 px-4 text-[0.92rem]",

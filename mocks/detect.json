@@ -2,115 +2,120 @@
   "status": "ok",
   "candidates": [
     {
-      "node": "207",
-      "score": 0.1608,
+      "node": "259",
+      "score": 0.1782,
       "adjacent_pipes": [
-        "237",
-        "238",
-        "239"
+        "299",
+        "301"
       ],
-      "est_leak_lps": 27.18,
-      "tie_group": null
-    },
-    {
-      "node": "275",
-      "score": 0.1358,
-      "adjacent_pipes": [
-        "239",
-        "317",
-        "323"
-      ],
-      "est_leak_lps": 26.66,
-      "tie_group": null
-    },
-    {
-      "node": "206",
-      "score": 0.1273,
-      "adjacent_pipes": [
-        "238",
-        "240"
-      ],
-      "est_leak_lps": 28.14,
-      "tie_group": null
-    },
-    {
-      "node": "205",
-      "score": 0.1126,
-      "adjacent_pipes": [
-        "204",
-        "237",
-        "319"
-      ],
-      "est_leak_lps": 24.83,
-      "tie_group": null
-    },
-    {
-      "node": "201",
-      "score": 0.1072,
-      "adjacent_pipes": [
-        "231",
-        "233",
-        "323"
-      ],
-      "est_leak_lps": 26.83,
+      "est_leak_lps": 8.99,
       "tie_group": 1
     },
     {
-      "node": "203",
-      "score": 0.1072,
+      "node": "257",
+      "score": 0.1779,
       "adjacent_pipes": [
-        "233"
+        "297",
+        "299",
+        "303"
       ],
-      "est_leak_lps": 26.94,
+      "est_leak_lps": 8.95,
       "tie_group": 1
     },
     {
-      "node": "273",
-      "score": 0.1063,
+      "node": "120",
+      "score": 0.162,
       "adjacent_pipes": [
-        "235",
-        "317",
-        "319"
+        "120",
+        "121",
+        "122",
+        "297"
       ],
-      "est_leak_lps": 26.51,
-      "tie_group": 1
-    },
-    {
-      "node": "208",
-      "score": 0.0738,
-      "adjacent_pipes": [
-        "240",
-        "241"
-      ],
-      "est_leak_lps": 27.51,
+      "est_leak_lps": 9.06,
       "tie_group": null
     },
     {
-      "node": "199",
-      "score": 0.0542,
+      "node": "119",
+      "score": 0.131,
       "adjacent_pipes": [
-        "229",
-        "231",
-        "235"
+        "120",
+        "123",
+        "171",
+        "173"
       ],
-      "est_leak_lps": 25.86,
+      "est_leak_lps": 8.65,
       "tie_group": null
     },
     {
-      "node": "209",
-      "score": 0.0133,
+      "node": "263",
+      "score": 0.075,
       "adjacent_pipes": [
-        "241",
-        "243"
+        "117",
+        "301",
+        "307"
       ],
-      "est_leak_lps": 29.04,
+      "est_leak_lps": 9.23,
+      "tie_group": 2
+    },
+    {
+      "node": "261",
+      "score": 0.0749,
+      "adjacent_pipes": [
+        "303",
+        "305",
+        "307"
+      ],
+      "est_leak_lps": 9,
+      "tie_group": 2
+    },
+    {
+      "node": "117",
+      "score": 0.0559,
+      "adjacent_pipes": [
+        "119",
+        "121",
+        "305"
+      ],
+      "est_leak_lps": 8.35,
+      "tie_group": null
+    },
+    {
+      "node": "157",
+      "score": 0.0404,
+      "adjacent_pipes": [
+        "173",
+        "175"
+      ],
+      "est_leak_lps": 8,
+      "tie_group": null
+    },
+    {
+      "node": "121",
+      "score": 0.0284,
+      "adjacent_pipes": [
+        "122",
+        "123",
+        "125",
+        "129"
+      ],
+      "est_leak_lps": 8.68,
+      "tie_group": null
+    },
+    {
+      "node": "123",
+      "score": 0.0249,
+      "adjacent_pipes": [
+        "125",
+        "329"
+      ],
+      "est_leak_lps": 9.41,
       "tie_group": null
     }
   ],
   "evidence": {
-    "residual_norm": 6.144,
+    "residual_norm": 1.707,
     "noise_floor": 1.026,
-    "margin_top1_vs_top2": 1.184,
+    "margin_top1_vs_top2": 1.001,
     "live_sensors": 6
   },
   "note": null,

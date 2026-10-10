@@ -5,8 +5,13 @@ import { bestSensorToAdd, detect, posteriorScores, ranked, round } from "./detec
 import { MAX_AGENT_STEPS, MISS_PROB, type Net } from "./physics";
 import type { ScenarioState } from "./state";
 
-/** Mock threshold: abstain on the first turn when the top two candidates are this close. */
-const ABSTAIN_MARGIN = 1.15;
+/**
+ * Mock abstain rule: neighbours with near-identical signatures are expected (and cheap to inspect
+ * together), so a small margin alone is not a reason to stop. Abstain only when the top two are
+ * nearly tied AND far apart in the network, i.e. a crew could be sent to the wrong district.
+ */
+const ABSTAIN_MARGIN = 1.05;
+const ABSTAIN_MIN_HOPS = 4;
 
 export class ToolError extends Error {}
 
@@ -147,14 +152,16 @@ export function scriptedStep(net: Net, st: ScenarioState): AgentStepResponse {
   const rank = t.tool("rank_candidates", { top_k: 3 }, () => rankCandidates(net, st, 3));
 
   const margin = rank.evidence.margin_top1_vs_top2;
-  const shouldAbstain = rank.status === "insufficient_evidence" || (inspections === 0 && margin < ABSTAIN_MARGIN);
+  const [a, b] = rank.candidates;
+  const farApart = !!a && !!b && (net.hopsFrom(a.node).get(b.node) ?? Infinity) >= ABSTAIN_MIN_HOPS;
+  const shouldAbstain = rank.status === "insufficient_evidence" || (inspections === 0 && margin < ABSTAIN_MARGIN && farApart);
   if (shouldAbstain || inspections >= MAX_AGENT_STEPS) {
     t.thought(
       inspections >= MAX_AGENT_STEPS
         ? "Inspection cap reached. Recommending more evidence instead of guessing further."
         : rank.status === "insufficient_evidence"
           ? "Evidence is insufficient. Asking where one more sensor would help most."
-          : "Top candidates are too close to call. Asking where one more sensor would separate them.",
+          : "The two leading candidates are tied but sit in different parts of the network. Asking where one more sensor would separate them.",
     );
     const rec = t.tool("recommend_sensor_addition", {}, () => recommendSensorAddition(net, st));
     const target = rec.recommended ?? null;

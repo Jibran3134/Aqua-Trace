@@ -21,42 +21,43 @@
         "status": "ok",
         "candidates": [
           {
-            "node": "207",
-            "score": 0.1846,
-            "est_leak_lps": 27.18,
+            "node": "259",
+            "score": 0.2106,
+            "est_leak_lps": 8.99,
             "adjacent_pipes": [
-              "237",
-              "238",
-              "239"
+              "299",
+              "301"
             ],
             "inspected": false
           },
           {
-            "node": "206",
-            "score": 0.1461,
-            "est_leak_lps": 28.14,
+            "node": "257",
+            "score": 0.2103,
+            "est_leak_lps": 8.95,
             "adjacent_pipes": [
-              "238",
-              "240"
+              "297",
+              "299",
+              "303"
             ],
             "inspected": false
           },
           {
-            "node": "205",
-            "score": 0.1293,
-            "est_leak_lps": 24.83,
+            "node": "119",
+            "score": 0.1548,
+            "est_leak_lps": 8.65,
             "adjacent_pipes": [
-              "204",
-              "237",
-              "319"
+              "120",
+              "123",
+              "171",
+              "173"
             ],
             "inspected": false
           }
         ],
         "evidence": {
-          "residual_norm": 6.144,
+          "residual_norm": 1.707,
           "noise_floor": 1.026,
-          "margin_top1_vs_top2": 1.263,
+          "margin_top1_vs_top2": 1.001,
           "live_sensors": 6
         },
         "note": null
@@ -65,14 +66,14 @@
     {
       "step": 2,
       "type": "thought",
-      "text": "Checking whether a leak at node 207 explains the sensor pattern."
+      "text": "Checking whether a leak at node 259 explains the sensor pattern."
     },
     {
       "step": 2,
       "type": "tool_call",
       "name": "simulate_hypothesis",
       "args": {
-        "node": "207"
+        "node": "259"
       }
     },
     {
@@ -80,40 +81,40 @@
       "type": "tool_result",
       "name": "simulate_hypothesis",
       "result": {
-        "node": "207",
+        "node": "259",
         "per_sensor": [
           {
             "sensor": "10",
-            "observed": 2.109,
-            "predicted": 2.192
+            "observed": 0.347,
+            "predicted": 0.572
           },
           {
             "sensor": "15",
-            "observed": 0.601,
-            "predicted": 0.898
+            "observed": -0.859,
+            "predicted": -0.847
           },
           {
             "sensor": "35",
-            "observed": -4.579,
-            "predicted": -4.556
+            "observed": -1.049,
+            "predicted": -0.939
           },
           {
             "sensor": "50",
-            "observed": 1.811,
-            "predicted": 1.463
+            "observed": 0.222,
+            "predicted": 0.513
           },
           {
             "sensor": "60",
-            "observed": 2.114,
-            "predicted": 2.124
+            "observed": 0.607,
+            "predicted": 0.493
           },
           {
             "sensor": "219",
-            "observed": -2.055,
-            "predicted": -2.122
+            "observed": 0.732,
+            "predicted": 0.207
           }
         ],
-        "rmse": 0.192,
+        "rmse": 0.27,
         "fit_label": "good"
       }
     },
@@ -128,9 +129,9 @@
       "name": "plan_inspection",
       "args": {
         "nodes": [
-          "207",
-          "206",
-          "205"
+          "259",
+          "257",
+          "119"
         ]
       }
     },
@@ -141,26 +142,26 @@
       "result": {
         "depot": "60",
         "order": [
-          "205",
-          "207",
-          "206"
+          "119",
+          "257",
+          "259"
         ],
-        "total_length_m": 20285,
+        "total_length_m": 15462,
         "legs": [
           {
             "from": "60",
-            "to": "205",
-            "length_m": 19782
+            "to": "119",
+            "length_m": 14936
           },
           {
-            "from": "205",
-            "to": "207",
-            "length_m": 366
+            "from": "119",
+            "to": "257",
+            "length_m": 419
           },
           {
-            "from": "207",
-            "to": "206",
-            "length_m": 137
+            "from": "257",
+            "to": "259",
+            "length_m": 107
           }
         ]
       }
@@ -168,17 +169,17 @@
     {
       "step": 4,
       "type": "recommendation",
-      "text": "Inspect node 205 first (route: 205 → 207 → 206, 20285 m from depot 60). Hypothesis fit at 207: good (rmse 0.192 m)."
+      "text": "Inspect node 119 first (route: 119 → 257 → 259, 15462 m from depot 60). Hypothesis fit at 259: good (rmse 0.27 m)."
     }
   ],
   "source": "scripted",
-  "recommended_node": "205",
+  "recommended_node": "119",
   "route": [
-    "205",
-    "207",
-    "206"
+    "119",
+    "257",
+    "259"
   ],
-  "route_length_m": 20285,
+  "route_length_m": 15462,
   "inspections_used": 1,
   "state": "investigating"
 }

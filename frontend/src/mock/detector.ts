@@ -4,7 +4,7 @@ import type { Candidate, DetectResponse, NodeId, NoiseLevel } from "../contracts
 import { type Net, observe, simulate } from "./physics";
 
 export const CENTER_RESIDUALS = true;
-const TAU_PER_SENSOR_VAR = 2.5; // tau = this * sigma^2 * live sensors (mock-tuned on validation seeds)
+const TAU_PER_SENSOR_VAR = 0.25; // tau = this * sigma^2 * live sensors (mock-tuned: sharper scores, same ranking)
 const TOP_K = 10;
 const TIE_TOLERANCE = 0.01;
 

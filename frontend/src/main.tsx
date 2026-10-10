@@ -9,7 +9,9 @@ createRoot(document.getElementById("root")!).render(
     <App />
     <Toaster
       theme="dark"
-      position="bottom-right"
+      position="bottom-left"
+      offset={{ left: 28, bottom: 110 }}
+      duration={3500}
       toastOptions={{
         classNames: {
           toast: "!bg-ink-850 !border-ink-600 !text-limestone !rounded-2xl !font-sans",
