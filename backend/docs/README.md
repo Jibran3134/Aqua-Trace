@@ -2,7 +2,7 @@
 
 Read these sources before changing code. The user requested a complete backend,
 PostgreSQL, Redis, Docker and no authentication, overriding the attached plan's
-four-hour MVP restrictions. No frontend is implemented here.
+four-hour MVP restrictions. The frontend is maintained in the sibling `frontend/` project.
 
 - `contracts/api.md`: HTTP source of truth, errors, provenance and frontend examples.
 - `architecture.md`: dependency boundaries, truth isolation and persistence.
@@ -14,6 +14,8 @@ four-hour MVP restrictions. No frontend is implemented here.
 - `hydraulics.md`: calibrated assumptions, physics and limitations.
 - `detection.md`: inference choices, validation diagnostics and abstention.
 - `frontend-integration.md`: compatibility with the merged frontend and deliberate boundaries.
+- `../../docs/PRESENTATION_GUIDE.md`: simple-English pitch, demo script, decisions, results, and Q&A.
+- `../../docs/SYSTEM_EXPLANATION.md`: complete architecture, request flow, glossary, security, and roadmap.
 
 Never invent project facts, metrics, table names or endpoints. Read the code and
 generated OpenAPI schema; run the relevant tests. Update the contract and these

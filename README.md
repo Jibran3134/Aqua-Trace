@@ -98,6 +98,11 @@ Intro photo: Jacob Vathikulam, [Unsplash](https://unsplash.com/photos/a-large-pi
 
 ## Notes for the backend team
 
+## Presentation and system documentation
+
+- [Presentation guide](docs/PRESENTATION_GUIDE.md) — problem, solution story, demo sequence, decisions, validation, and Q&A.
+- [Complete system explanation](docs/SYSTEM_EXPLANATION.md) — architecture, end-to-end request flow, technical glossary, security boundaries, deployment, and roadmap.
+
 The UI codes against `contracts/api.md` v1.1. Everything beyond the build-prompt contract is
 optional and additive; the UI degrades gracefully without it. Worth a look:
 
