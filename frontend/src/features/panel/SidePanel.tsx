@@ -6,6 +6,7 @@ import { cn } from "../../ui/primitives";
 import { AgentTab } from "../agent/AgentTab";
 import { CandidatesTab } from "../candidates/CandidatesTab";
 import { EvaluationTab } from "../evaluation/EvaluationTab";
+import { RepairsTab } from "../repairs/RepairsTab";
 import { SensorsTab } from "../sensors/SensorsTab";
 
 
@@ -14,7 +15,7 @@ const TABS: { id: TabId; label: string; icon: ReactNode; ready: boolean; stage?:
   { id: "agent", label: "Agent", icon: <Bot className="size-4" />, ready: true },
   { id: "evaluation", label: "Evaluation", icon: <BarChart3 className="size-4" />, ready: true },
   { id: "sensors", label: "Sensors", icon: <Radio className="size-4" />, ready: true },
-  { id: "repairs", label: "Repairs", icon: <Wrench className="size-4" />, ready: false, stage: "S2" },
+  { id: "repairs", label: "Repairs", icon: <Wrench className="size-4" />, ready: true },
 ];
 
 export function SidePanel() {
@@ -53,6 +54,7 @@ export function SidePanel() {
         {tab === "agent" && <AgentTab />}
         {tab === "evaluation" && <EvaluationTab />}
         {tab === "sensors" && <SensorsTab />}
+        {tab === "repairs" && <RepairsTab />}
         {!active.ready && <ComingSoon label={active.label} stage={active.stage!} />}
       </div>
     </aside>

@@ -18,6 +18,7 @@ import { currentRanking, recordFieldResult, scriptedStep } from "./agent";
 import { detect, fitAll, round } from "./detector";
 import { evaluationReport } from "./evaluate";
 import { placeSensors } from "./placement";
+import { optimizeRepairs } from "./repair";
 import { defaultSensors, loadNet, MISS_PROB, observe, simulate, type Net } from "./physics";
 import { hashString, rng } from "../lib/rng";
 import type { ScenarioState } from "./state";
@@ -82,6 +83,15 @@ export class MockBackend {
     if (method === "POST" && path === "/field/result") return this.fieldResult(body);
     if (method === "POST" && path === "/field/inspect") return this.inspect(body);
     if (method === "GET" && path === "/eval") return evaluationReport(this.net);
+    if (method === "POST" && path === "/repair/optimize") {
+      const { budget_pkr, candidates, value_per_litre_pkr } = body;
+      if (typeof budget_pkr !== "number" || budget_pkr < 0) throw invalid("budget_pkr must be a non-negative number.", "Set a budget in rupees.");
+      if (!Array.isArray(candidates)) throw invalid("candidates must be a list.", "Confirm some leaks first.");
+      if (value_per_litre_pkr !== undefined && (typeof value_per_litre_pkr !== "number" || value_per_litre_pkr < 0)) {
+        throw invalid("value_per_litre_pkr must be a non-negative number.", "Use the assumption default.");
+      }
+      return optimizeRepairs(budget_pkr, candidates, value_per_litre_pkr as number | undefined);
+    }
     if (method === "POST" && path === "/sensors/place") {
       const k = body.k;
       const noise = (body.noise ?? "mid") as NoiseLevel;

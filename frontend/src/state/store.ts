@@ -12,12 +12,48 @@ import type {
   NetworkResponse,
   NoiseLevel,
   RevealResponse,
+  RepairResponse,
   ScenarioResponse,
   SensorPlaceResponse,
 } from "../contracts/types";
 import { Graph } from "../lib/graph";
 
-export type Busy = null | "network" | "simulate" | "detect" | "reveal" | "agent" | "field" | "place";
+export type Busy = null | "network" | "simulate" | "detect" | "reveal" | "agent" | "field" | "place" | "repair";
+
+export interface BacklogItem {
+  node: string;
+  est_leak_lps: number;
+  repair_cost_pkr: number | null; // null = server default (flagged)
+  seed: number | null;
+  source: "crew" | "sample";
+}
+
+const BACKLOG_KEY = "aquatrace.backlog.v1";
+function loadBacklog(): BacklogItem[] {
+  try {
+    const raw = localStorage.getItem(BACKLOG_KEY);
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+function saveBacklog(items: BacklogItem[]) {
+  try {
+    localStorage.setItem(BACKLOG_KEY, JSON.stringify(items));
+  } catch {
+    // Private mode / blocked storage: the backlog just won't survive a reload.
+  }
+}
+
+/** Clearly-labeled sample entries so the optimizer can be shown before any crew has confirmed leaks. */
+export const SAMPLE_BACKLOG: BacklogItem[] = [
+  { node: "123", est_leak_lps: 9.4, repair_cost_pkr: 220_000, seed: null, source: "sample" },
+  { node: "207", est_leak_lps: 6.1, repair_cost_pkr: 120_000, seed: null, source: "sample" },
+  { node: "143", est_leak_lps: 3.2, repair_cost_pkr: 60_000, seed: null, source: "sample" },
+  { node: "253", est_leak_lps: 12.8, repair_cost_pkr: 340_000, seed: null, source: "sample" },
+  { node: "35", est_leak_lps: 4.5, repair_cost_pkr: null, seed: null, source: "sample" },
+];
 export type TabId = "candidates" | "agent" | "evaluation" | "sensors" | "repairs";
 
 export interface AgentRun {
@@ -76,6 +112,10 @@ interface State {
   placementK: number;
   /** Sensor set chosen in the Sensors tab; used by the next Simulate instead of default_sensors(k). */
   customSensors: string[] | null;
+  backlog: BacklogItem[];
+  repairBudget: number;
+  valuePerLitre: number;
+  repair: RepairResponse | null;
 
   focusNode: string | null;
   hoverNode: string | null;
@@ -90,6 +130,9 @@ interface State {
   loadEvaluation: () => Promise<void>;
   loadPlacement: (k: number) => Promise<void>;
   applySensors: (ids: string[] | null) => void;
+  setBacklog: (items: BacklogItem[]) => void;
+  setRepairInputs: (p: { budget?: number; valuePerLitre?: number }) => void;
+  optimizeRepairs: () => Promise<void>;
   setFocus: (id: string | null) => void;
   setHover: (id: string | null) => void;
   flyTo: (id: string) => void;
@@ -130,6 +173,10 @@ export const useStore = create<State>((set, get) => ({
   placement: null,
   placementK: 6,
   customSensors: null,
+  backlog: loadBacklog(),
+  repairBudget: 500_000,
+  valuePerLitre: 0.05,
+  repair: null,
 
   focusNode: null,
   hoverNode: null,
@@ -170,7 +217,8 @@ export const useStore = create<State>((set, get) => ({
     const { controls, busy } = get();
     if (busy) return;
     const epoch = get().epoch + 1;
-    set({ busy: "simulate", epoch, scenario: null, detection: null, reveal: null, expired: false, focusNode: null, agent: EMPTY_AGENT });
+    // Results of the top-bar flow always show on Candidates, whatever tab was open.
+    set({ busy: "simulate", epoch, scenario: null, detection: null, reveal: null, expired: false, focusNode: null, agent: EMPTY_AGENT, tab: "candidates" });
     const seed = over?.seed ?? (controls.seed.trim() === "" ? undefined : Number(controls.seed));
     const sensors = over?.sensors ?? get().customSensors ?? undefined;
     if (seed !== undefined && (!Number.isInteger(seed) || seed < 0)) {
@@ -202,7 +250,7 @@ export const useStore = create<State>((set, get) => ({
   detect: async () => {
     const { scenario, busy, epoch } = get();
     if (!scenario || busy) return;
-    set({ busy: "detect" });
+    set({ busy: "detect", tab: "candidates" });
     try {
       const detection = await api.detect(scenario.scenario_id);
       if (get().epoch !== epoch) return;
@@ -284,6 +332,11 @@ export const useStore = create<State>((set, get) => ({
           ? (await api.inspect({ scenario_id: scenario.scenario_id, node })).found
           : (await api.fieldResult({ scenario_id: scenario.scenario_id, node, found: outcome }), outcome);
       if (get().epoch !== epoch) return;
+      if (found) {
+        const est = get().detection?.candidates.find((c) => c.node === node)?.est_leak_lps ?? 0;
+        const item: BacklogItem = { node, est_leak_lps: est, repair_cost_pkr: null, seed: scenario.seed ?? null, source: "crew" };
+        get().setBacklog([...get().backlog.filter((b) => b.node !== node), item]);
+      }
       if (outcome === "crew") {
         toast(found ? `Crew at node ${node}: leak found` : `Crew at node ${node}: nothing found`, {
           description: found ? "Closing the investigation." : "Down-weighting this node and re-ranking.",
@@ -339,5 +392,32 @@ export const useStore = create<State>((set, get) => ({
     toast(ids ? `Using ${ids.length} optimized sensors` : "Back to default sensors", {
       description: ids ? "The next simulated leak is read by these sensors." : "Farthest-point placement, k from the top bar.",
     });
+  },
+
+  setBacklog: (backlog) => {
+    saveBacklog(backlog);
+    set({ backlog, repair: null });
+  },
+
+  setRepairInputs: ({ budget, valuePerLitre }) =>
+    set((s) => ({ repairBudget: budget ?? s.repairBudget, valuePerLitre: valuePerLitre ?? s.valuePerLitre, repair: null })),
+
+  optimizeRepairs: async () => {
+    const { backlog, repairBudget, valuePerLitre, busy } = get();
+    if (busy) return;
+    set({ busy: "repair" });
+    try {
+      const repair = await api.optimizeRepair({
+        budget_pkr: repairBudget,
+        value_per_litre_pkr: valuePerLitre,
+        candidates: backlog.map((b) => ({ node: b.node, est_leak_lps: b.est_leak_lps, ...(b.repair_cost_pkr ? { repair_cost_pkr: b.repair_cost_pkr } : {}) })),
+      });
+      set({ repair });
+      if (repair.selected.length) get().frame(repair.selected.map((r) => r.node));
+    } catch (e) {
+      report(e, "Repair optimization");
+    } finally {
+      set({ busy: null });
+    }
   },
 }));

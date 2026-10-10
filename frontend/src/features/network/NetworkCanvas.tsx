@@ -97,6 +97,7 @@ const STYLE: cytoscape.StylesheetJson = [
     selector: "node.proposed",
     style: { shape: "diamond", width: 20, height: 20, "background-opacity": 0.12, "background-color": C.phosphor, "border-width": 2.5, "border-color": C.phosphor, "border-style": "dashed", label: "data(id)", color: C.phosphor, "z-index": 22 },
   },
+  { selector: "node.backlog", style: { "background-color": "#ff5a36", "border-width": 2.5, "border-color": C.limestone, width: 14, height: 14, "z-index": 18 } },
   { selector: "node.cleared", style: { "background-color": "#2b3b39", "border-width": 2, "border-color": C.silt, "border-style": "dashed", width: 11, height: 11, "z-index": 6 } },
   {
     selector: "edge.route",
@@ -116,6 +117,8 @@ export function NetworkCanvas() {
   const tab = useStore((s) => s.tab);
   const placement = useStore((s) => s.placement);
   const customSensors = useStore((s) => s.customSensors);
+  const backlog = useStore((s) => s.backlog);
+  const repair = useStore((s) => s.repair);
   const setHover = useStore((s) => s.setHover);
   const setFocus = useStore((s) => s.setFocus);
 
@@ -177,7 +180,8 @@ export function NetworkCanvas() {
     const cy = cyRef.current;
     if (!cy || !network) return;
     cy.batch(() => {
-      cy.elements().removeClass("sensor offline candidate top truth suggested adjacent truthpath route cleared proposed");
+      cy.elements().removeClass("sensor offline candidate top truth suggested adjacent truthpath route cleared proposed backlog");
+      if (tab === "repairs") for (const b of backlog) cy.getElementById(b.node).addClass("backlog");
       const sensors = scenario?.sensors ?? customSensors ?? network.default_sensors;
       if (tab === "sensors" && placement) {
         for (const id of placement.sensors) if (!sensors.includes(id)) cy.getElementById(id).addClass("proposed");
@@ -219,7 +223,7 @@ export function NetworkCanvas() {
         }
       }
     });
-  }, [network, scenario, detection, reveal, graph, agent, tab, placement, customSensors]);
+  }, [network, scenario, detection, reveal, graph, agent, tab, placement, customSensors, backlog]);
 
   // Marching dashes on the crew route: reads as "a crew is moving" from the back of the room.
   const hasRoute = agent.state === "investigating" && agent.route.length > 0;
@@ -279,7 +283,9 @@ export function NetworkCanvas() {
     return n.renderedPosition();
   };
   void tick;
-  const tops = detection?.status === "ok" ? detection.candidates.slice(0, 3) : [];
+  // Planning tabs (sensors, repairs) are about the whole network: hide the live scenario's markers.
+  const scenarioLayer = tab !== "sensors" && tab !== "repairs";
+  const tops = scenarioLayer && detection?.status === "ok" ? detection.candidates.slice(0, 3) : [];
   // Rank pills sit up-right of their node; adjacent candidates would collide, so stack them.
   const placed: { x: number; y: number }[] = [];
   const pills = tops.map((c) => {
@@ -341,7 +347,8 @@ export function NetworkCanvas() {
               </motion.div>
             );
           })}
-          {reveal &&
+          {scenarioLayer &&
+            reveal &&
             (() => {
               const p = project(reveal.true_leak_node);
               if (!p) return null;
@@ -366,7 +373,8 @@ export function NetworkCanvas() {
                 </motion.div>
               );
             })()}
-          {agent.state === "investigating" &&
+          {scenarioLayer &&
+            agent.state === "investigating" &&
             agent.recommended &&
             (() => {
               const p = project(agent.recommended);
@@ -389,7 +397,21 @@ export function NetworkCanvas() {
                 </motion.div>
               );
             })()}
-          {agent.foundAt &&
+          {tab === "repairs" &&
+            repair?.selected.map((r) => {
+              const p = project(r.node);
+              if (!p) return null;
+              return (
+                <motion.div key={`fix-${r.node}`} className="absolute" style={{ left: p.x, top: p.y }} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
+                  <span className="absolute -left-5 -top-5 size-10 rounded-full border-2 border-verdigris-bright shadow-glow-verdigris" />
+                  <span className="absolute left-3 -top-8 whitespace-nowrap rounded-md bg-verdigris-bright px-1.5 py-0.5 font-mono text-[0.68rem] font-bold text-ink-950">
+                    FIX · {r.node}
+                  </span>
+                </motion.div>
+              );
+            })}
+          {scenarioLayer &&
+            agent.foundAt &&
             (() => {
               const p = project(agent.foundAt);
               if (!p) return null;
@@ -402,7 +424,8 @@ export function NetworkCanvas() {
                 </motion.div>
               );
             })()}
-          {(detection?.recommended_sensor || (agent.state === "abstained" && agent.recommended)) &&
+          {scenarioLayer &&
+            (detection?.recommended_sensor || (agent.state === "abstained" && agent.recommended)) &&
             (() => {
               const p = project(detection?.recommended_sensor ?? agent.recommended!);
               if (!p) return null;
