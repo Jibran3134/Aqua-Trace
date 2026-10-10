@@ -25,11 +25,11 @@ export function EvidenceMeter({ evidence, status }: { evidence: Evidence; status
           transition={{ duration: 0.8, ease: [0.2, 0.7, 0.2, 1] }}
         />
         <div className="absolute -top-1.5 h-6 w-0.5 rounded bg-limestone" style={{ left: `${floor}%` }} title="noise floor" />
-        <div className="absolute top-5 -translate-x-1/2 whitespace-nowrap text-[0.66rem] text-limestone-dim" style={{ left: `${floor}%` }}>
+        <div className="absolute top-5 -translate-x-1/2 whitespace-nowrap text-[0.8rem] text-limestone-dim" style={{ left: `${floor}%` }}>
           noise floor
         </div>
       </div>
-      <div className="mt-6 grid grid-cols-3 gap-2 text-[0.78rem]">
+      <div className="mt-6 grid grid-cols-3 gap-2 text-[0.8rem]">
         <Stat label="residual" value={evidence.residual_norm.toFixed(2)} unit="m" />
         <Stat label="noise floor" value={evidence.noise_floor.toFixed(2)} unit="m" />
         <Stat label="signal / floor" value={`${ratio.toFixed(1)}×`} accent={ok ? "text-verdigris-bright" : "text-saffron"} />
@@ -46,7 +46,7 @@ function Stat({ label, value, unit, accent }: { label: string; value: string; un
       <div className="text-silt">{label}</div>
       <div className={`num text-[0.95rem] ${accent ?? "text-limestone"}`}>
         {value}
-        {unit && <span className="ml-0.5 text-[0.7rem] text-silt">{unit}</span>}
+        {unit && <span className="ml-0.5 text-[0.8rem] text-silt">{unit}</span>}
       </div>
     </div>
   );

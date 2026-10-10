@@ -114,7 +114,7 @@ These development outcomes are synthetic benchmark results, not field accuracy.
 
 The final aggregate validation confirms **33/50** top-three hits, **7/10** for
 the fixed acceptance subset, and **29/30** heldout no-leak abstentions after the
-Gaussian guard. The latest aggregate run took **measured 14.786398 seconds**. Dedicated
+Gaussian guard. The latest aggregate run took **measured 14.709327 seconds**. Dedicated
 tests also verify that fingerprint/projection identity follows signature
 publication and that output/calibration setting changes invalidate identity.
 

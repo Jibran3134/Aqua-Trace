@@ -1,5 +1,6 @@
 import { Info } from "lucide-react";
 import { motion } from "motion/react";
+import { useState } from "react";
 import { normalizeToTop, rampColor } from "../../lib/score";
 import { useStore } from "../../state/store";
 import { Eyebrow, Prov, cn } from "../../ui/primitives";
@@ -14,6 +15,7 @@ export function CandidateList() {
   const focus = useStore((s) => s.focusNode);
   const flyTo = useStore((s) => s.flyTo);
   const setHover = useStore((s) => s.setHover);
+  const [more, setMore] = useState(false);
   if (!detection) return null; // can briefly be null while this view animates out
   const top = detection.candidates[0]?.score ?? 0;
 
@@ -40,7 +42,7 @@ export function CandidateList() {
         </div>
       )}
       <ul className="mt-3 space-y-1.5">
-        {detection.candidates.map((c, i) => {
+        {detection.candidates.slice(0, more ? undefined : 3).map((c, i) => {
           const t = normalizeToTop(c.score, top);
           const color = rampColor(t);
           const isTruth = reveal?.true_leak_node === c.node;
@@ -67,7 +69,7 @@ export function CandidateList() {
                 style={c.tie_group ? { boxShadow: `inset 3px 0 0 ${TIE_COLORS[(c.tie_group - 1) % TIE_COLORS.length]}` } : undefined}
               >
                 <span
-                  className={cn("num grid place-items-center rounded-full font-bold", lead ? "size-8 text-[0.85rem] text-ink-950" : "size-6 text-[0.72rem] text-silt ring-1 ring-ink-600")}
+                  className={cn("num grid place-items-center rounded-full font-bold", lead ? "size-8 text-[0.85rem] text-ink-950" : "size-6 text-[0.8rem] text-silt ring-1 ring-ink-600")}
                   style={lead ? { background: color } : undefined}
                 >
                   {i + 1}
@@ -75,8 +77,8 @@ export function CandidateList() {
                 <span className="min-w-0">
                   <span className="flex items-baseline gap-2">
                     <span className={cn("num font-bold", lead ? "text-[1.05rem]" : "text-[0.9rem] text-limestone-dim")}>Node {c.node}</span>
-                    {isTruth && <span className="rounded bg-tracer px-1.5 text-[0.65rem] font-bold text-ink-950">TRUE LEAK</span>}
-                    {c.tie_group && <span className="text-[0.66rem] text-silt">near-tie</span>}
+                    {isTruth && <span className="rounded bg-tracer px-1.5 text-[0.8rem] font-bold text-ink-950">TRUE LEAK</span>}
+                    {c.tie_group && <span className="text-[0.8rem] text-silt">near-tie</span>}
                   </span>
                   <span className="mt-1 block h-1.5 overflow-hidden rounded-full bg-ink-700">
                     <motion.span
@@ -88,9 +90,8 @@ export function CandidateList() {
                     />
                   </span>
                   {lead && (
-                    <span className="mt-1 block truncate text-[0.74rem] text-silt">
-                      pipes {c.adjacent_pipes.join(", ")} · ≈<span className="num text-limestone-dim">{c.est_leak_lps.toFixed(1)} L/s</span>{" "}
-                      <Prov kind="simulated estimate" />
+                    <span className="mt-1 block truncate text-[0.8rem] text-silt">
+                      ≈<span className="num text-limestone-dim">{c.est_leak_lps.toFixed(1)} L/s</span> · pipes {c.adjacent_pipes.join(", ")}
                     </span>
                   )}
                 </span>
@@ -102,8 +103,14 @@ export function CandidateList() {
           );
         })}
       </ul>
+      {detection.candidates.length > 3 && (
+        <button type="button" onClick={() => setMore((m) => !m)} className="mt-1.5 w-full rounded-xl py-1.5 text-[0.86rem] text-silt hover:bg-ink-800 hover:text-limestone">
+          {more ? "Show top 3 only" : `+${detection.candidates.length - 3} more candidates`}
+        </button>
+      )}
+      <p className="mt-2 text-[0.8rem] text-silt">Scores are relative · flows are simulated estimates</p>
       {detection.candidates.some((c) => c.tie_group) && (
-        <p className="mt-2 text-[0.74rem] text-silt">Candidates sharing a colored edge are within 1% of each other: neighbors with near-identical signatures.</p>
+        <p className="mt-2 text-[0.8rem] text-silt">Candidates sharing a colored edge are within 1% of each other: neighbors with near-identical signatures.</p>
       )}
     </div>
   );

@@ -13,6 +13,8 @@ class ScenarioObservation:
     noise: str
     noise_sigma: float
     pressures_all: dict[str, float] = field(default_factory=dict)
+    hydraulic_fingerprint: str = ""
+    detector_fingerprint: str = ""
 
 
 @dataclass

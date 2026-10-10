@@ -12,6 +12,8 @@ four-hour MVP restrictions. No frontend is implemented here.
 - `supabase-migration.md`: portable schemas and migration procedure.
 - `validation.md`: commands and measured acceptance results.
 - `hydraulics.md`: calibrated assumptions, physics and limitations.
+- `detection.md`: inference choices, validation diagnostics and abstention.
+- `frontend-integration.md`: compatibility with the merged frontend and deliberate boundaries.
 
 Never invent project facts, metrics, table names or endpoints. Read the code and
 generated OpenAPI schema; run the relevant tests. Update the contract and these

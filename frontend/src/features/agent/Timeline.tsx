@@ -16,7 +16,9 @@ const KIND: Record<AgentEvent["type"], { icon: React.ReactNode; dot: string; lab
 };
 
 /** Reveals new events one by one so a live audience can follow the agent's reasoning. */
-export function Timeline({ events, onSettled }: { events: AgentEvent[]; onSettled?: (settled: boolean) => void }) {
+export function Timeline({ events: all, onSettled, compact = false }: { events: AgentEvent[]; onSettled?: (settled: boolean) => void; compact?: boolean }) {
+  // Summary view keeps the agent's reasoning and outcomes; tool calls stay one click away.
+  const events = compact ? all.filter((e) => e.type !== "tool_call" && e.type !== "tool_result") : all;
   const [revealed, setRevealed] = useState(0);
   // Derived, not synced: if the event list shrinks (new scenario) we simply show fewer.
   const shown = Math.min(revealed, events.length);
@@ -85,7 +87,7 @@ function EventBody({ e }: { e: AgentEvent }) {
             <span className="num">{summarize(e)}</span>
           </button>
           {open && (
-            <pre className="num mt-1.5 max-h-56 overflow-auto rounded-lg bg-ink-950/70 p-2.5 text-[0.72rem] leading-relaxed text-limestone-dim ring-1 ring-ink-700">
+            <pre className="num mt-1.5 max-h-56 overflow-auto rounded-lg bg-ink-950/70 p-2.5 text-[0.8rem] leading-relaxed text-limestone-dim ring-1 ring-ink-700">
               {JSON.stringify(e.result, null, 2)}
             </pre>
           )}

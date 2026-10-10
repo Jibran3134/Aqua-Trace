@@ -1,3 +1,4 @@
+import { palette } from "../../ui/tokens";
 import { BarChart3, Check, RotateCcw, Table2 } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
@@ -7,8 +8,7 @@ import { useStore } from "../../state/store";
 import { Badge, Button, Eyebrow, Prov, cn } from "../../ui/primitives";
 
 // Same validated method/baseline pair as the Evaluation tab (see EvaluationTab.tsx).
-const METHOD = "#2A9C86";
-const BASELINE = "#C2785F";
+
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
 export function SensorsTab() {
@@ -61,29 +61,29 @@ export function SensorsTab() {
           value={k}
           disabled={busy !== null && busy !== "place"}
           onChange={(e) => void load(Number(e.target.value))}
-          className="mt-2 w-full accent-[#d4f26a]"
+          className="mt-2 w-full accent-[var(--color-phosphor)]"
         />
         {point && (
           <div className="mt-2 grid grid-cols-2 gap-2 text-[0.8rem]">
-            <Compare label="Greedy top-3" value={pct(point.top3)} color={METHOD} />
-            <Compare label="Farthest-point top-3" value={point.baseline_top3 !== undefined ? pct(point.baseline_top3) : "–"} color={BASELINE} hatched />
+            <Compare label="Greedy top-3" value={pct(point.top3)} color={palette().chartMethod} />
+            <Compare label="Farthest-point top-3" value={point.baseline_top3 !== undefined ? pct(point.baseline_top3) : "–"} color={palette().chartBaseline} hatched />
           </div>
         )}
       </div>
 
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4 text-[0.78rem] text-limestone-dim">
+        <div className="flex items-center gap-4 text-[0.8rem] text-limestone-dim">
           <span className="inline-flex items-center gap-1.5">
             <svg width="18" height="8" aria-hidden>
-              <line x1="0" y1="4" x2="18" y2="4" stroke={METHOD} strokeWidth="2" />
-              <circle cx="9" cy="4" r="3" fill={METHOD} />
+              <line x1="0" y1="4" x2="18" y2="4" stroke={palette().chartMethod} strokeWidth="2" />
+              <circle cx="9" cy="4" r="3" fill={palette().chartMethod} />
             </svg>
             Greedy
           </span>
           <span className="inline-flex items-center gap-1.5">
             <svg width="18" height="8" aria-hidden>
-              <line x1="0" y1="4" x2="18" y2="4" stroke={BASELINE} strokeWidth="2" strokeDasharray="4 3" />
-              <rect x="6" y="1" width="6" height="6" fill={BASELINE} />
+              <line x1="0" y1="4" x2="18" y2="4" stroke={palette().chartBaseline} strokeWidth="2" strokeDasharray="4 3" />
+              <rect x="6" y="1" width="6" height="6" fill={palette().chartBaseline} />
             </svg>
             Farthest-point
           </span>
@@ -114,7 +114,7 @@ export function SensorsTab() {
 
       {placement && (
         <div>
-          <div className="mb-1.5 text-[0.76rem] font-semibold uppercase tracking-wider text-silt">Proposed sensors · shown on the map</div>
+          <div className="mb-1.5 text-[0.8rem] font-semibold uppercase tracking-wider text-silt">Proposed sensors · shown on the map</div>
           <div className="flex flex-wrap gap-1.5">
             {placement.sensors.map((id, i) => (
               <motion.span
@@ -122,7 +122,7 @@ export function SensorsTab() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: i * 0.03 }}
-                className="num rounded-lg bg-phosphor/10 px-2 py-0.5 text-[0.78rem] text-phosphor ring-1 ring-phosphor/35"
+                className="num rounded-lg bg-phosphor/10 px-2 py-0.5 text-[0.8rem] text-phosphor ring-1 ring-phosphor/35"
               >
                 {id}
               </motion.span>
@@ -185,42 +185,42 @@ function CurveChart({ curve, k, onPick }: { curve: CurvePoint[]; k: number; onPi
       >
         {[0, 0.25, 0.5, 0.75, 1].map((v) => (
           <g key={v}>
-            <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke="#24433f" strokeWidth="1" />
-            <text x={pad.l - 6} y={y(v) + 3.5} textAnchor="end" className="fill-[#8fa6a0] font-mono text-[9px]">
+            <line x1={pad.l} x2={W - pad.r} y1={y(v)} y2={y(v)} stroke={palette().grid} strokeWidth="1" />
+            <text x={pad.l - 6} y={y(v) + 3.5} textAnchor="end" className="font-mono text-[9px]" fill={palette().muted}>
               {v * 100}%
             </text>
           </g>
         ))}
         {curve.map((p) => (
-          <text key={p.k} x={x(p.k)} y={H - 8} textAnchor="middle" className="fill-[#8fa6a0] font-mono text-[9px]">
+          <text key={p.k} x={x(p.k)} y={H - 8} textAnchor="middle" className="font-mono text-[9px]" fill={palette().muted}>
             {p.k}
           </text>
         ))}
-        <line x1={x(k)} x2={x(k)} y1={pad.t} y2={H - pad.b} stroke="#d4f26a" strokeOpacity="0.5" strokeDasharray="3 3" />
+        <line x1={x(k)} x2={x(k)} y1={pad.t} y2={H - pad.b} stroke={palette().sensor} strokeOpacity="0.6" strokeDasharray="3 3" />
 
-        <motion.path d={line((p) => p.baseline_top3)} fill="none" stroke={BASELINE} strokeWidth="2" strokeDasharray="5 4" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.9 }} />
-        <motion.path d={line((p) => p.top3)} fill="none" stroke={METHOD} strokeWidth="2" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.9 }} />
+        <motion.path d={line((p) => p.baseline_top3)} fill="none" stroke={palette().chartBaseline} strokeWidth="2" strokeDasharray="5 4" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.9 }} />
+        <motion.path d={line((p) => p.top3)} fill="none" stroke={palette().chartMethod} strokeWidth="2" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.9 }} />
 
         {curve.map((p) => (
           <g key={p.k}>
             {p.baseline_top3 !== undefined && (
-              <rect x={x(p.k) - 3.5} y={y(p.baseline_top3) - 3.5} width="7" height="7" fill={BASELINE} stroke="#0c1f23" strokeWidth="2" />
+              <rect x={x(p.k) - 3.5} y={y(p.baseline_top3) - 3.5} width="7" height="7" fill={palette().chartBaseline} stroke={palette().panel} strokeWidth="2" />
             )}
-            <circle cx={x(p.k)} cy={y(p.top3)} r={p.k === k ? 5.5 : 4} fill={METHOD} stroke="#0c1f23" strokeWidth="2" />
+            <circle cx={x(p.k)} cy={y(p.top3)} r={p.k === k ? 5.5 : 4} fill={palette().chartMethod} stroke={palette().panel} strokeWidth="2" />
           </g>
         ))}
 
         {/* Direct labels at the line ends (text tokens, not series colors). */}
-        <text x={x(last.k) + 8} y={y(last.top3) + 3} className="fill-[#e8e2d0] text-[9.5px] font-semibold">
+        <text x={x(last.k) + 8} y={y(last.top3) + 3} className="text-[9.5px] font-semibold" fill={palette().text}>
           {pct(last.top3)}
         </text>
         {last.baseline_top3 !== undefined && (
-          <text x={x(last.k) + 8} y={y(last.baseline_top3) + 3} className="fill-[#bdb6a3] text-[9.5px]">
+          <text x={x(last.k) + 8} y={y(last.baseline_top3) + 3} className="text-[9.5px]" fill={palette().textDim}>
             {pct(last.baseline_top3)}
           </text>
         )}
 
-        {hp && <line x1={x(hp.k)} x2={x(hp.k)} y1={pad.t} y2={H - pad.b} stroke="#e8e2d0" strokeOpacity="0.35" />}
+        {hp && <line x1={x(hp.k)} x2={x(hp.k)} y1={pad.t} y2={H - pad.b} stroke={palette().text} strokeOpacity="0.35" />}
         {/* Hit targets wider than the marks: one column per k. */}
         {curve.map((p) => (
           <rect
@@ -238,7 +238,7 @@ function CurveChart({ curve, k, onPick }: { curve: CurvePoint[]; k: number; onPi
       </svg>
       {hp && (
         <div
-          className="pointer-events-none absolute top-1 z-10 -translate-x-1/2 whitespace-nowrap rounded-lg bg-ink-800 px-2.5 py-1.5 text-[0.74rem] shadow-lift ring-1 ring-ink-600"
+          className="pointer-events-none absolute top-1 z-10 -translate-x-1/2 whitespace-nowrap rounded-lg bg-ink-800 px-2.5 py-1.5 text-[0.8rem] shadow-lift ring-1 ring-ink-600"
           style={{ left: `${(x(hp.k) / W) * 100}%` }}
         >
           <div className="font-semibold text-limestone">{hp.k} sensors</div>
@@ -252,7 +252,7 @@ function CurveChart({ curve, k, onPick }: { curve: CurvePoint[]; k: number; onPi
           )}
         </div>
       )}
-      <div className="mt-0.5 text-center text-[0.7rem] text-silt">number of sensors · top-3 hit rate on 40 validation seeds</div>
+      <div className="mt-0.5 text-center text-[0.8rem] text-silt">number of sensors · top-3 hit rate on 40 validation seeds</div>
     </div>
   );
 }
@@ -261,7 +261,7 @@ function CurveTable({ curve, k }: { curve: CurvePoint[]; k: number }) {
   return (
     <div className="max-h-56 overflow-auto rounded-xl ring-1 ring-ink-700">
       <table className="w-full text-[0.8rem]">
-        <thead className="sticky top-0 bg-ink-800 text-left text-[0.66rem] uppercase tracking-wider text-silt">
+        <thead className="sticky top-0 bg-ink-800 text-left text-[0.8rem] uppercase tracking-wider text-silt">
           <tr>
             <th className="px-2.5 py-2">k</th>
             <th className="px-2 py-2 text-right">Greedy top-1</th>

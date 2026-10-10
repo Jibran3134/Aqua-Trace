@@ -24,7 +24,7 @@ export function NodeTooltip({ project }: { project: (id: string) => { x: number;
     >
       <div className="flex items-center justify-between gap-3">
         <span className="num font-bold text-limestone">{node.id}</span>
-        <span className="text-[0.7rem] capitalize text-silt">{isSensor ? "sensor · junction" : node.type}</span>
+        <span className="text-[0.8rem] capitalize text-silt">{isSensor ? "sensor · junction" : node.type}</span>
       </div>
       {isSensor && scenario && (
         <div className="mt-1 flex items-baseline justify-between gap-3">

@@ -9,6 +9,8 @@ interface ImportMetaEnv {
   readonly VITE_MOCK_SIGNATURES_MS?: string;
   /** JSON array of demo presets [{id,label,story,seed,size,noise,k}] verified on the target backend. */
   readonly VITE_DEMO_SEEDS?: string;
+  /** "cytoscape" forces the fallback map engine; default is deck.gl (when WebGL is available). */
+  readonly VITE_MAP_ENGINE?: string;
 }
 
 interface ImportMeta {

@@ -9,7 +9,8 @@ aquatrace/
   contracts/api.md   # endpoint shapes — the source of truth (v1.1)
   mocks/*.json       # sample responses generated from the in-browser mock engine
   backend/           # FastAPI + WNTR (owned by the backend team)
-  frontend/          # React 19 + Vite + TS + Tailwind v4 + Cytoscape + react-three-fiber
+  frontend/          # React 19 + Vite + TS + Tailwind v4 + deck.gl + react-three-fiber
+  docs/              # UI/UX refinement plan
 ```
 
 ## Run the frontend (3 commands)
@@ -39,7 +40,9 @@ If the backend is unreachable the UI says so, shows the command to start it, and
 
 ## The demo
 
-Open the app → 3D intro → **Enter** → console (`#/console`). Pick a scenario in the top bar:
+Open the app → 3-beat intro (→ to advance) → **Enter** → the camera dives into the console map.
+For the pitch, press **F** for **Present mode**: full-screen map, chapter rail, captions and one big
+number per step; the → key (or a clicker) drives the whole story. Pick a scenario first:
 
 | Preset | Story |
 |---|---|
@@ -50,7 +53,8 @@ Open the app → 3D intro → **Enter** → console (`#/console`). Pick a scenar
 The **Next** chip on the map always offers the next step. Presenter shortcuts (press `?`):
 
 `S` simulate · `D` detect · `A` add recommended sensor · `I` investigate · `C` send simulated crew ·
-`V` reveal · `P` report · `R` reset map · `1–5` tabs
+`V` reveal · `P` report · `R` reset map · `1–5` tabs · `F` Present mode · `T` projector theme ·
+`M` sound cues (off by default)
 
 Demo seeds are verified on the **mock**. Once the backend is up, re-verify and override without
 code changes: `VITE_DEMO_SEEDS=[{"id":"A","label":"Demo A","story":"…","seed":123,"size":"medium","noise":"mid","k":6}]`.
@@ -66,6 +70,23 @@ code changes: `VITE_DEMO_SEEDS=[{"id":"A","label":"Demo A","story":"…","seed":
 | Repairs | S2+S3 | Backlog of crew-confirmed leaks, knapsack repair plan within a PKR budget, payback |
 
 Plus the one-page **investigation report** (S5): assembled only from tool outputs, printable to PDF.
+
+**The map** (deck.gl, offline): terrain and contours computed from Net3 elevations, pipes drawn at
+their real diameter, illustrative flow particles, and the **search cloud**: relative scores diffused
+along the pipes, which visibly moves and collapses as crews report. The "search area" chip shows the
+km of pipe still to walk. Without WebGL, or with `VITE_MAP_ENGINE=cytoscape`, the app falls back to
+the 2D Cytoscape map automatically.
+
+**Projector theme** (`T`): a high-contrast light theme for washed-out hall projectors; chart colours
+validated for colour-blind readers on both themes.
+
+Verified: 60 fps on integrated graphics (Intel UHD), full demo offline, with reduced motion, and with
+WebGL disabled.
+
+## Credits
+
+Intro photo: Jacob Vathikulam, [Unsplash](https://unsplash.com/photos/a-large-pipe-is-coming-out-of-the-water-YzZuCdBQ4Jg)
+(Unsplash License), re-encoded and duotoned. Everything else (terrain, icons, sounds) is generated.
 
 ## Honesty rules baked into the UI
 

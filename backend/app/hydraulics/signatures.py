@@ -26,6 +26,7 @@ from app.core.config import (
     Settings,
 )
 from app.core.errors import DomainError
+from app.hydraulics.fingerprint import NETWORK_HASH_POLICY, canonical_network_sha256
 from app.hydraulics.service import HydraulicService, SimulationError
 
 
@@ -73,7 +74,8 @@ class SignatureLibrary:
         physical_config = {
             "format": self.FORMAT_VERSION, "wntr": wntr.__version__,
             "numpy": np.__version__, "scipy": scipy.__version__,
-            "network_sha256": hashlib.sha256(self.settings.net_file.read_bytes()).hexdigest(),
+            "network_sha256": canonical_network_sha256(self.settings.net_file),
+            "network_hash_policy": NETWORK_HASH_POLICY,
             "reference_size": "medium", "areas": LEAK_AREAS_M2,
             "discharge": DISCHARGE_COEFF, "demand_model": "PDD",
             "required_pressure": REQUIRED_PRESSURE_M, "minimum_pressure": MINIMUM_PRESSURE_M,

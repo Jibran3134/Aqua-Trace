@@ -1,5 +1,6 @@
 import { BarChart3, Bot, Lock, MapPin, Radio, Wrench } from "lucide-react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { dur, ease } from "../../ui/motion";
 import type { ReactNode } from "react";
 import { useStore, type TabId } from "../../state/store";
 import { cn } from "../../ui/primitives";
@@ -8,6 +9,7 @@ import { CandidatesTab } from "../candidates/CandidatesTab";
 import { EvaluationTab } from "../evaluation/EvaluationTab";
 import { RepairsTab } from "../repairs/RepairsTab";
 import { SensorsTab } from "../sensors/SensorsTab";
+import { StatusLine } from "./StatusLine";
 
 
 const TABS: { id: TabId; label: string; icon: ReactNode; ready: boolean; stage?: string }[] = [
@@ -24,6 +26,7 @@ export function SidePanel() {
   const active = TABS.find((t) => t.id === tab)!;
   return (
     <aside className="flex h-full min-h-0 flex-col overflow-hidden rounded-2xl border border-ink-600/70 bg-gradient-to-b from-ink-850/95 to-ink-900/95 shadow-lift">
+      <StatusLine />
       <nav role="tablist" className="flex shrink-0 gap-1 border-b border-ink-700 p-1.5">
         {TABS.map((t) => (
           <button
@@ -52,12 +55,23 @@ export function SidePanel() {
         ))}
       </nav>
       <div className="min-h-0 flex-1 overflow-y-auto p-4">
-        {tab === "candidates" && <CandidatesTab />}
-        {tab === "agent" && <AgentTab />}
-        {tab === "evaluation" && <EvaluationTab />}
-        {tab === "sensors" && <SensorsTab />}
-        {tab === "repairs" && <RepairsTab />}
-        {!active.ready && <ComingSoon label={active.label} stage={active.stage!} />}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={tab}
+            className="min-h-full"
+            initial={{ opacity: 0, x: 8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -6 }}
+            transition={{ duration: dur.ui, ease: ease.out }}
+          >
+            {tab === "candidates" && <CandidatesTab />}
+            {tab === "agent" && <AgentTab />}
+            {tab === "evaluation" && <EvaluationTab />}
+            {tab === "sensors" && <SensorsTab />}
+            {tab === "repairs" && <RepairsTab />}
+            {!active.ready && <ComingSoon label={active.label} stage={active.stage!} />}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </aside>
   );

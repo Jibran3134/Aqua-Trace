@@ -3,6 +3,7 @@ import networkx as nx
 from fastapi import APIRouter, Request
 
 from app.api.cache import cached_dto
+from app.api.dependencies import require_compatible_scenario
 from app.db.repository import ScenarioRepository
 from app.schemas.api import DetectionResponse, RevealResponse, ScenarioRequest
 
@@ -16,6 +17,7 @@ def detect(body: ScenarioRequest, request: Request) -> DetectionResponse:
     runtime.signatures.ensure_ready()
     with runtime.database.sessions() as session:
         state = ScenarioRepository(session).load(body.scenario_id)
+    require_compatible_scenario(runtime, state)
     # No database lock is held across numerical calculation.
     if not state.weights:
         result = runtime.detector.analyze(state.observation)
@@ -37,6 +39,7 @@ def reveal(scenario_id: str, request: Request) -> RevealResponse:
     with runtime.database.sessions() as session:
         repository = ScenarioRepository(session)
         state = repository.load(scenario_id)
+        require_compatible_scenario(runtime, state)
         truth = repository.reveal(scenario_id)
     detection = runtime.detector.analyze(state.observation, state.weights)
     ranking = sorted(detection.weights, key=lambda node: (-round(detection.weights[node], 12), node))

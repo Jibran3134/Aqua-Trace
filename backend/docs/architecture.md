@@ -25,5 +25,10 @@ Provider calls use state snapshots without database locks. History writes use
 expected revisions; a simultaneous crew change returns retryable 409. Duplicate
 reports never shrink weights twice. No authentication or multi-tenancy is added.
 
+Observations carry internal hydraulic and detector fingerprints in their JSONB
+record. API reads reject incompatible or unversioned legacy scenarios with 409
+and a new-scenario hint. A Redis cache miss cannot repair an obsolete persisted
+ranking; unchanged application restarts continue reading compatible scenarios.
+
 This is synthetic, single-leak, steady-state localization on a benchmark network.
 It does not claim live telemetry, real driving routes or field accuracy.

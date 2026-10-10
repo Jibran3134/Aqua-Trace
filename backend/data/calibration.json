@@ -1,6 +1,6 @@
 {
   "network": "Net3",
-  "network_sha256": "ea3e825c4fef0b5cba47fb06301bc85253f18b6364dc96c44d9fb492c40faa52",
+  "network_sha256": "54987a3d342706ecebf2d951d36f125b4263ea8bb291e5d4201cb901999ecc9e",
   "wntr": "1.5.0",
   "seed": 2026,
   "time_step": "t0",
@@ -929,5 +929,6 @@
         }
       ]
     }
-  ]
+  ],
+  "network_hash_policy": "sha256-lf-v1"
 }

@@ -2,13 +2,27 @@ import { CloudOff, Hourglass, RotateCcw } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useCallback, useEffect } from "react";
 import { TopBar } from "../features/controls/TopBar";
+import { DeckMap } from "../features/map/DeckMap";
 import { NetworkCanvas } from "../features/network/NetworkCanvas";
 import { HelpSheet, NextStepChip, usePresenterKeys } from "../features/presenter/Presenter";
+import { PresentMode } from "../features/present/PresentMode";
+import { useSoundCues } from "../features/presenter/useSoundCues";
 import { InvestigationReport } from "../features/report/InvestigationReport";
 import { SidePanel } from "../features/panel/SidePanel";
 import { useStore } from "../state/store";
 import { ErrorBoundary } from "../ui/ErrorBoundary";
 import { Button, Panel, Spinner } from "../ui/primitives";
+
+/** deck.gl by default; Cytoscape when asked (VITE_MAP_ENGINE=cytoscape) or when WebGL is missing. */
+const USE_DECK = (() => {
+  if (import.meta.env.VITE_MAP_ENGINE === "cytoscape") return false;
+  try {
+    const c = document.createElement("canvas");
+    return !!(c.getContext("webgl2") || c.getContext("webgl"));
+  } catch {
+    return false;
+  }
+})();
 
 export function ConsolePage() {
   const network = useStore((s) => s.network);
@@ -17,10 +31,13 @@ export function ConsolePage() {
   const loadNetwork = useStore((s) => s.loadNetwork);
   const pollHealth = useStore((s) => s.pollHealth);
   const helpOpen = useStore((s) => s.helpOpen);
+  const theme = useStore((s) => s.theme);
+  const present = useStore((s) => s.present);
   const setHelp = useStore((s) => s.setHelp);
   const toggleHelp = useCallback(() => setHelp(!useStore.getState().helpOpen), [setHelp]);
   const closeHelp = useCallback(() => setHelp(false), [setHelp]);
   usePresenterKeys(toggleHelp);
+  useSoundCues();
 
   useEffect(() => {
     void loadNetwork();
@@ -39,7 +56,7 @@ export function ConsolePage() {
     <div className="relative flex h-full flex-col overflow-hidden">
       <div className="aquifer-bg" />
       <div className="aquifer-grain" />
-      <TopBar />
+      {!present && <TopBar />}
 
       <AnimatePresence>
         {building && (
@@ -63,12 +80,17 @@ export function ConsolePage() {
         )}
       </AnimatePresence>
 
-      <main className="relative z-10 grid min-h-0 flex-1 grid-cols-[minmax(0,65fr)_minmax(0,35fr)] gap-3 p-3">
+      {/* Keyed by theme: canvas/SVG colors are computed in JS, so a theme switch remounts them. */}
+      <main
+        key={theme}
+        className={`relative z-10 grid min-h-0 flex-1 gap-3 ${present ? "grid-cols-[minmax(0,1fr)] p-0" : "grid-cols-[minmax(0,65fr)_minmax(0,35fr)] p-3"}`}
+      >
         <section className="relative min-h-0">
           {network ? (
             <ErrorBoundary area="map">
-              <NetworkCanvas />
-              <NextStepChip />
+              {USE_DECK ? <DeckMap /> : <NetworkCanvas />}
+              {!present && <NextStepChip />}
+              <PresentMode />
             </ErrorBoundary>
           ) : networkError ? (
             <div className="grid h-full place-items-center">
@@ -90,7 +112,7 @@ export function ConsolePage() {
             </div>
           )}
         </section>
-        <section className="min-h-0">
+        <section className={present ? "hidden" : "min-h-0"}>
           <ErrorBoundary area="panel">
             <SidePanel />
           </ErrorBoundary>

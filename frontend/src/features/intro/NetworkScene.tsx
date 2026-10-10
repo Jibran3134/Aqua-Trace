@@ -1,4 +1,4 @@
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useLayoutEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { rng } from "../../lib/rng";
@@ -139,20 +139,86 @@ function LeakPulse({ at }: { at: THREE.Vector3 }) {
   );
 }
 
-function Rig({ still, children }: { still: boolean; children: React.ReactNode }) {
+function Rig({ still, dive, children }: { still: boolean; dive: boolean; children: React.ReactNode }) {
   const group = useRef<THREE.Group>(null);
   useFrame(({ pointer, clock }, dt) => {
-    if (!group.current) return;
-    if (!still) group.current.rotation.y += dt * 0.07;
+    const g = group.current;
+    if (!g) return;
+    if (dive) {
+      // Unwind to the 2D map's orientation: no spin, no tilt, no bob.
+      const target = Math.round(g.rotation.y / (Math.PI * 2)) * Math.PI * 2;
+      g.rotation.y += (target - g.rotation.y) * Math.min(1, dt * 4);
+      g.rotation.x += -g.rotation.x * Math.min(1, dt * 4);
+      g.position.y += -g.position.y * Math.min(1, dt * 4);
+      return;
+    }
+    if (!still) g.rotation.y += dt * 0.07;
     // Gentle pointer parallax: the scene leans toward the cursor.
     const tx = still ? 0 : pointer.y * 0.12;
-    group.current.rotation.x += (tx - group.current.rotation.x) * 0.05;
-    group.current.position.y = still ? 0 : Math.sin(clock.elapsedTime * 0.6) * 0.08;
+    g.rotation.x += (tx - g.rotation.x) * 0.05;
+    g.position.y = still ? 0 : Math.sin(clock.elapsedTime * 0.6) * 0.08;
   });
   return <group ref={group}>{children}</group>;
 }
 
-export default function NetworkScene({ still }: { still: boolean }) {
+/** Slides the scene from its right-of-headline offset back to centre during the dive. */
+function Offset({ dive, children }: { dive: boolean; children: React.ReactNode }) {
+  const g = useRef<THREE.Group>(null);
+  useFrame((_, dt) => {
+    if (!g.current) return;
+    const target = dive ? 0 : 3.4;
+    g.current.position.x += (target - g.current.position.x) * Math.min(1, dt * 3.5);
+  });
+  return (
+    <group ref={g} position={[3.4, 0, 0]}>
+      {children}
+    </group>
+  );
+}
+
+/** Camera move from the oblique hero shot to straight top-down: the same framing as the 2D map. */
+function CameraDive({ dive }: { dive: boolean }) {
+  const { camera } = useThree();
+  const look = useRef(new THREE.Vector3(0, -1.2, 0));
+  useFrame((_, dt) => {
+    if (!dive) return;
+    const k = Math.min(1, dt * 3.2);
+    camera.position.lerp(new THREE.Vector3(0, 19, 0.01), k);
+    camera.up.lerp(new THREE.Vector3(0, 0, -1), k);
+    camera.lookAt(look.current);
+  });
+  return null;
+}
+
+/** The six default pressure sensors, lit one by one in the "approach" beat (decorative). */
+const SENSOR_IDS = ["60", "15", "35", "10", "50", "219"];
+function Sensors({ nodes, on }: { nodes: Placed[]; on: boolean }) {
+  const refs = useRef<(THREE.Mesh | null)[]>([]);
+  const start = useRef<number | null>(null);
+  const placed = useMemo(() => SENSOR_IDS.map((id) => nodes.find((n) => n.id === id)?.p).filter(Boolean) as THREE.Vector3[], [nodes]);
+  useFrame(({ clock }) => {
+    if (on && start.current === null) start.current = clock.elapsedTime;
+    if (!on) start.current = null;
+    refs.current.forEach((m, i) => {
+      if (!m) return;
+      const t = start.current === null ? -1 : clock.elapsedTime - start.current - i * 0.35;
+      const s = t < 0 ? 0.001 : Math.min(1, t * 3) * (1 + 0.12 * Math.sin(clock.elapsedTime * 3 + i));
+      m.scale.setScalar(s);
+    });
+  });
+  return (
+    <>
+      {placed.map((p, i) => (
+        <mesh key={i} ref={(el) => void (refs.current[i] = el)} position={[p.x, p.y + 0.35, p.z]} scale={0.001}>
+          <octahedronGeometry args={[0.2, 0]} />
+          <meshStandardMaterial color="#d4f26a" emissive="#d4f26a" emissiveIntensity={1.4} />
+        </mesh>
+      ))}
+    </>
+  );
+}
+
+export default function NetworkScene({ still, beat = 2, dive = false }: { still: boolean; beat?: number; dive?: boolean }) {
   const { nodes, pipes } = usePlacedNetwork();
   // Decorative pulse at the junction nearest the network's centre: always in frame, never a scenario's truth.
   const leak = useMemo(() => {
@@ -167,18 +233,20 @@ export default function NetworkScene({ still }: { still: boolean }) {
       <ambientLight intensity={0.35} />
       <directionalLight position={[6, 12, 4]} intensity={1.1} color="#e8e2d0" />
       <directionalLight position={[-8, 4, -6]} intensity={0.5} color="#b48cff" />
-      {/* Offset right so the headline column on the left stays clean. */}
-      <group position={[3.4, 0, 0]}>
-      <Rig still={still}>
-        <group position={[0, -1.2, 0]}>
-          <Pipes pipes={pipes} />
-          <Junctions nodes={nodes} />
-          <Sources nodes={nodes} />
-          <LeakPulse at={leak} />
-          <gridHelper args={[24, 24, "#1b3639", "#10262b"]} position={[0, -0.05, 0]} />
-        </group>
-      </Rig>
-      </group>
+      <CameraDive dive={dive} />
+      {/* Offset right so the headline column on the left stays clean; recentres on the dive. */}
+      <Offset dive={dive}>
+        <Rig still={still} dive={dive}>
+          <group position={[0, -1.2, 0]}>
+            <Pipes pipes={pipes} />
+            <Junctions nodes={nodes} />
+            <Sources nodes={nodes} />
+            <Sensors nodes={nodes} on={beat >= 1} />
+            {beat >= 2 && <LeakPulse at={leak} />}
+            <gridHelper args={[24, 24, "#1b3639", "#10262b"]} position={[0, -0.05, 0]} />
+          </group>
+        </Rig>
+      </Offset>
     </Canvas>
   );
 }

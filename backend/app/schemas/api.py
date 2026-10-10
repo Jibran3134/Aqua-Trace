@@ -28,6 +28,7 @@ class HealthResponse(DTO):
     status: Literal["ok", "degraded"]
     signatures_ready: bool
     signatures_progress: float = 0
+    progress: Annotated[FiniteFloat, Field(ge=0, le=1)] = 0
     database: Literal["ok", "unavailable"]
     redis: Literal["ok", "unavailable"]
 
@@ -45,6 +46,12 @@ class NetworkPipe(DTO):
     to: NodeId
     length: Annotated[FiniteFloat, Field(ge=0)]
     type: Literal["pipe", "pump", "valve"] = "pipe"
+    kind: Literal["pipe", "pump", "valve"] | None = None
+
+    @model_validator(mode="after")
+    def link_kind(self):
+        self.kind = self.type if self.kind is None else self.kind
+        return self
 
 
 class NetworkResponse(DTO):
@@ -74,6 +81,7 @@ class LeakRequest(DTO):
 class ScenarioMeta(DTO):
     time_step: Literal["t0"] = "t0"
     noise_sigma: FiniteFloat
+    noise_level: Noise = "mid"
     demand_mult_known: Literal[False] = False
     provenance: dict[str, str] = Field(default_factory=lambda: {
         "readings": "simulated: hydraulic pressure in metres with synthetic sensor noise",
@@ -139,6 +147,8 @@ class AgentResponse(DTO):
     route: list[NodeId] | None = None
     state: Literal["investigating", "resolved", "abstained"]
     recommended_sensor: NodeId | None = None
+    route_length_m: Annotated[FiniteFloat, Field(ge=0)] = 0
+    inspections_used: Annotated[int, Field(ge=0)] = 0
 
 
 class FieldRequest(ScenarioRequest):
@@ -166,6 +176,7 @@ class RevealResponse(DTO):
 
 class PlacementRequest(DTO):
     k: Annotated[int, Field(ge=1, le=12, strict=True)]
+    noise: Noise = "mid"
 
 
 class AccuracyPoint(DTO):
@@ -188,6 +199,7 @@ class RepairCandidate(DTO):
 
 class RepairRequest(DTO):
     budget_pkr: Annotated[FiniteFloat, Field(ge=0, le=1e9, strict=True)]
+    value_per_litre_pkr: Annotated[FiniteFloat, Field(gt=0, le=1e6, strict=True)] = .05
     candidates: Annotated[list[RepairCandidate], Field(max_length=50)]
 
     @model_validator(mode="after")
@@ -198,18 +210,20 @@ class RepairRequest(DTO):
 
 
 class RepairSelection(DTO):
-    nodes: list[NodeId]
+    selected: list[dict[str, Any]]
     total_cost_pkr: FiniteFloat
-    litres_per_day: FiniteFloat
+    litres_per_day_saved: FiniteFloat
 
 
 class RepairResponse(DTO):
-    selected: RepairSelection
-    greedy: RepairSelection
-    budget_pkr: FiniteFloat
-    defaulted_cost_nodes: list[NodeId]
+    selected: list[dict[str, Any]]
+    total_cost_pkr: FiniteFloat
+    litres_per_day_saved: FiniteFloat
+    value_pkr_per_day: FiniteFloat
+    payback_days: FiniteFloat | None
+    greedy: dict[str, Any]
     assumptions: dict[str, Any]
-    note: str = "Assumes independent leaks; savings are simulated estimates."
+    note: str
 
 
 class EvaluationResponse(DTO):

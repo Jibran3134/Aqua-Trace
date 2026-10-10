@@ -13,12 +13,16 @@
     "calibrate": "tsx scripts/calibrate.ts"
   },
   "dependencies": {
+    "@deck.gl/core": "^9.4.0",
+    "@deck.gl/layers": "^9.4.0",
+    "@deck.gl/react": "^9.4.0",
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
     "@fontsource-variable/instrument-sans": "^5.3.0",
     "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@react-three/fiber": "^9.8.1",
     "clsx": "^2.1.1",
     "cytoscape": "^3.34.3",
+    "d3-contour": "^4.0.2",
     "lucide-react": "^1.55.0",
     "motion": "^14.1.0",
     "react": "^19.2.8",
@@ -30,6 +34,7 @@
   "devDependencies": {
     "@tailwindcss/vite": "^4.3.3",
     "@types/cytoscape": "^3.21.9",
+    "@types/d3-contour": "^3.0.6",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.7",

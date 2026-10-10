@@ -10,7 +10,7 @@ export function ReadingsTable() {
   return (
     <div className="overflow-hidden rounded-xl ring-1 ring-ink-700">
       <table className="w-full text-[0.85rem]">
-        <thead className="bg-ink-800/80 text-left text-[0.7rem] uppercase tracking-wider text-silt">
+        <thead className="bg-ink-800/80 text-left text-[0.8rem] uppercase tracking-wider text-silt">
           <tr>
             <th className="px-3 py-2 font-semibold">Sensor</th>
             <th className="px-3 py-2 text-right font-semibold">
